@@ -27,14 +27,21 @@ namespace TurtleSim2000_Linux
 
         public bool bDrawMe = false;   // Draw this chara or not.
         public bool bMoveMe = false;   // true when this char is set to be moved on screen.
+        public bool bTransMe = false;  // true when this char needs to be transitioned to another char.
 
         // Vars for moving:
         public int moveAmount = 0;      // How far this char needs to be moved.
         public int moveSpeed = 2;       // How fast this char will move
         public string moveDirection;           // What direction this char is moving
 
+        // Vars for showing:
         string currentPose = "missing";  // Which pose this char is currently in
+        string oldPose = "missing";      // Old pose before changed to new.  Used for transitions.
         string missingPose = "missing";  // What to draw if the pose isn't findable.
+
+        // Vars for showing:transitions:
+        public float transAlphaNew = 0;
+        public float transAlphaOld = 0;
 
 
         /// <summary>
@@ -79,12 +86,13 @@ namespace TurtleSim2000_Linux
             {
                 if (newPose == charaPoses[i])
                 {
+                    oldPose = currentPose;
                     currentPose = newPose;
                     return currentPose;
                 }
             }
             // If pose wasn't found.  Set it to the MissingPose slate
-            currentPose = "missing";
+            currentPose = missingPose;
             Console.WriteLine("The pose: " + newPose + ". Does not exist for chara: " + charaName);
             return currentPose;
         }
@@ -142,12 +150,21 @@ namespace TurtleSim2000_Linux
         }
 
         /// <summary>
-        /// Gets the current pose texture from chara
+        /// Gets the current pose texture from chara (True for new pose texture.  False for old texture)
         /// </summary>
         /// <returns> texture</returns>
-        public Texture2D getTexture()
+        public Texture2D getTexture(bool bNewTex = true)
         {
-            string currentTex = charaName + "/" + currentPose;
+            string currentTex;
+
+            if (bNewTex)
+            {
+                currentTex = charaName + "/" + currentPose;
+            }
+            else
+            {
+                currentTex = charaName + "/" + oldPose;
+            }
             Texture2D poseTexture = contentManager.Load<Texture2D>("assets/chara/" + currentTex + "");
 
             // get width and heighth of texture for correct chara drawing
@@ -192,6 +209,8 @@ namespace TurtleSim2000_Linux
 
             // Missing pose replace: what to draw if the pose specified couldn't be found.
             if (settingsList[3].Length > 0) missingPose = settingsList[3];
+            currentPose = missingPose;
+            oldPose = missingPose;
 
             Console.WriteLine("  +" + charaName + " Has a settings.chara. X:" + charaPos.X + " Y:" + charaPos.Y + " " + settingsList[3].Length);
         }

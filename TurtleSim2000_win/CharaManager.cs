@@ -107,6 +107,7 @@ namespace TurtleSim2000_Linux
         public void Update()
         {
             moveChara();
+            transChara();
         }
 
         
@@ -120,7 +121,13 @@ namespace TurtleSim2000_Linux
                 {
                     if (charaArray[currentChar].bDrawMe)        // Sees if this chara wants to be drawn.
                     {
-                        sb.Draw(charaArray[currentChar].getTexture(), charaArray[currentChar].charaPos, Color.White);
+                        // If transitioning, draw old pose as we draw and fade in the new one.
+                        if (charaArray[currentChar].bTransMe)
+                        {
+                            sb.Draw(charaArray[currentChar].getTexture(false), charaArray[currentChar].charaPos, Color.White);
+                        }
+
+                        sb.Draw(charaArray[currentChar].getTexture(), charaArray[currentChar].charaPos, Color.White * charaArray[i].transAlphaNew);
                     }
                 }
             }
@@ -139,7 +146,8 @@ namespace TurtleSim2000_Linux
             // See if this chara is already drawn to screen
             if (charaArray[cID].bDrawMe == false)
             {
-                charaArray[cID].bDrawMe = true;
+                
+                // setup char's pose and draw order.
                 charaArray[cID].setPose(pose);
                 charaArray[cID].setDrawOrder(drawnCharas + 1);
                 drawnCharas++;
@@ -154,15 +162,32 @@ namespace TurtleSim2000_Linux
                         i = MAX_LAYERS;
                     }
                 }
+                // Transition it in:
+                charaArray[cID].bTransMe = true;
+
+                // Set that this char is ready to be drawn.
+                charaArray[cID].bDrawMe = true;
             }
             // if the chara is already drawn.
             else
             {
                 charaArray[cID].setPose(pose);
+                charaArray[cID].transAlphaNew = 0;
+                charaArray[cID].bTransMe = true;
             }
+
+            // Output this to console
+            Console.WriteLine("cMan: Showing " + charaArray[cID].getName() + " with pose: " + pose);
 
         }
 
+        /// <summary>
+        /// Moves the chara in a specific direction for an x amount of pixels.
+        /// </summary>
+        /// <param name="chara">Chara name to move.</param>
+        /// <param name="direction">What direction to move the char. up down left right</param>
+        /// <param name="speed">speed of which how fast to move said char.</param>
+        /// <param name="pixels">amount of pixels to move the char.</param>
         public void Move(string chara, string direction, int speed, int pixels = 0)
         {
             int id = getCharaID(chara);
@@ -201,6 +226,22 @@ namespace TurtleSim2000_Linux
                     {
                         charaArray[i].bMoveMe = false;
                         charaArray[i].moveAmount = 0;
+                    }
+                }
+            }
+        }
+
+        private void transChara()
+        {
+            for (int i = 0; i < MAX_LAYERS; i++)
+            {
+                if (charaArray[i].bTransMe)
+                {
+                    charaArray[i].transAlphaNew += 0.05f;
+                    if (charaArray[i].transAlphaNew >= 1.0f)
+                    {
+                        charaArray[i].bTransMe = false;
+                        
                     }
                 }
             }

@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 56) v0.56 BETA";
-        string newthings = "BETA v0.56 changes: \n+Full Screen Mode (progress) \n+Ported to Monogame (Linux/Android) \n+New Chara managment (progress)";
+        String GameInfo = "TurtleSim 2000 (Build 57) v0.56 BETA";
+        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+Refactored old chara controls out \n+Cleaned up old legacy code.";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -53,9 +53,6 @@ namespace TurtleSim2000_Linux
         Texture2D bg_dorm;               //Background: Player's Dorm Room
         Texture2D bg_forest;             //Background: Forest (walking area)
         Texture2D bg_gate;               //Background: School Front Gate
-
-        // Backgroud chara super scene
-        Texture2D scene_emi_naked;       // Yes; emi naked.
 
         //Chara
         CharaManager charaManager;           // NEWEST WAY OF DEALING WITH EVERYTHING TO DO WITH CHARA!
@@ -386,97 +383,6 @@ namespace TurtleSim2000_Linux
             }
             #endregion
 
-            #region Chara Mover
-            //charamover logic
-            // Speed of which the chara moves
-            int modSpeed = 4;
-
-            for (int i = 0; i < 5; i++)
-            {
-                if (bListMoveChar[i] == true || bListMoveChar[i] == true && reRunAfterWait == true)
-                {
-                    // Setup charamove speed:
-                    if (listCharaMoveSpeed[i] == 1) modSpeed = 2;
-                    if (listCharaMoveSpeed[i] == 2) modSpeed = 4;
-                    if (listCharaMoveSpeed[i] == 3) modSpeed = 6;
-                    if (listCharaMoveSpeed[i] == 4) modSpeed = 8;
-                    if (listCharaMoveSpeed[i] == 5) modSpeed = 10;
-                    else modSpeed = 4;
-
-                    if (frames >= 0)
-                    {
-                        if (listCharadir[i] == "right")
-                        {
-                            if (listCharamove[i] < 180) listCharamove[i] += modSpeed;
-                            if (listCharamove[i] > 180) listCharamove[i] -= modSpeed;
-                            if (listCharamove[i] == 180) bListMoveChar[i] = false;
-                        }
-                        if (listCharadir[i] == "left")
-                        {
-                            if (listCharamove[i] > -160) listCharamove[i] -= modSpeed;
-                            if (listCharamove[i] < -160) listCharamove[i] += modSpeed;
-                            if (listCharamove[i] == -160)
-                            {
-                                bListMoveChar[i] = false;
-                                listCharadir[i] = "";
-                            }
-                        }
-                        if (listCharadir[i] == "farleft")
-                        {
-                            if (listCharamove[i] > -220) listCharamove[i] -= modSpeed;
-                            if (listCharamove[i] < -220) listCharamove[i] += modSpeed;
-                            if (listCharamove[i] == -220)
-                            {
-                                bListMoveChar[i] = false;
-                                listCharadir[i] = "";
-                            }
-                        }
-                        if (listCharadir[i] == "center")
-                        {
-                            if (listCharamove[i] < 0) listCharamove[i] += modSpeed;
-                            if (listCharamove[i] > 0) listCharamove[i] -= modSpeed;
-                            if (listCharamove[i] == 0) bListMoveChar[i] = false;
-                        }
-                        if (listCharadir[i] == "down")
-                        {
-                            if (listCharamoveVert[i] < 80) listCharamoveVert[i] += modSpeed;
-                            if (listCharamoveVert[i] == 80) bListMoveChar[i] = false;
-                        }
-                        if (listCharadir[i] == "up")
-                        {
-                            if (listCharamoveVert[i] > 0) listCharamoveVert[i] -= modSpeed;
-                            if (listCharamoveVert[i] < 0)
-                            {
-                                listCharamoveVert[i] = 0;
-                                bListMoveChar[i] = false;
-                            }
-                        }
-                        if (listCharadir[i] == "farright")
-                        {
-                            if (listCharamove[i] < 300) listCharamove[i] += modSpeed;
-                            if (listCharamove[i] > 300) listCharamove[i] -= modSpeed;
-                            if (listCharamove[i] == 300) bListMoveChar[i] = false;
-                        }
-                        if (listCharadir[i] == "offright")
-                        {
-                            if (listCharamove[i] < 600) listCharamove[i] += modSpeed + 2;
-                            if (listCharamove[i] > 600) listCharamove[i] -= modSpeed + 2;
-                            if (listCharamove[i] == 600)
-                            {
-                                bListMoveChar[i] = false;
-                                listCharadir[i] = "";
-                            }
-                        }
-                        if (listCharadir[i] == "offleft")
-                        {
-                            if (listCharamove[i] > -600) listCharamove[i] -= modSpeed + 2;
-                            else bListMoveChar[i] = false;
-                        }
-                    }
-                }
-            }
-            #endregion
-
             #region Parallax Effect (Background)
             // Background Scrolling (Parallax)
             if (bgScroller != 0)
@@ -666,8 +572,8 @@ namespace TurtleSim2000_Linux
                 int btnHeight = Convert.ToInt32(screenModY * 40);
                 int btnX = Convert.ToInt32(screenModX * 320);
 
-                Rectangle button1 = new Rectangle(btnX, Convert.ToInt32(280 * screenModY), btnWidth, btnHeight);       //Start button
-                Rectangle button2 = new Rectangle(btnX, Convert.ToInt32(200 * screenModY), btnWidth, btnHeight);       //Quit button
+                Rectangle button1 = new Rectangle(btnX, 280, btnWidth, btnHeight);       //Start button
+                Rectangle button2 = new Rectangle(btnX, 200, btnWidth, btnHeight);       //Quit button
                 Rectangle button3 = new Rectangle(280, 20, 164, 164);                   //hidden debug button
 
                 if (bClicked == true || bAuthorMode == true)
@@ -741,42 +647,9 @@ namespace TurtleSim2000_Linux
 
             #endregion
 
-            #region Chara Manager
-            for (int i = 0; i < 5; i++)
-            {
-                if (listChara[i] != null && bWait == false || listChara[i] != null && reRunAfterWait == true)
-                {
-                    listCharaManager[i] = Content.Load<Texture2D>("assets/chara/" + listChara[i] + "");
-                    bHud = false;
-
-                    if (bAlphaList[i] == true && listChAlpha[i] >= 1f)
-                    {
-                        listChAlpha[i] = .1f;
-                    }
-                }
-            }
-            #endregion
-
             #region Chara Speech Color/Name
 
 
-            #endregion
-
-            #region Alpha Blending Effect(Chara)
-            //CharaAlpha Blending (for transitions)
-            for (int i = 0; i < 5; i++)
-            {
-                if (bAlphaList[i])
-                {
-                    listChAlpha[i] += 0.05f;
-
-                    if (listChAlpha[i] >= 1.0f)
-                    {
-                        bAlphaList[i] = false;
-                        listCharaManagerOld[i] = null;
-                    }
-                }
-            }
             #endregion
 
             #region Typewritter Effect
@@ -906,12 +779,8 @@ namespace TurtleSim2000_Linux
             {
                 if (actionmenuscroller == -300)
                 {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        if (bAlphaList[i] == true && listCharaManagerOld[i] != null) spriteBatch.Draw(listCharaManagerOld[i], new Rectangle(200 + listCharamove[i], -120 + listCharamoveVert[i], listCharaManager[i].Width, listCharaManager[i].Height), clr);
-                        if (listChara[i] != null) spriteBatch.Draw(listCharaManager[i], new Rectangle(200 + listCharamove[i], -120 + listCharamoveVert[i], listCharaManager[i].Width, listCharaManager[i].Height), clr * listChAlpha[i]);
-                    }
 
+                    // Draw chara
                     charaManager.Draw(spriteBatch);
 
                     transition.Draw();
@@ -1768,7 +1637,7 @@ namespace TurtleSim2000_Linux
                 while (bReloop == true && MasterScript.Read(scriptreaderx, scriptreadery) != null)
                 {
 
-                    #region Charaevent Family (TSS v2)
+                    #region Charaevent Family (TSS v2.1)
                     // set sliceCom to the params of "charaevent"
                     if (MasterScript.Read(scriptreaderx, scriptreadery).Length >= 10)
                     {
@@ -1779,74 +1648,43 @@ namespace TurtleSim2000_Linux
                         {
                             // Is it Show, Move, or Exit?
                             sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(11, 4);
-                            Console.WriteLine(sliceCom);
+                            //Console.WriteLine(sliceCom);
 
                             // For Show
                             #region Charaevent Show
                             if (sliceCom == "show")
                             {
-                                // TESTING CODE: JUST TO SEE IF SHIT WORKS! :
-                                charaManager.Show("emi", "emicas_happy");
+                                // Needed variables:
+                                string charName;
+                                string charPose;
 
-                                // get which chara slot to use:
-                                sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(16, 1);
-                                Console.WriteLine(sliceCom);
-                                int charaSlot = 1;
-                                try
-                                {
-                                    charaSlot = Convert.ToInt32(sliceCom);
-                                }
-                                catch
-                                {
-                                    // give conversion error
-                                    string scriptHang = MasterScript.Read(scriptreaderx, scriptreadery);
-                                    ErrorReason = "Tried to convert string to integer.  String to convert: " + sliceCom + "\n Whole string: " + scriptHang;
-                                    bError = true;
-                                }
-
-                                // check to see if '=' is present
+                                // Check if Syntax is correct. (check for '=')
                                 if (MasterScript.Read(scriptreaderx, scriptreadery).Length >= 18)
                                 {
-                                    sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(18, 1);
+                                    int qPos = MasterScript.Read(scriptreaderx, scriptreadery).IndexOf('=');
 
                                     // if '=' is present, then read chara pose from same line.
-                                    if (sliceCom == "=")
+                                    if (qPos >= 19)
                                     {
-                                        sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(20);
-                                        if (charaSlot <= 5)
-                                        {
-                                            // Get old chara pose for alpha fading/blending
-                                            if (listCharaManager[charaSlot] != null) listCharaManagerOld[charaSlot] = listCharaManager[charaSlot];
+                                        // Get charName (reletive based on where the = is.
+                                        charName = MasterScript.Read(scriptreaderx, scriptreadery).Substring(16, qPos - 17);
 
-                                            listChara[charaSlot] = sliceCom;
-                                            scriptreadery++;
+                                        // Now to get pose
+                                        charPose = MasterScript.Read(scriptreaderx, scriptreadery).Substring(qPos + 2);
 
-                                            bAlphaList[charaSlot] = true;
-                                        }
-                                        else
-                                        {
-                                            ErrorReason = "There can only be up to six chara on screen at once.";
-                                            bError = true;
-                                        }
+                                        // show the char
+                                        charaManager.Show(charName, charPose);
+
                                     }
                                     else
                                     {
-                                        string scriptname = MasterScript.Read(scriptreaderx, 0);
-                                        string scriptline = MasterScript.Read(scriptreaderx, scriptreadery);
-                                        ErrorReason = "Syntax Error: Missing '='.  Please check your script.\n Script: " + scriptname + " line: " + scriptline;
+                                        ErrorReason = "Incorrect syntax for charaevent show. Line: " + scriptreadery + " in script " + scriptreaderx;
                                         bError = true;
                                     }
                                 }
-                                else
-                                {
-                                    // If '=' is NOT present and no data following; check the next line for chara pose. (legacy support)
-                                    scriptreadery++;
-                                    // Get old chara pose for alpha fading/blending
-                                    if (listCharaManager[charaSlot] != null) listCharaManagerOld[charaSlot] = listCharaManager[charaSlot];
-                                    listChara[charaSlot] = MasterScript.Read(scriptreaderx, scriptreadery);
-                                    scriptreadery++;
-                                    bAlphaList[charaSlot] = true;
-                                }
+
+                                scriptreadery++;
+
                             }
                             #endregion
 
@@ -1854,81 +1692,45 @@ namespace TurtleSim2000_Linux
                             #region Charaevent Move
                             if (sliceCom == "move")
                             {
-                                // get which chara slot to use:
-                                sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(16, 1);
-                                Console.WriteLine(sliceCom);
-                                int charaSlot = 1;
-                                try
-                                {
-                                    charaSlot = Convert.ToInt32(sliceCom);
-                                }
-                                catch
-                                {
-                                    // give conversion error
-                                    string scriptHang = MasterScript.Read(scriptreaderx, scriptreadery);
-                                    ErrorReason = "Tried to convert string to integer.  String to convert: " + sliceCom + "\n Whole string: " + scriptHang;
-                                    bError = true;
-                                }
+                                string charName;
+                                string charDir;
+                                int charAmount = 0;
+                                int charSpeed = 2;
 
                                 // check to see if '=' is present
                                 if (MasterScript.Read(scriptreaderx, scriptreadery).Length >= 18)
                                 {
-                                    sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(18, 1);
+                                    // get location of '=', ',' and '-'
+                                    int qPos = MasterScript.Read(scriptreaderx, scriptreadery).IndexOf('=');
+                                    int cPos = MasterScript.Read(scriptreaderx, scriptreadery).IndexOf(',');
+                                    int dPos = MasterScript.Read(scriptreaderx, scriptreadery).IndexOf('-');
 
                                     // if '=' is present, then read chara pose from same line.
-                                    if (sliceCom == "=")
+                                    if (qPos >= 17)
                                     {
-                                        sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(20);
-                                        if (charaSlot <= 6)
-                                        {
-                                            // First lets check if there is a -s modifier!
-                                            int comLen = sliceCom.Length;
-                                            string smod = sliceCom.Substring(comLen - 2, 1);
+                                        // get charname
+                                        charName = MasterScript.Read(scriptreaderx, scriptreadery).Substring(16, qPos - 17);
 
-                                            if (smod == "-")
-                                            {
-                                                try
-                                                {
-                                                    int modspeed = Convert.ToInt32(sliceCom.Substring(comLen - 1, 1));
-                                                    listCharaMoveSpeed[charaSlot] = modspeed;
-                                                    sliceCom = sliceCom.Substring(0, comLen - 3);
-                                                }
-                                                catch
-                                                {
-                                                    // give conversion error
-                                                    string scriptHang = MasterScript.Read(scriptreaderx, scriptreadery);
-                                                    ErrorReason = "Tried to convert string to integer.  String to convert: " + sliceCom.Substring(comLen - 1, 1) + "\n Whole string: " + scriptHang;
-                                                    bError = true;
-                                                }
-                                            }
+                                        // get charDirection
+                                        charDir = MasterScript.Read(scriptreaderx, scriptreadery).Substring(qPos + 2, cPos - qPos - 2);
 
-                                            listCharadir[charaSlot] = sliceCom;
-                                            bListMoveChar[charaSlot] = true;
-                                            scriptreadery++;
+                                        // get charAmount
+                                        charAmount = Convert.ToInt32(MasterScript.Read(scriptreaderx, scriptreadery).Substring(cPos + 2, dPos - cPos - 2));
 
-                                            // New code for CharaManager:
-                                            charaManager.Move("emi", sliceCom, 2, 180);
+                                        // get speed
+                                        charSpeed = Convert.ToInt32(MasterScript.Read(scriptreaderx, scriptreadery).Substring(dPos + 1));
 
-                                        }
-                                        else
-                                        {
-                                            ErrorReason = "There is only 6 chara slots available to move!";
-                                            bError = true;
-                                        }
+                                        // apply to charamove
+                                        charaManager.Move(charName, charDir, charSpeed, charAmount);
+
+                                        scriptreadery++;
+                                        
                                     }
                                     else
                                     {
                                         ErrorReason = "Syntax Error: Missing a '=' in line: " + MasterScript.Read(scriptreaderx, scriptreadery);
                                         bError = true;
                                     }
-                                }
-                                else
-                                {
-                                    // if no '=' then go down a line and grab value from it.  (for legacy support.)
-                                    scriptreadery++;
-                                    listCharadir[charaSlot] = MasterScript.Read(scriptreaderx, scriptreadery);
-                                    bListMoveChar[charaSlot] = true;
-                                    scriptreadery++;
                                 }
 
                             }

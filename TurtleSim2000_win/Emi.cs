@@ -23,7 +23,7 @@ namespace TurtleSim2000_Linux
         string Fork = "Fork Question";
         string trigger = "$trigger";
 
-        //Ease of Formatting:
+        //Ease of Formatting:lklklk
         //use these instead of escapes  Ex. (  emi + "dialogue",  )
         string emi = "Emi: \n\""; 
         string pro = "Turtle: \n";
@@ -41,8 +41,7 @@ namespace TurtleSim2000_Linux
             string[] emipages = {
                                    "walk_meetemi",
 
-                                       music,
-                                       "Fripperies",
+                                       "music play = Fripperies",
 
                                        "You get up and decide to go for a walk to >lose some of that fat you keep gaining.",
 
@@ -55,42 +54,35 @@ namespace TurtleSim2000_Linux
                                        "$variable 100 * 700 -r",
                                        "?????:\n\"Hey!  Who are you? $[100] \"",
 
-                                       charaevent_show_1,
-                                       "emi/emicas_closedsmile",
+                                       "charaevent show emi = emicas_closedsmile",
 
-                                       music,
-                                       "Friendship",
+                                       "music play = Friendship",
 
                                        playername + ":\n\"Oh..  Uh..  It's @pro\"",
 
-                                       charaevent_move_1,
-                                       "left",
+                                       "charaevent move emi = left, 200 -4",
 
                                        "wait",
                                        "20",
 
-                                       charaevent_move_1,
-                                       "right",
+                                       "charaevent move emi = right, 220 -6",
 
                                        "wait",
                                        "40",
 
-                                       charaevent_move_1,
-                                       "center",
+                                       "charaevent move emi = left, 110 -4",
 
-                                       charaevent_show_1,
-                                       "emi/emicas_happy_up",
+                                       "charaevent show emi = emicas_happy_up",
 
                                        "S[emi] Hey there!",
 
-                                       "charaevent move 1 = left -2",
+                                       "charaevent move emi = left, 90 -2",
 
                                        emi + "Oh hello, " + playername + ".  My name is Emi!  I see you're out walking around and I though I would join you!\"",
 
                                        playername + ":\n\"Nah, I think I'm good, but thanks.\"",
 
-                                       charaevent_move_1,
-                                       "left",
+                                       "charaevent move emi = left, 10 -8",
 
                                        "OMG! Like, c'mon!",
 
@@ -101,21 +93,19 @@ namespace TurtleSim2000_Linux
                                        "wait",
                                        "5",
 
-                                       charaevent_show_1,
-                                       "emi/emicas_wink",
+                                       "charaevent show emi = emicas_wink",
 
                                        emi  + "Besides, who could turn down an opportunity to walk with someone such as me?\"",
                                        playername + ": \n\"I'm sure there are a few.\"",
 
-                                       charaevent_show_1,
-                                       "emi/emicas_weaksmile",
+                                       "charaevent show emi = emicas_weaksmile",
 
                                        "I guess that was a bit too harsh of me to say.  Oh well, it's too late now.",
-                                       "charaevent move 1 = farright -5",
-                                       "charaevent show 2 = emi/emicas_pout",
-                                       "charaevent move 2 = right -3",
+                                       "charaevent move emi = right, 300 -4",
+                                       "charaevent show emi = fgemicas_pout",
+                                       "charaevent move emi = right, 10 -2",
                                        emi + "Do..  Do you not want me to bother you?\"",
-                                       "charaevent move 1 = down -2",
+                                       "charaevent move emi = down, 100 -2",
                                        "Emi: \n\"C'mon, let me walk with you.  Please?  Don't make me do my pouty face.  No one can resist!\"",
 
                                        charaevent_show_1,
