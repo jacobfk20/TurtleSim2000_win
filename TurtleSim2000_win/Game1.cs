@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 57) v0.56 BETA";
-        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+Refactored old chara controls out \n+Cleaned up old legacy code.";
+        String GameInfo = "TurtleSim 2000 (Build 58) v0.56 BETA";
+        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -327,14 +327,9 @@ namespace TurtleSim2000_Linux
         // ==================================================================================
         protected override void Update(GameTime gameTime)
         {
-
-            MediaPlayer.IsRepeating = true;
-
             frames += 1;
 
             stamps.update();
-
-
 
             #region Put VC vars into GameVariables[]
             // This will set all GameVariables to the VC counterpart
@@ -370,6 +365,7 @@ namespace TurtleSim2000_Linux
 
             #region Music Controls
             //Music Controls
+            MediaPlayer.IsRepeating = true;
             if (!songstart)
             {
                 if (bDorm == true) MediaPlayer.Play(m_daylight);
@@ -647,11 +643,6 @@ namespace TurtleSim2000_Linux
 
             #endregion
 
-            #region Chara Speech Color/Name
-
-
-            #endregion
-
             #region Typewritter Effect
             //adds a typewritter effect to the dialog.
             if (bTypewritting)
@@ -904,17 +895,10 @@ namespace TurtleSim2000_Linux
                             eventname = forkScript[i];
                             scriptreaderx = 0;
                             scriptreadery = 0;
-                            //bQuestion = false;
+                            charaManager.setDarkenChara(false);
                         }
                         i++;
                     }
-                    //if (Q2.Contains(mousePosition))
-                    //{
-                    //    scriptreaderx = 0;
-                    //    scriptreadery = 0;
-                    //    eventname = ForkSCript2;
-                    //    bQuestion = false;
-                    //}
                 }
                 else
                 {
@@ -929,13 +913,6 @@ namespace TurtleSim2000_Linux
                             bQuestion = false;
                         }
                     }
-                    //if (Q1.Intersects(new Rectangle(SelectorPosX, SelectorPosY, 500, 40)))
-                    //{
-                    //    bQuestion = false;
-                    //    eventname = ForkScript1;
-                    //    scriptreaderx = 0;
-                    //    scriptreadery = 0;
-                    //}
                 }
             }
         }
@@ -1675,6 +1652,9 @@ namespace TurtleSim2000_Linux
                                         // show the char
                                         charaManager.Show(charName, charPose);
 
+                                        // disable the HUD
+                                        bHud = false;
+
                                     }
                                     else
                                     {
@@ -2051,6 +2031,7 @@ namespace TurtleSim2000_Linux
                         //scriptreadery++;
 
                         bQuestion = true;
+                        charaManager.setDarkenChara(true);  // Darkens chara so they don't have bad contrast with answer boxes.
                     }
                     #endregion
 

@@ -20,6 +20,7 @@ namespace TurtleSim2000_Linux
 
         int[] activeCharas = new int[5];        // Which charas are to be drawn. 6 is max.
         int drawnCharas = 0;                    // how many charas are currently being drawn on screen.
+        Color universalColor = Color.White;     // Sets the color for all charas
 
         ContentManager contentManager;
 
@@ -122,12 +123,12 @@ namespace TurtleSim2000_Linux
                     if (charaArray[currentChar].bDrawMe)        // Sees if this chara wants to be drawn.
                     {
                         // If transitioning, draw old pose as we draw and fade in the new one.
-                        if (charaArray[currentChar].bTransMe)
+                        if (charaArray[currentChar].bTransMe && charaArray[currentChar].bNewShow == false)
                         {
-                            sb.Draw(charaArray[currentChar].getTexture(false), charaArray[currentChar].charaPos, Color.White);
+                            sb.Draw(charaArray[currentChar].getTexture(false), charaArray[currentChar].charaPos, universalColor);
                         }
 
-                        sb.Draw(charaArray[currentChar].getTexture(), charaArray[currentChar].charaPos, Color.White * charaArray[i].transAlphaNew);
+                        sb.Draw(charaArray[currentChar].getTexture(), charaArray[currentChar].charaPos, universalColor * charaArray[i].transAlphaNew);
                     }
                 }
             }
@@ -174,6 +175,7 @@ namespace TurtleSim2000_Linux
                 charaArray[cID].setPose(pose);
                 charaArray[cID].transAlphaNew = 0;
                 charaArray[cID].bTransMe = true;
+                charaArray[cID].bNewShow = false;
             }
 
             // Output this to console
@@ -195,6 +197,34 @@ namespace TurtleSim2000_Linux
             charaArray[id].moveDirection = direction;
             charaArray[id].moveAmount = pixels;
             charaArray[id].bMoveMe = true;
+        }
+
+        /// <summary>
+        /// Boolean set to darken all chara on screen.  (true: darken) (false: normal)
+        /// </summary>
+        /// <param name="bDark">True to darken chara</param>
+        public void setDarkenChara(bool bDark)
+        {
+            if (bDark)
+            {
+                universalColor = Color.Gray;
+            }
+            else
+            {
+                universalColor = Color.White;
+            }
+        }
+
+        /// <summary>
+        /// Get the current location of any chara (drawn or not) on screen.
+        /// </summary>
+        /// <param name="charaName">The name of the chara you want to get.</param>
+        /// <returns></returns>
+        public Vector2 getCharaLocation(string charaName)
+        {
+            int cID = getCharaID(charaName);
+
+            return new Vector2(charaArray[cID].charaPos.X, charaArray[cID].charaPos.Y);
         }
 
 

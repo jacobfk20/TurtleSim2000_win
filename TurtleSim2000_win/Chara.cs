@@ -28,6 +28,7 @@ namespace TurtleSim2000_Linux
         public bool bDrawMe = false;   // Draw this chara or not.
         public bool bMoveMe = false;   // true when this char is set to be moved on screen.
         public bool bTransMe = false;  // true when this char needs to be transitioned to another char.
+        public bool bNewShow = true;   // True when this chara is being drawn for the first time
 
         // Vars for moving:
         public int moveAmount = 0;      // How far this char needs to be moved.

@@ -70,7 +70,7 @@ namespace TurtleSim2000_Linux
                                        "wait",
                                        "40",
 
-                                       "charaevent move emi = left, 110 -4",
+                                       "charaevent move emi = left, 410 -4",
 
                                        "charaevent show emi = emicas_happy_up",
 
@@ -109,16 +109,14 @@ namespace TurtleSim2000_Linux
                                        "Emi: \n\"C'mon, let me walk with you.  Please?  Don't make me do my pouty face.  No one can resist!\"",
 
                                        charaevent_show_1,
-                                       "emi/emicas_pout",
+                                       "charaevent show emi = emicas_pout",
 
-                                       "charaevent move 1 = left -1",
+                                       "charaevent move emi = left, 200 -3",
 
-                                       Fork,
+                                       "Fork Question",
                                        "Oh god!  I was not prepared for that!  How can I turn that down?",
-                                       "Say sorry and walk with her",
-                                       "walk_meetemi_accept",
-                                       "Stutter words and run away.",
-                                       "walk_meetemi_decline",
+                                       "(Say sorry and walk with her) walk_meetemi_accept",
+                                       "(Stutter words and run away.) walk_meetemi_decline",
                                        "Fork End",
 
                                        //================================================MEETEMI-ACCEPT=============================================================
