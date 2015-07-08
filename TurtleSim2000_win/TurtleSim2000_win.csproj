@@ -38,6 +38,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Background.cs" />
     <Compile Include="Basic.cs" />
     <Compile Include="Chara.cs" />
     <Compile Include="CharaManager.cs" />

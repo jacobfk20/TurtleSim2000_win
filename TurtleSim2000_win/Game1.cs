@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 59) v0.56 BETA";
-        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug";
+        String GameInfo = "TurtleSim 2000 (Build 60) v0.56 BETA";
+        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -44,12 +44,10 @@ namespace TurtleSim2000_Linux
         Texture2D buttonselector;
         Texture2D ButtonA;
 
-        //background textures
-        Texture2D bg_manage;             //Background: ??
-        Texture2D bg_courtyard;          //Background: Courtyard
-        Texture2D bg_dorm;               //Background: Player's Dorm Room
-        Texture2D bg_forest;             //Background: Forest (walking area)
-        Texture2D bg_gate;               //Background: School Front Gate
+        // Intro Background asses
+        Texture2D bg_gate;
+        Texture2D bg_forest;
+        Texture2D bg_courtyard;
 
         //Chara
         CharaManager charaManager;           // NEWEST WAY OF DEALING WITH EVERYTHING TO DO WITH CHARA!
@@ -131,6 +129,7 @@ namespace TurtleSim2000_Linux
         GameEvents gameEvents = new GameEvents();
         Stamps stamps = new Stamps();
         Save gameSaver = new Save();
+        Background bgManager;                       // Handles all background bullshit.  Show/Import
 
         int DayofWeek = 1;                           //Day of the week (1-7; Gets converted to names)
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
@@ -153,8 +152,6 @@ namespace TurtleSim2000_Linux
         int scriptreadery = 0;                      //Scriptreadery tells what line to read from
 
         //animation related
-        string bg1;                                             //Sets background to the first one. (old)
-        string bgOld;                                           // Stores old background for transitions
         string TransitionType;
         Transitions transition = new Transitions();             // Class that deals with game transitions.
 
@@ -249,11 +246,10 @@ namespace TurtleSim2000_Linux
             clock_tex = Content.Load<Texture2D>("assets/gui/clock");
             ButtonA = Content.Load<Texture2D>("assets/gui/gui_button_A");
 
-            //Background Images
+            // Intro backgrounds
             bg_courtyard = Content.Load<Texture2D>("assets/backgrounds/school_courtyard");
-            bg_dorm = Content.Load<Texture2D>("assets/backgrounds/School_ProDorm_bedroom");
-            bg_forest = Content.Load<Texture2D>("assets/backgrounds/school_forest1");
             bg_gate = Content.Load<Texture2D>("assets/backgrounds/school_gate");
+            bg_forest = Content.Load<Texture2D>("assets/backgrounds/school_forest1");
 
             //music
             basic = Content.Load<Song>("assets/music/Ah_Eh_I_Oh_You");
@@ -274,10 +270,6 @@ namespace TurtleSim2000_Linux
             // Load Transitions
             transition.loadContent(spriteBatch, this.Content);
 
-            //Un-comment if I become a Microsoft Developer.  (I do not have permission to use these classes.
-            //Gamer.GetFromGamertag(playername);
-            //END UN-COMMENT
-
             //Game Object Inits
             totscripts = MasterScript.Compile();
             bAuthorMode = MasterScript.IsDebug();
@@ -285,6 +277,7 @@ namespace TurtleSim2000_Linux
 
             // setup charamanager
             charaManager = new CharaManager(this.Content);
+            bgManager = new Background(this.Content);
 
         }
 
@@ -642,13 +635,16 @@ namespace TurtleSim2000_Linux
             #endregion
 
             #region Change Background & Music Logic
-            if (bDorm == true) bg_manage = bg_dorm;
+            if (bDorm == true)
+            {
+            }
 
             // SafetoSwap checks if transitions are in a spot that we can change the bg without it looking janky.
             // Use two variables for holding backgrounds because it will revert back to DormRoom if there is no active BG.
-            if (bgOld != null && transition.SafeToSwap() == false) bg_manage = Content.Load<Texture2D>("assets/backgrounds/" + bgOld + "");
-            if (bg1 != null && transition.SafeToSwap() == true) bg_manage = Content.Load<Texture2D>("assets/backgrounds/" + bg1 + "");
             if (SetMusic != null) m_daylight = Content.Load<Song>("assets/music/" + SetMusic + "");
+
+            if (transition.SafeToSwap()) bgManager.Swap();
+
             #endregion
 
             bClicked = false;
@@ -715,7 +711,8 @@ namespace TurtleSim2000_Linux
             //background manage here
             if (bDorm == true)  //CHANGE THIS TO GO OFF A DIFFERENT BOOL!!!!
             {
-                spriteBatch.Draw(bg_manage, new Rectangle(-50 + bgParallax, 0, 900, 500), clr);
+                //spriteBatch.Draw(bg_manage, new Rectangle(-50 + bgParallax, 0, 900, 500), clr);
+                bgManager.Draw(spriteBatch);
             }
 
             if (bDebugmode) spriteBatch.DrawString(debugfontsmall, "AUTHOR DEBUG MODE", new Vector2(660, 1), Color.White);
@@ -798,6 +795,8 @@ namespace TurtleSim2000_Linux
             if (bFirstrun == true)
             {
                 bDorm = true;
+                bgManager.setBackground("School_ProDorm_bedroom");
+                bgManager.Swap();
                 eventname = "gamestart_short";
                 bShowtext = true;
                 bError = false;
@@ -1748,8 +1747,12 @@ namespace TurtleSim2000_Linux
                                     // Get new background set
                                     sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(modPos + 2);
                                     Console.WriteLine("Background change to: " + sliceCom);
-                                    bgOld = bg1;
-                                    bg1 = sliceCom;
+                                    
+                                    // New background handler 
+                                    bgManager.setBackground(sliceCom);
+                                    bgManager.setBackgroundDimensions(800, 480);
+                                    bgManager.bShowBackground = true;
+
                                     scriptreadery++;
 
                                     // check if there are any 'with' params on next line.
@@ -1786,7 +1789,10 @@ namespace TurtleSim2000_Linux
                             {
                                 // Legacy support
                                 scriptreadery++;
-                                bg1 = MasterScript.Read(scriptreaderx, scriptreadery);
+
+                                bgManager.setBackground(MasterScript.Read(scriptreaderx, scriptreadery));
+                                bgManager.setBackgroundDimensions(800, 480);
+
                                 scriptreadery++;
                             }
                         }
