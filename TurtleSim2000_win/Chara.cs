@@ -109,6 +109,17 @@ namespace TurtleSim2000_Linux
         }
 
         /// <summary>
+        /// Sets this chara object to no longer draw on screen
+        /// </summary>
+        public void setToExit()
+        {
+            bDrawMe = false;
+            bNewShow = true;
+            transAlphaNew = 0;
+            drawOrder = 0;
+        }
+
+        /// <summary>
         /// Get's the layer the chara is drawn on.
         /// </summary>
         /// <returns>drawOrder</returns>

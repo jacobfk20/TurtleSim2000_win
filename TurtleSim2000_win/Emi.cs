@@ -86,9 +86,14 @@ namespace TurtleSim2000_Linux
 
                                        "OMG! Like, c'mon!",
 
+                                       "charaevent show steve = neutral",
+                                       "charaevent move steve = left, 100 -3",
+
                                        "bgscroll = -40",
 
                                        emi + "Oh don't be like that!  C'mon, It'll be fun!  I promise.\"",
+
+                                       "charaevent show hanako = hanako_basic_bashful_cas",
 
                                        "wait",
                                        "5",
@@ -96,6 +101,7 @@ namespace TurtleSim2000_Linux
                                        "charaevent show emi = emicas_wink",
 
                                        emi  + "Besides, who could turn down an opportunity to walk with someone such as me?\"",
+                                       "charaevent exit hanako",
                                        playername + ": \n\"I'm sure there are a few.\"",
 
                                        "charaevent show emi = emicas_weaksmile",

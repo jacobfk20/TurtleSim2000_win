@@ -13,13 +13,14 @@ namespace TurtleSim2000_Linux
     {
 
         // Globals
+        #region Global Variables
         string[,] charaList = new string[100,500];
         string[] directoryList;
 
         int MISSINGCHARA = 199;
 
         int[] activeCharas = new int[5];        // Which charas are to be drawn. 6 is max.
-        int drawnCharas = 0;                    // how many charas are currently being drawn on screen.
+        public int drawnCharas = 0;             // how many charas are currently being drawn on screen.
         Color universalColor = Color.White;     // Sets the color for all charas
 
         ContentManager contentManager;
@@ -31,6 +32,9 @@ namespace TurtleSim2000_Linux
 
         // The max amount of chara on screen & drawing layers
         int MAX_LAYERS = 5;
+        #endregion
+
+
 
         // Constructor for manager.
         public CharaManager(ContentManager contentmanager)
@@ -105,13 +109,14 @@ namespace TurtleSim2000_Linux
 
         }
 
+        // Update method
         public void Update()
         {
             moveChara();
             transChara();
         }
 
-        
+        // Draw method
         public void Draw(SpriteBatch sb)
         {
             // Draw active chara in order on layer data (stored in chara object)
@@ -128,7 +133,7 @@ namespace TurtleSim2000_Linux
                             sb.Draw(charaArray[currentChar].getTexture(false), charaArray[currentChar].charaPos, universalColor);
                         }
 
-                        sb.Draw(charaArray[currentChar].getTexture(), charaArray[currentChar].charaPos, universalColor * charaArray[i].transAlphaNew);
+                        sb.Draw(charaArray[currentChar].getTexture(), charaArray[currentChar].charaPos, universalColor * charaArray[currentChar].transAlphaNew);
                     }
                 }
             }
@@ -197,6 +202,24 @@ namespace TurtleSim2000_Linux
             charaArray[id].moveDirection = direction;
             charaArray[id].moveAmount = pixels;
             charaArray[id].bMoveMe = true;
+        }
+
+        public void Exit(string chara = "all", string effect = "alpha")
+        {
+            int cID = getCharaID(chara);
+
+            // Remove this chara from the draw order list
+            for (int i = 0; i < drawnCharas; i++)
+            {
+                if (activeCharas[i] == charaArray[cID].getID())
+                {
+                    activeCharas[i] = -1;
+                    drawnCharas--;
+                }
+            }
+
+            // re-int the chara to defaults
+            charaArray[cID].setToExit();
         }
 
         /// <summary>

@@ -19,7 +19,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 58) v0.56 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 59) v0.56 BETA";
         string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
@@ -44,9 +44,6 @@ namespace TurtleSim2000_Linux
         Texture2D buttonselector;
         Texture2D ButtonA;
 
-        //GUI Objects
-        // Interface GUI = new Interface();
-
         //background textures
         Texture2D bg_manage;             //Background: ??
         Texture2D bg_courtyard;          //Background: Courtyard
@@ -56,8 +53,6 @@ namespace TurtleSim2000_Linux
 
         //Chara
         CharaManager charaManager;           // NEWEST WAY OF DEALING WITH EVERYTHING TO DO WITH CHARA!
-        Texture2D emi_frown_close;           //old way of storing chara
-        Texture2D rin_relaxed_doubt_pan;     //old way of storing chara
 
         //music
         Song basic;                      //old way of storing music
@@ -75,9 +70,6 @@ namespace TurtleSim2000_Linux
         int bgscrollslowerdowner = 0;    //Slows the scroll down more.
         int logoscaler = 0;              //Scales the logo X and Y.
         bool reversescaler = false;      //Reverses the X and Y.
-
-        //Debug stuff
-        //DebugWindow dbWindow = new DebugWindow();
 
         //engine bool
         bool bStart = true;               //Main game menu.  (only true on startup.)
@@ -161,15 +153,9 @@ namespace TurtleSim2000_Linux
         int scriptreadery = 0;                      //Scriptreadery tells what line to read from
 
         //animation related
-        string[] listChara = new String[5];                     // Stores chara in a list of 6 slots
-        Texture2D[] listCharaManager = new Texture2D[5];        // Charamanager list.  Holds all textures for charaslots
-        Texture2D[] listCharaManagerOld = new Texture2D[5];     // List of charaslots before they were changed (for alpha blending)
         string bg1;                                             //Sets background to the first one. (old)
         string bgOld;                                           // Stores old background for transitions
         string TransitionType;
-        bool[] bAlphaList = new bool[5];                        // Bool list to see if engine should alpha blend chara.
-        float[] listChAlpha = new float[5];                     // List of all chara Alpha value.
-        float[] listChAlphaOld = new float[5];                  // list of all OLD chara alpha value.
         Transitions transition = new Transitions();             // Class that deals with game transitions.
 
         // System related
@@ -185,16 +171,9 @@ namespace TurtleSim2000_Linux
 
         //animation frame ints
         int AbuttonFrame = 0;                                   //Moves the "A" button up/down
-        int[] listCharamove = new int[5];                       // Used to move a chara x amount from the slot list
-        int[] listCharamoveVert = new int[5];                    // Used to move a chara x amount VERTICALLY from the slot list
-        bool[] bListMoveChar = new bool[5];                     // used to tell if we should move that char in that list.
-        string[] listCharadir = new string[5];                  // "" "" Used to tell which chara should move in which direction.
-        int[] listCharaMoveSpeed = new int[5];               // How fast the chara should move.  1-Slow, 2-normal, 3-fast, 4-2fast
-
 
         //just for testing and messing
         Random Rando = new Random();         //Gives us a random generated number
-        int cocks;                           //Used for keeping a random int; for debug really.
         float vibrator = 0.1f;               //Controls Vibration function for controller 1
         float vibrator2 = 0.1f;              //For Controller 2.
         #endregion
@@ -275,13 +254,6 @@ namespace TurtleSim2000_Linux
             bg_dorm = Content.Load<Texture2D>("assets/backgrounds/School_ProDorm_bedroom");
             bg_forest = Content.Load<Texture2D>("assets/backgrounds/school_forest1");
             bg_gate = Content.Load<Texture2D>("assets/backgrounds/school_gate");
-
-            // Background chara super scenes
-            //scene_emi_naked = Content.Load<Texture2D>("assets/backgrounds/emi_naked");
-
-            //Chara
-            emi_frown_close = Content.Load<Texture2D>("assets/chara/emi/emicas_frown_close");
-            rin_relaxed_doubt_pan = Content.Load<Texture2D>("assets/chara/rin/rin_relaxed_doubt_pan");
 
             //music
             basic = Content.Load<Song>("assets/music/Ah_Eh_I_Oh_You");
@@ -1332,13 +1304,7 @@ namespace TurtleSim2000_Linux
                 {
                     scriptreaderx = 0;
                     scriptreadery = 0;
-                    for (int i = 0; i < 5; i++)
-                    {
-                        listCharamove[i] = 0;
-                        listCharaManager[i] = null;
-                        listCharaManagerOld[i] = null;
 
-                    }
                     bShowtext = false;
                     bMenu = true;
                     if (bAuthorMode == true) this.Exit();
@@ -1723,12 +1689,15 @@ namespace TurtleSim2000_Linux
                                 // get which chara slot to use:
                                 if (MasterScript.Read(scriptreaderx, scriptreadery).Length > 15)
                                 {
-                                    sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(16, 1);
+                                    // Get name of chara to exit
+                                    sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(16);
                                     Console.WriteLine(sliceCom);
-                                    int charaSlot = 1;
+                                    string chara;
+                                    chara = sliceCom;
+
                                     try
                                     {
-                                        charaSlot = Convert.ToInt32(sliceCom);
+                                        //charaSlot = Convert.ToInt32(sliceCom);
                                     }
                                     catch
                                     {
@@ -1738,33 +1707,19 @@ namespace TurtleSim2000_Linux
                                         bError = true;
                                     }
 
-                                    // remove selected chara from screen
-                                    listChara[charaSlot] = null;
-                                    listCharaManager[charaSlot] = null;
-                                    listCharaManagerOld[charaSlot] = null;
-                                    listCharamove[charaSlot] = 0;
+                                    // Apply actions
+                                    charaManager.Exit(chara);
+
                                     scriptreadery++;
 
                                     // Check and see if there are any actors on screen:
-                                    int y = 0;      // keep track of how many.
-                                    for (int i = 0; i < 5; i++)
-                                    {
-                                        if (listChara[i] != null) y++;
-                                    }
-
-                                    if (y == 0) bHud = true;
+                                    if (charaManager.drawnCharas == 0) bHud = true;
 
                                 }
                                 else
                                 {
                                     // If no selected char, remove ALL.
-                                    for (int i = 0; i < 5; i++)
-                                    {
-                                        listChara[i] = null;
-                                        listCharaManager[i] = null;
-                                        listCharaManagerOld[i] = null;
-                                        listCharamove[i] = 0;
-                                    }
+                                    charaManager.Exit();
 
                                     bHud = true;
                                     scriptreadery++;
