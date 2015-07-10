@@ -30,6 +30,8 @@ namespace TurtleSim2000_Linux
         public bool bTransMe = false;  // true when this char needs to be transitioned to another char.
         public bool bNewShow = true;   // True when this chara is being drawn for the first time
 
+        bool bDimensionsFromFile = false;   // true: uses width and height from settings.chara
+
         // Vars for moving:
         public int moveAmount = 0;      // How far this char needs to be moved.
         public int moveSpeed = 2;       // How fast this char will move
@@ -180,8 +182,12 @@ namespace TurtleSim2000_Linux
             Texture2D poseTexture = contentManager.Load<Texture2D>("assets/chara/" + currentTex + "");
 
             // get width and heighth of texture for correct chara drawing
-            charaPos.Width = poseTexture.Width;
-            charaPos.Height = poseTexture.Height;
+            if (bDimensionsFromFile == false)
+            {
+                charaPos.Width = poseTexture.Width;
+                charaPos.Height = poseTexture.Height;
+            }
+
             return poseTexture;
         }
         #endregion
@@ -189,7 +195,7 @@ namespace TurtleSim2000_Linux
         // Privates
         private void getFileSettings(string pathtosettingsfile)
         {
-            string[] settingsList = new string[5];
+            string[] settingsList = new string[6];
             int index = 0;
             using (System.IO.Stream fileStream = System.IO.File.Open(pathtosettingsfile, System.IO.FileMode.Open))
             using (System.IO.StreamReader reader = new System.IO.StreamReader(fileStream))
@@ -223,6 +229,18 @@ namespace TurtleSim2000_Linux
             if (settingsList[3].Length > 0) missingPose = settingsList[3];
             currentPose = missingPose;
             oldPose = missingPose;
+
+            // Chara normal Width scale in pixels
+            if (settingsList[4] != null)
+            {
+                bDimensionsFromFile = true;
+                charaPos.Width = Convert.ToInt32(settingsList[4]);
+            }
+
+            // Chara normal Height scale in pixels
+            if (settingsList[5] != null) charaPos.Height = Convert.ToInt32(settingsList[5]);
+
+            
 
             Console.WriteLine("  +" + charaName + " Has a settings.chara. X:" + charaPos.X + " Y:" + charaPos.Y + " " + settingsList[3].Length);
         }

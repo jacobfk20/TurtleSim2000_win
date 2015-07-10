@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 60) v0.56 BETA";
-        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug";
+        String GameInfo = "TurtleSim 2000 (Build 61) v0.56 BETA";
+        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug \n+Fixed dormroom not showing on start.";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -390,14 +390,6 @@ namespace TurtleSim2000_Linux
             {
                 // bShowtext = true;
             }
-
-            //Tell the Author to close the game if in debug mode
-            //if (bDebugmode == true && bShowtext == false)
-            //{
-            //    ErrorReason = "You are in Debug Mode.  You cannot play the game normally like this. \nThis mode is for Authors to test their scripts.  Sorry.";
-            //    bError = true;
-
-            //}
             #endregion
 
             #region Wait Script Control Handler
@@ -415,9 +407,6 @@ namespace TurtleSim2000_Linux
 
             //-------------------------- Controls (mouse and button actions) -----------------
             #region Controls
-
-            if (vibrator < 1.0f) vibrator += 0.1f;
-            if (vibrator2 < 1.0f) vibrator2 += 0.1f;
 
             //get mouse position.
             var mouseState = Mouse.GetState();
@@ -680,17 +669,9 @@ namespace TurtleSim2000_Linux
                 spriteBatch.Draw(bg_courtyard, new Rectangle(screenSizeWidth * 2 - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
                 spriteBatch.Draw(bg_gate, new Rectangle(screenSizeWidth * 3 - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
 
-                //debug info
-                if (bDebugmode == true)
-                {
-                    spriteBatch.DrawString(debugfont, "IT COMPILED! YAY!", new Vector2(20, 20), Color.White);
-                    spriteBatch.DrawString(debugfontsmall, "Debug Font loaded.", new Vector2(20, 40), Color.White);
-                    spriteBatch.DrawString(debugfontsmall, "Total Scripts found: " + totscripts + "\nDEBUG MODE ENABLED.", new Vector2(20, 50), Color.White);
-                    spriteBatch.DrawString(debugfontsmall, "Random Script Line: " + MasterScript.Read(13, 0), new Vector2(600, 20), Color.White);
-                }
                 spriteBatch.DrawString(debugfontsmall, "Total Scripts: " + totscripts + "  Total Lines: " + MasterScript.TotalLines() + "  Script Name: " + MasterScript.Read(34, 0) + "Screen Size: " + screenSizeWidth + " " + screenSizeHeight, new Vector2(Convert.ToInt32(250 * screenModX), Convert.ToInt32(177 * screenModY)), Color.White);
                 spriteBatch.DrawString(debugfontsmall, "Added Features:\n" + newthings, new Vector2(Convert.ToInt32(10 * screenModX), Convert.ToInt32(180 * screenModY)), Color.White);
-                spriteBatch.DrawString(debugfontsmall, GameInfo, new Vector2(screenSizeWidth - 295, screenSizeHeight - 20), Color.White);
+                spriteBatch.DrawString(debugfontsmall, GameInfo, new Vector2(screenSizeWidth - 260, screenSizeHeight - 20), Color.White);
                 spriteBatch.DrawString(debugfontsmall, "Produced by Jacob Karleskint and Tclub Games", new Vector2(Convert.ToInt32(10 * screenModX), Convert.ToInt32(460 * screenModY)), Color.White);
 
                 //menu buttons 280 (480 / 2 = 240) +40
@@ -715,7 +696,7 @@ namespace TurtleSim2000_Linux
                 bgManager.Draw(spriteBatch);
             }
 
-            if (bDebugmode) spriteBatch.DrawString(debugfontsmall, "AUTHOR DEBUG MODE", new Vector2(660, 1), Color.White);
+            if (bDebugmode) spriteBatch.DrawString(debugfontsmall, "AUTHOR DEBUG MODE", new Vector2(670, 11), Color.White);
 
             //Draw The Action Menu
             GUI.ActionMenuShow(actionmenuscroller, GameVariables[490], VC);
@@ -759,6 +740,12 @@ namespace TurtleSim2000_Linux
 
             stamps.draw(spriteBatch);
 
+            // If in author mode draw TSS version please
+            if (bAuthorMode)
+            {
+                spriteBatch.DrawString(debugfontsmall, GameInfo, new Vector2(536, 0), Color.White);
+            }
+
             spriteBatch.End();
 
             #region Debug/Error
@@ -796,7 +783,8 @@ namespace TurtleSim2000_Linux
             {
                 bDorm = true;
                 bgManager.setBackground("School_ProDorm_bedroom");
-                bgManager.Swap();
+                bgManager.setBackgroundDimensions(800, 480);
+                bgManager.bShowBackground = true;
                 eventname = "gamestart_short";
                 bShowtext = true;
                 bError = false;
@@ -2652,10 +2640,30 @@ namespace TurtleSim2000_Linux
                                 charaColor = Color.RosyBrown;
                                 charaCode = "Ellie:";
                             }
-                            if (speakerName == "stv" || speakerName == "???")
+                            if (speakerName == "stv")
                             {
                                 charaColor = Color.PowderBlue;
-                                charaCode = "?????:";
+                                charaCode = "Steve:";
+                            }
+                            if (speakerName == "cha")
+                            {
+                                charaColor = Color.Red;
+                                charaCode = "Charlsee:";
+                            }
+                            if (speakerName == "est")
+                            {
+                                charaColor = Color.RosyBrown;
+                                charaCode = "Estella:";
+                            }
+                            if (speakerName == "chr")
+                            {
+                                charaColor = Color.OrangeRed;
+                                charaCode = "Chris:";
+                            }
+                            if (speakerName == "Suz")
+                            {
+                                charaColor = Color.DeepPink;
+                                charaCode = "Suzy:";
                             }
                             #endregion
 
@@ -2747,32 +2755,10 @@ namespace TurtleSim2000_Linux
                 char[] strchar = new char[strlength + modLength];
 
                 StringReader strReader = new StringReader(gaystring);
-                bool bEscape = false;
                 int cPointer = 0;
-                int varToRead = 0;
                 for (int i = 0; i < strlength; i++)
                 {
-
-                    if (strchar[i] == '[' & bEscape == true)
-                    {
-                        strchar[i - 1] = 'E';
-                        strchar[i] = 'm';
-                        strchar[i + 1] = 'i';
-                        cPointer = i - 1;
-                        modLength = 1;
-                        bEscape = false;
-                    }
-
-                    bEscape = false;
-
                     strReader.Read(strchar, cPointer, strlength);
-                    if (strchar[i] == '|')
-                    {
-                        strchar[i] = '\n';
-                    }
-                    if (strchar[i] == '$') bEscape = true;
-
-
                 }
 
                 if (strlength >= 76)
