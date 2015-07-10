@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 61) v0.56 BETA";
-        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug \n+Fixed dormroom not showing on start.";
+        String GameInfo = "TurtleSim 2000 (Build 62) v0.56 BETA";
+        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug \n+Fixed dormroom not showing on start. \n+Chara moves more fluently now (linear move) \n+Chara can now be moved in on show";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -254,7 +254,6 @@ namespace TurtleSim2000_Linux
             //music
             basic = Content.Load<Song>("assets/music/Ah_Eh_I_Oh_You");
             m_daylight = Content.Load<Song>("assets/music/Daylight");
-            
 
             //SoundFX
             soundEffect = Content.Load<SoundEffect>("assets/soundfx/doorslam");
@@ -1602,8 +1601,32 @@ namespace TurtleSim2000_Linux
                                         // Now to get pose
                                         charPose = MasterScript.Read(scriptreaderx, scriptreadery).Substring(qPos + 2);
 
+                                        // check if there is a with: in the next line as parameters
+                                        string specialArg = "none";
+                                        if (MasterScript.Read(scriptreaderx, scriptreadery + 1).Contains("with:"))
+                                        {
+                                            // move to that line
+                                            scriptreadery++;
+
+                                            // store that line
+                                            string arg = MasterScript.Read(scriptreaderx, scriptreadery);
+
+                                            // slice off with:
+                                            arg = arg.Remove(0, 6);
+
+                                            // find special command
+                                            if (arg == "move in right")
+                                            {
+                                                specialArg = "right";
+                                            }
+                                            if (arg == "move in left")
+                                            {
+                                                specialArg = "left";
+                                            }
+                                        }
+
                                         // show the char
-                                        charaManager.Show(charName, charPose);
+                                        charaManager.Show(charName, charPose, "alpha", specialArg);
 
                                         // disable the HUD
                                         bHud = false;

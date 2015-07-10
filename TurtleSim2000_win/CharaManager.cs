@@ -145,7 +145,7 @@ namespace TurtleSim2000_Linux
         /// <param name="charaname">Chara name</param>
         /// <param name="pose">Pose of chara to draw</param>
         /// <param name="effect">Transition effect</param>
-        public void Show(string charaname, string pose, string effect = "alpha")
+        public void Show(string charaname, string pose, string effect = "alpha", string moveEffect = "none")
         {
             int cID = getCharaID(charaname);
 
@@ -173,6 +173,12 @@ namespace TurtleSim2000_Linux
 
                 // Set that this char is ready to be drawn.
                 charaArray[cID].bDrawMe = true;
+                
+                // add move effect if used:
+                if (moveEffect != "none")
+                {
+                    moveCharaIn(cID, moveEffect);
+                }
             }
             // if the chara is already drawn.
             else
@@ -200,6 +206,7 @@ namespace TurtleSim2000_Linux
             int id = getCharaID(chara);
             charaArray[id].moveSpeed = speed;
             charaArray[id].moveDirection = direction;
+            charaArray[id].moveAmountTotal = pixels;
             charaArray[id].moveAmount = pixels;
             charaArray[id].bMoveMe = true;
         }
@@ -268,6 +275,7 @@ namespace TurtleSim2000_Linux
             {
                 if (charaArray[i].bMoveMe)
                 {
+                    linearMove(i);      // Slows them down as they get close to their destination
                     if (charaArray[i].moveDirection == "right") charaArray[i].charaPos.X += charaArray[i].moveSpeed;
                     if (charaArray[i].moveDirection == "left") charaArray[i].charaPos.X -= charaArray[i].moveSpeed;
                     if (charaArray[i].moveDirection == "up") charaArray[i].charaPos.Y -= charaArray[i].moveSpeed;
@@ -298,6 +306,74 @@ namespace TurtleSim2000_Linux
                     }
                 }
             }
+        }
+
+        // to move chara more evenly.  (move slows down as they get close to their destination)
+        private void linearMove(int chara)
+        {
+            if(charaArray[chara].moveAmount == Convert.ToInt32(charaArray[chara].moveAmountTotal / 2))
+            {
+                if (charaArray[chara].moveSpeed > 2) charaArray[chara].moveSpeed--;
+            }
+            if (charaArray[chara].moveAmount == Convert.ToInt32(charaArray[chara].moveAmountTotal / 4))
+            {
+                if (charaArray[chara].moveSpeed > 2) charaArray[chara].moveSpeed--;
+            }
+            if (charaArray[chara].moveAmount == Convert.ToInt32(charaArray[chara].moveAmountTotal / 6))
+            {
+                if (charaArray[chara].moveSpeed > 1) charaArray[chara].moveSpeed--;
+            }
+            if (charaArray[chara].moveAmount == Convert.ToInt32(charaArray[chara].moveAmountTotal / 8))
+            {
+                if (charaArray[chara].moveSpeed > 1) charaArray[chara].moveSpeed--;
+            }
+        }
+
+        private void moveCharaIn(int chara, string direction)
+        {
+            // get chara intro position
+            int cX = charaArray[chara].charaPos.X;
+            int oldPos = cX;
+            int moveAmount = 0;
+
+            // set this to off the screen based on direction (May need to do a simple algo right here)
+            int newPos = 0;
+            if (direction == "right")
+            {
+                for (int i = 0; i < 800; i += 25)
+                {
+                    if (cX + i > 850)
+                    {
+                        charaArray[chara].charaPos.X = cX + i;
+                        newPos = cX + i;
+                        moveAmount = newPos - cX;
+                        i = 801;
+                    }
+                }
+            }
+            if (direction == "left")
+            {
+                for (int i = 0; i < 800; i += 25)
+                {
+                    if (cX - i < -50)
+                    {
+                        charaArray[chara].charaPos.X = cX - i;
+                        newPos = cX - i;
+                        moveAmount = newPos + cX;
+                        i = 801;
+                    }
+                }
+            }
+
+            // get new move amount based off new coords to old coords
+            
+
+            // set chara to move to their old pos on draw
+            if (direction == "right")
+            {
+                Move(charaArray[chara].getName(), "left", 18, moveAmount);
+            }
+            if (direction == "left") Move(charaArray[chara].getName(), "right", 12, moveAmount);
         }
 
     }

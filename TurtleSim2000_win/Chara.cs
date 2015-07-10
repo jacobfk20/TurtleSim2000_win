@@ -33,6 +33,7 @@ namespace TurtleSim2000_Linux
         bool bDimensionsFromFile = false;   // true: uses width and height from settings.chara
 
         // Vars for moving:
+        public int moveAmountTotal = 0; // The total amount the char will move. (does not decrease as the char moves)
         public int moveAmount = 0;      // How far this char needs to be moved.
         public int moveSpeed = 2;       // How fast this char will move
         public string moveDirection;           // What direction this char is moving
