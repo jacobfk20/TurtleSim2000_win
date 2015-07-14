@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 62) v0.56 BETA";
-        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug \n+Fixed dormroom not showing on start. \n+Chara moves more fluently now (linear move) \n+Chara can now be moved in on show";
+        String GameInfo = "TurtleSim 2000 (Build 63) v0.56 BETA";
+        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug \n+Fixed dormroom not showing on start. \n+Chara moves more fluently now (linear move) \n+Chara can now be moved in on show \n+Can now shake screen";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -294,6 +294,7 @@ namespace TurtleSim2000_Linux
             frames += 1;
 
             stamps.update();
+            bgManager.Update();
 
             #region Put VC vars into GameVariables[]
             // This will set all GameVariables to the VC counterpart
@@ -736,6 +737,12 @@ namespace TurtleSim2000_Linux
             }
 
             if (bQuestion == true) GUI.ForkQuestionShow(forkAnswers);
+
+            if (GameVariables[80] > 0)
+            {
+                GUI.ProBarShow(600, 340, GameVariables[80], "Health");
+                GUI.ProBarShow(20, 20, GameVariables[81], "Charlsee HP");
+            }
 
             stamps.draw(spriteBatch);
 
@@ -1304,6 +1311,19 @@ namespace TurtleSim2000_Linux
         {
             bool triggered = false;
 
+            if (trigger == "shake_screen")
+            {
+                triggered = true;
+                charaManager.shakeCharaOnScreen(20);
+                bgManager.shakeBackground(20);
+            }
+
+            if (trigger == "shake_chara")
+            {
+                triggered = true;
+                charaManager.shakeCharaOnScreen(20);
+            }
+
             if (trigger == "sMetEmi_badend")
             {
                 GameSwitches[5] = true;
@@ -1338,6 +1358,13 @@ namespace TurtleSim2000_Linux
             if (trigger == "emi_addheart")
             {
                 GameVariables[0]++;
+                triggered = true;
+            }
+
+            if (trigger == "charlsee_battle")
+            {
+                GameVariables[80] = 100;
+                GameVariables[81] = 100;
                 triggered = true;
             }
 
@@ -1679,7 +1706,10 @@ namespace TurtleSim2000_Linux
                                         // apply to charamove
                                         charaManager.Move(charName, charDir, charSpeed, charAmount);
 
-                                        scriptreadery++;
+                                        // Tell to console
+                                        Console.WriteLine("TSS: moving chara - " + charName + " " + charAmount + " pixels to the " + charDir);
+
+                                           scriptreadery++;
                                         
                                     }
                                     else
@@ -2137,7 +2167,7 @@ namespace TurtleSim2000_Linux
                                     // Store Argument
                                     A = Convert.ToInt32(sliceCom);
 
-                                    A = Rando.Next(A);
+                                    A = Rando.Next(0, A);
 
                                     // Set finished result to gamevariables
                                     GameVariables[V] += A;
@@ -2174,6 +2204,20 @@ namespace TurtleSim2000_Linux
 
                                     // Set finished result to gamevariables
                                     GameVariables[V] -= A;
+                                }
+
+                                // See if it is getting a value from another variable
+                                string varMod;
+                                if (sliceCom.Contains("v"))
+                                {
+                                    // Get var value and get gamevariable int
+                                    int vPos = sliceCom.IndexOf("v");
+                                    varMod = sliceCom.Substring(vPos + 1);
+                                    A = GameVariables[Convert.ToInt32(varMod)];
+
+                                    // subtract gamevariable from gamevariable
+                                    GameVariables[V] -= A;
+
                                 }
                                 else
                                 {
@@ -2219,8 +2263,8 @@ namespace TurtleSim2000_Linux
                             }
                             #endregion
 
-                            // For Adding:
-                            #region Adding
+                            // For Multiplying
+                            #region Multiplying
                             if (sliceCom.Contains('*'))
                             {
                                 // get +'s index
@@ -2236,8 +2280,8 @@ namespace TurtleSim2000_Linux
                                     // Store Argument
                                     A = Convert.ToInt32(sliceCom);
 
-                                    A = Rando.Next(A);
-
+                                    A = Rando.Next(0, A);
+                                    
                                     // Set finished result to gamevariables
                                     GameVariables[V] *= A;
                                 }
@@ -2251,6 +2295,9 @@ namespace TurtleSim2000_Linux
                                 scriptreadery++;
                             }
                             #endregion
+
+                            // Say what we did to the console:
+                            Console.WriteLine("TSS: Variable: " + V + ". Is being set to: " + A);
                         }
                         if (MasterScript.Read(scriptreaderx, scriptreadery) == "$variable_add")
                         {
@@ -2382,7 +2429,7 @@ namespace TurtleSim2000_Linux
                             int b;              // Converted Argument B to int
 
                             // Grab the whole line to save time and space:
-                            string line = MasterScript.Read(scriptreaderx, scriptreadery);
+                                 string line = MasterScript.Read(scriptreaderx, scriptreadery);
                             scriptreadery++;
 
                             // Get the Opp type & pos

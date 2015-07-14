@@ -19,6 +19,11 @@ namespace TurtleSim2000_Linux
         string[] backgroundList;
         string missingBackground = "missing";
 
+        // for screen shaking
+        int shakeTime = 20;
+        Vector2 oldPos = new Vector2();
+        bool bShakeScreen = false;
+
         Rectangle backGroundDims;
 
         Texture2D currentBackground;
@@ -71,7 +76,7 @@ namespace TurtleSim2000_Linux
 
         public void Update()
         {
-
+            shakeScreen();
         }
 
         public void Draw(SpriteBatch sb)
@@ -133,5 +138,46 @@ namespace TurtleSim2000_Linux
             backGroundDims.Height = Height;
         }
 
+        public void shakeBackground(int time = 20)
+        {
+            bShakeScreen = true;
+            shakeTime = time;
+            oldPos.X = backGroundDims.X;
+            oldPos.Y = backGroundDims.Y;
+        }
+
+
+        // Privates
+
+        private void shakeScreen()
+        {
+            if (bShakeScreen)
+            {
+                Random ran = new Random();
+
+                // do randomly x and y
+                if (ran.Next(3) >= 2)
+                {
+                    backGroundDims.X += ran.Next(10);
+                    backGroundDims.Y += ran.Next(6);
+                }
+                else
+                {
+                    backGroundDims.X -= ran.Next(10);
+                    backGroundDims.Y -= ran.Next(6);
+                }
+
+                // subtract frames
+                shakeTime--;
+
+                // if at the end of shake time
+                if(shakeTime == 0)
+                {
+                    bShakeScreen = false;
+                    backGroundDims.X = Convert.ToInt32(oldPos.X);
+                    backGroundDims.Y = Convert.ToInt32(oldPos.Y);
+                }
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace TurtleSim2000_Linux
 
         // Globals
         #region Global Variables
-        string[,] charaList = new string[100,500];
+        string[,] charaList = new string[100, 500];
         string[] directoryList;
 
         int MISSINGCHARA = 199;
@@ -22,6 +22,13 @@ namespace TurtleSim2000_Linux
         int[] activeCharas = new int[5];        // Which charas are to be drawn. 6 is max.
         public int drawnCharas = 0;             // how many charas are currently being drawn on screen.
         Color universalColor = Color.White;     // Sets the color for all charas
+
+        // For screen shaking
+        bool bShakeScreen = false;
+        int charXShake = 0;
+        int charYShake = 0;
+        Vector2[] oldCharPos = new Vector2[6];
+        int shakeTime = 20;
 
         ContentManager contentManager;
 
@@ -49,7 +56,7 @@ namespace TurtleSim2000_Linux
 
             // Look at the asset directory and look chara folders
             directoryList = Directory.GetDirectories("Content/assets/chara");
-            
+
             // go through directories and bring in .xnb assets ([chara folder, chara pose])
             for (int i = 0; i < directoryList.Length; i++)
             {
@@ -114,6 +121,7 @@ namespace TurtleSim2000_Linux
         {
             moveChara();
             transChara();
+            shakeScreen();
         }
 
         // Draw method
@@ -152,7 +160,7 @@ namespace TurtleSim2000_Linux
             // See if this chara is already drawn to screen
             if (charaArray[cID].bDrawMe == false)
             {
-                
+
                 // setup char's pose and draw order.
                 charaArray[cID].setPose(pose);
                 charaArray[cID].setDrawOrder(drawnCharas + 1);
@@ -173,7 +181,7 @@ namespace TurtleSim2000_Linux
 
                 // Set that this char is ready to be drawn.
                 charaArray[cID].bDrawMe = true;
-                
+
                 // add move effect if used:
                 if (moveEffect != "none")
                 {
@@ -257,6 +265,25 @@ namespace TurtleSim2000_Linux
             return new Vector2(charaArray[cID].charaPos.X, charaArray[cID].charaPos.Y);
         }
 
+        /// <summary>
+        /// Shakes the chara on screen for x amount of time
+        /// </summary>
+        /// <param name="time">Amount of time to shake the screen in frames</param>
+        public void shakeCharaOnScreen(int time = 20)
+        {
+            bShakeScreen = true;
+
+            // Grab chara position and store it before we fuck with it.
+            for (int i = 0; i < drawnCharas; i++)
+            {
+                oldCharPos[i].X = charaArray[activeCharas[i]].charaPos.X;
+                oldCharPos[i].Y = charaArray[activeCharas[i]].charaPos.Y;
+            }
+
+            shakeTime = time;
+
+        }
+
 
         // ------------------------------------------------------------------- privates ---------------------------------------------------------------------
 
@@ -302,7 +329,7 @@ namespace TurtleSim2000_Linux
                     if (charaArray[i].transAlphaNew >= 1.0f)
                     {
                         charaArray[i].bTransMe = false;
-                        
+
                     }
                 }
             }
@@ -311,7 +338,7 @@ namespace TurtleSim2000_Linux
         // to move chara more evenly.  (move slows down as they get close to their destination)
         private void linearMove(int chara)
         {
-            if(charaArray[chara].moveAmount == Convert.ToInt32(charaArray[chara].moveAmountTotal / 2))
+            if (charaArray[chara].moveAmount == Convert.ToInt32(charaArray[chara].moveAmountTotal / 2))
             {
                 if (charaArray[chara].moveSpeed > 2) charaArray[chara].moveSpeed--;
             }
@@ -366,7 +393,7 @@ namespace TurtleSim2000_Linux
             }
 
             // get new move amount based off new coords to old coords
-            
+
 
             // set chara to move to their old pos on draw
             if (direction == "right")
@@ -374,6 +401,47 @@ namespace TurtleSim2000_Linux
                 Move(charaArray[chara].getName(), "left", 18, moveAmount);
             }
             if (direction == "left") Move(charaArray[chara].getName(), "right", 12, moveAmount);
+        }
+
+        private void shakeScreen()
+        {
+            if (bShakeScreen)
+            {
+                // setup random
+                Random ran = new Random();
+
+                for(int i = 0; i < drawnCharas; i++)
+                {
+                    if (ran.Next(3) >= 2)
+                    {
+                        // for x; get random
+                        charaArray[i].charaPos.X += ran.Next(10);
+                        // for y; get random
+                        charaArray[1].charaPos.Y += ran.Next(6);
+                    }
+                    else
+                    {
+                        // for x; get random
+                        charaArray[i].charaPos.X -= ran.Next(10);
+                        // for y; get random
+                        charaArray[1].charaPos.Y -= ran.Next(6);
+                    }
+                }
+
+                // subtract frame from time
+                shakeTime--;
+
+                // if we're at the end of shake time
+                if (shakeTime == 0)
+                {
+                    for(int i = 0; i < drawnCharas; i++)
+                    {
+                        charaArray[activeCharas[i]].charaPos.X = Convert.ToInt32(oldCharPos[i].X);
+                        charaArray[activeCharas[i]].charaPos.Y =  Convert.ToInt32(oldCharPos[i].Y);
+                        bShakeScreen = false;
+                    }
+                }
+            }
         }
 
     }
