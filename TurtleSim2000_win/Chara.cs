@@ -38,6 +38,9 @@ namespace TurtleSim2000_Linux
         public int moveSpeed = 2;       // How fast this char will move
         public string moveDirection;           // What direction this char is moving
 
+        // values from file
+        public Rectangle dimsFromFile;   // The x,y,w,h settings from a file.  Can be changed.
+
         // Vars for showing:
         string currentPose = "missing";  // Which pose this char is currently in
         string oldPose = "missing";      // Old pose before changed to new.  Used for transitions.
@@ -100,6 +103,17 @@ namespace TurtleSim2000_Linux
             Console.WriteLine("The pose: " + newPose + ". Does not exist for chara: " + charaName);
             return currentPose;
         }
+
+        public void resetPositionToFile()
+        {
+            charaPos.X = dimsFromFile.X;
+            charaPos.Y = dimsFromFile.Y;
+        }
+
+
+
+
+
 
         #region Gets and Sets
         /// <summary>
@@ -222,9 +236,11 @@ namespace TurtleSim2000_Linux
 
             // Starting Position for X coord: if set at 0 we'll just go with defualt x pos.
             if (settingsList[1].Length > 0) charaPos.X = Convert.ToInt32(settingsList[1]);
+            dimsFromFile.X = charaPos.X;
 
             // Starting Position for Y Coord: if set at 0 we'll just go with default y pos.
             if (settingsList[2].Length > 0) charaPos.Y = Convert.ToInt32(settingsList[2]);
+            dimsFromFile.Y = charaPos.Y;
 
             // Missing pose replace: what to draw if the pose specified couldn't be found.
             if (settingsList[3].Length > 0) missingPose = settingsList[3];
@@ -236,10 +252,16 @@ namespace TurtleSim2000_Linux
             {
                 bDimensionsFromFile = true;
                 charaPos.Width = Convert.ToInt32(settingsList[4]);
+                dimsFromFile.Width = charaPos.Width;
             }
 
             // Chara normal Height scale in pixels
-            if (settingsList[5] != null) charaPos.Height = Convert.ToInt32(settingsList[5]);
+            if (settingsList[5] != null)
+            {
+                charaPos.Height = Convert.ToInt32(settingsList[5]);
+                dimsFromFile.Height = charaPos.Height;
+            }
+
 
             
 

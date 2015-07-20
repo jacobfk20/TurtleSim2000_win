@@ -211,30 +211,67 @@ namespace TurtleSim2000_Linux
         /// <param name="pixels">amount of pixels to move the char.</param>
         public void Move(string chara, string direction, int speed, int pixels = 0)
         {
-            int id = getCharaID(chara);
-            charaArray[id].moveSpeed = speed;
-            charaArray[id].moveDirection = direction;
-            charaArray[id].moveAmountTotal = pixels;
-            charaArray[id].moveAmount = pixels;
-            charaArray[id].bMoveMe = true;
+            if (direction != "reset")
+            {   
+                int id = getCharaID(chara);
+
+                // check and make sure this chara isn't already being moved
+                if (charaArray[id].moveAmount > 0)
+                {
+                    // Add the leftover move amount to the chara's X or Y coords.
+                    // So they don't get out of place if player is skipping too fast.
+                    string oldDir = charaArray[id].moveDirection;
+                    int oldAmount = charaArray[id].moveAmount;
+                    if (oldDir == "left") charaArray[id].charaPos.X -= oldAmount;
+                    if (oldDir == "right") charaArray[id].charaPos.X += oldAmount;
+                    if (oldDir == "up") charaArray[id].charaPos.Y -= oldAmount;
+                    if (oldDir == "down") charaArray[id].charaPos.Y += oldAmount;
+
+                    charaArray[id].moveAmount = 0;
+                }
+
+                charaArray[id].moveSpeed = speed;
+                charaArray[id].moveDirection = direction;
+                charaArray[id].moveAmountTotal = pixels;
+                charaArray[id].moveAmount = pixels;
+                charaArray[id].bMoveMe = true;
+            }
+            else
+            {
+                int id = getCharaID(chara);
+                charaArray[id].resetPositionToFile();
+            }
         }
 
         public void Exit(string chara = "all", string effect = "alpha")
         {
-            int cID = getCharaID(chara);
-
-            // Remove this chara from the draw order list
-            for (int i = 0; i < drawnCharas; i++)
+            if (chara != "all")
             {
-                if (activeCharas[i] == charaArray[cID].getID())
+                int cID = getCharaID(chara);
+
+                // Remove this chara from the draw order list
+                for (int i = 0; i < drawnCharas; i++)
                 {
-                    activeCharas[i] = -1;
-                    drawnCharas--;
+                    if (activeCharas[i] == charaArray[cID].getID())
+                    {
+                        activeCharas[i] = -1;
+                        drawnCharas--;
+                    }
                 }
+                // re-int the chara to defaults
+                charaArray[cID].setToExit();
+
+            }
+            else
+            {
+                for (int i =0; i < drawnCharas; i++)
+                {
+                    charaArray[activeCharas[i]].setToExit();
+                    activeCharas[i] = -1;
+                }
+                drawnCharas = 0;
             }
 
-            // re-int the chara to defaults
-            charaArray[cID].setToExit();
         }
 
         /// <summary>

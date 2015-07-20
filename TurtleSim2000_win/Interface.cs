@@ -26,6 +26,7 @@ namespace TurtleSim2000_Linux
         Texture2D buttonup;
         Texture2D homeworkAlert;
         Texture2D action_menu;
+        Texture2D select_arrow;
 
         //FONTS
         SpriteFont debugfont;
@@ -34,6 +35,14 @@ namespace TurtleSim2000_Linux
 
         //SPRITEBATCH
         SpriteBatch spriteBatch;
+
+        // ints
+        public int hoveredAnswer = 0;
+        int animateFrames = 0;
+        int fqArrowFrames = 0;
+
+        // bool
+        public bool bGamePad = false;
 
         //THIS FUNCTION INITIALIZES THE WHOLE CLASS!  
         //THIS SETS UP SPRITEBATCH AND FONTS!
@@ -61,13 +70,17 @@ namespace TurtleSim2000_Linux
             homeworkAlert = Content.Load<Texture2D>("assets/gui/gui_homeworkelert");
             buttonup = Content.Load<Texture2D>("assets/gui/gui_button_up");
 
+            // LOAD -> menu stuff
+            select_arrow = Content.Load<Texture2D>("assets/gui/Gui_Arrow");
+
             return 0;
         }
 
         // Interface Update method.  (Logic goes here)
         public int Update()
         {
-
+            fqArrowFrames++;
+            if (fqArrowFrames > 10) fqArrowFrames = 0;
 
             return 0;
         }
@@ -77,24 +90,30 @@ namespace TurtleSim2000_Linux
         // ---------------------------------------------------------------------------------------------------------------------------
 
 
-
         //----------------------------------------------------------------------------------------------------------------------------
         //---------------------------------------------         WINDOWS             --------------------------------------------------
         //----------------------------------------------------------------------------------------------------------------------------
 
         //FORK QUESTION WINDOW
-        public int ForkQuestionShow(string[] answers)
+        public int ForkQuestionShow(string[] answers, int selectedAnswer = 0)
         {
             if (action_menu == null) return -1;
             int i = 2;
 
-            spriteBatch.Draw(buttonup, new Rectangle(200, 140, 400, 40), Color.White);
+            // common Y coord
+            int y = 140;
+
+            // Draw first two question boxes with text
+            spriteBatch.Draw(buttonup, new Rectangle(200, y, 400, 40), Color.White);
             spriteBatch.DrawString(speechfont, answers[0], new Vector2(210, 145), Color.White);
-            spriteBatch.Draw(buttonup, new Rectangle(200, 200, 400, 40), Color.White);
+
+            y += 60;
+
+            spriteBatch.Draw(buttonup, new Rectangle(200, y, 400, 40), Color.White);
             spriteBatch.DrawString(speechfont, answers[1], new Vector2(210, 205), Color.White);
 
             // loop the rest.
-            int y = 200;
+            y = 200;
             while (answers[i] != null)
             {
                 y += 60;
@@ -102,6 +121,17 @@ namespace TurtleSim2000_Linux
                 spriteBatch.DrawString(speechfont, answers[i], new Vector2(210, y + 5), Color.White);
                 i++;
             }
+
+            // Show the arrow if using controller
+            if (bGamePad)
+            {
+                // get y for all possible answers.
+                int[] gY = { 140, 200, 260, 320, 380 };
+
+                // draw arrow outside of the box.
+                spriteBatch.Draw(select_arrow, new Rectangle(160, gY[hoveredAnswer] + fqArrowFrames, 32, 32), Color.White);
+            }
+
             return 0;
         }
 

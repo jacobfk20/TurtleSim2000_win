@@ -141,7 +141,7 @@ namespace TurtleSim2000_Linux
         string s_class3 = "Advanced Shoe Tieing";    //Third Class slot
         int Turns = 0;                               //How many actions the player has done in one game playthrough
 
-        string playername = "Turtle";               //Default playername
+        string playername = "Hush";               //Default playername
 
         //string[,] script = new string[101,500];     //MasterScript string array; holds all scripts (old)
         string dialouge = "Nothing to say";         //This pulls the dialouge from script and displays it.
@@ -295,6 +295,9 @@ namespace TurtleSim2000_Linux
 
             stamps.update();
             bgManager.Update();
+
+            // update game variable 100 randomly every frame.
+            GameVariables[100] = Rando.Next(6);
 
             #region Put VC vars into GameVariables[]
             // This will set all GameVariables to the VC counterpart
@@ -550,7 +553,7 @@ namespace TurtleSim2000_Linux
                     {
                         if (bGamePad == true)
                         {
-                            bFirstrun = true;
+                           // bFirstrun = true;
                         }
                     }
                 }
@@ -652,10 +655,6 @@ namespace TurtleSim2000_Linux
 
             //set background color
             GraphicsDevice.Clear(Color.DarkRed);
-            float screenModX = screenSizeWidth / 800;
-            if (bFullScreen) screenModX += .45f;
-            float screenModY = screenSizeHeight / 480;
-            if (bFullScreen) screenModY += .3f;
 
             #region StartMenu
             if (bStart == true)
@@ -669,18 +668,18 @@ namespace TurtleSim2000_Linux
                 spriteBatch.Draw(bg_courtyard, new Rectangle(screenSizeWidth * 2 - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
                 spriteBatch.Draw(bg_gate, new Rectangle(screenSizeWidth * 3 - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
 
-                spriteBatch.DrawString(debugfontsmall, "Total Scripts: " + totscripts + "  Total Lines: " + MasterScript.TotalLines() + "  Script Name: " + MasterScript.Read(34, 0) + "Screen Size: " + screenSizeWidth + " " + screenSizeHeight, new Vector2(Convert.ToInt32(250 * screenModX), Convert.ToInt32(177 * screenModY)), Color.White);
-                spriteBatch.DrawString(debugfontsmall, "Added Features:\n" + newthings, new Vector2(Convert.ToInt32(10 * screenModX), Convert.ToInt32(180 * screenModY)), Color.White);
+                spriteBatch.DrawString(debugfontsmall, "Total Scripts: " + totscripts + "  Total Lines: " + MasterScript.TotalLines() + "  Script Name: " + MasterScript.Read(34, 0) + "Screen Size: " + screenSizeWidth + " " + screenSizeHeight, new Vector2(Convert.ToInt32(250), Convert.ToInt32(177)), Color.White);
+                spriteBatch.DrawString(debugfontsmall, "Added Features:\n" + newthings, new Vector2(Convert.ToInt32(10), Convert.ToInt32(180)), Color.White);
                 spriteBatch.DrawString(debugfontsmall, GameInfo, new Vector2(screenSizeWidth - 260, screenSizeHeight - 20), Color.White);
-                spriteBatch.DrawString(debugfontsmall, "Produced by Jacob Karleskint and Tclub Games", new Vector2(Convert.ToInt32(10 * screenModX), Convert.ToInt32(460 * screenModY)), Color.White);
+                spriteBatch.DrawString(debugfontsmall, "Produced by Jacob Karleskint and Tclub Games", new Vector2(Convert.ToInt32(10), Convert.ToInt32(460)), Color.White);
 
                 //menu buttons 280 (480 / 2 = 240) +40
-                spriteBatch.Draw(messagebox, new Rectangle(Convert.ToInt32(240 * screenModX), 0, Convert.ToInt32(320 * screenModX), Convert.ToInt32(180 * screenModY)), Color.White);
-                spriteBatch.Draw(logo2, new Rectangle(Convert.ToInt32(240 * screenModX) - logoscaler, Convert.ToInt32(-20 * screenModY) - logoscaler, Convert.ToInt32(320 * screenModX) + logoscaler + logoscaler, Convert.ToInt32(250 * screenModY) + logoscaler + logoscaler), Color.White);
-                spriteBatch.Draw(buttonup, new Rectangle(Convert.ToInt32(320 * screenModX), Convert.ToInt32(280 * screenModY), Convert.ToInt32(160 * screenModX), Convert.ToInt32(40 * screenModY)), Color.White);
-                spriteBatch.DrawString(debugfont, "Quit", new Vector2(Convert.ToInt32(375 * screenModX), Convert.ToInt32(285 * screenModY)), Color.White);
-                spriteBatch.Draw(buttonup, new Rectangle(Convert.ToInt32(320 * screenModX), Convert.ToInt32(200 * screenModY), Convert.ToInt32(160 * screenModX), Convert.ToInt32(40 * screenModY)), Color.White);
-                spriteBatch.DrawString(debugfont, "Start Game", new Vector2(Convert.ToInt32(340 * screenModX), Convert.ToInt32(205 * screenModY)), Color.White);
+                spriteBatch.Draw(messagebox, new Rectangle(Convert.ToInt32(240), 0, Convert.ToInt32(320), Convert.ToInt32(180)), Color.White);
+                spriteBatch.Draw(logo2, new Rectangle(Convert.ToInt32(240) - logoscaler, Convert.ToInt32(-20) - logoscaler, Convert.ToInt32(320) + logoscaler + logoscaler, Convert.ToInt32(250) + logoscaler + logoscaler), Color.White);
+                spriteBatch.Draw(buttonup, new Rectangle(Convert.ToInt32(320), Convert.ToInt32(280), Convert.ToInt32(160), Convert.ToInt32(40)), Color.White);
+                spriteBatch.DrawString(debugfont, "Quit", new Vector2(Convert.ToInt32(375), Convert.ToInt32(285)), Color.White);
+                spriteBatch.Draw(buttonup, new Rectangle(Convert.ToInt32(320), Convert.ToInt32(200), Convert.ToInt32(160), Convert.ToInt32(40)), Color.White);
+                spriteBatch.DrawString(debugfont, "Start Game", new Vector2(Convert.ToInt32(340), Convert.ToInt32(205)), Color.White);
 
                 spriteBatch.End();
             }
@@ -702,8 +701,6 @@ namespace TurtleSim2000_Linux
             GUI.ActionMenuShow(actionmenuscroller, GameVariables[490], VC);
             if (bMenu == true) GUI.ClassWindowShow(VC.GetDay(), VC.GetWeekDay(), s_class, GameVariables[452]);
 
-            // spriteBatch.DrawString(debugfont, "Wait Time: " + WaitTime, new Vector2(10, 10), Color.White);  //debug reasons
-
             //Draw Progress bars.
             if (bHud == true)
             {
@@ -714,6 +711,7 @@ namespace TurtleSim2000_Linux
                 GUI.ProBarShow(10, 85, VC.GetFat(), "Fat");
                 if (GameVariables[0] >= 1) GUI.ProBarShow(10, 110, GameVariables[0], "Emi's Affection");
             }
+
             if (bHud == true) VC.Clock(spriteBatch);
 
             if (bShowtext == true)
@@ -832,15 +830,31 @@ namespace TurtleSim2000_Linux
         protected void ForkQuestion()
         {
 
+            // Set new bounds if in full screen.
+            float screenModX = screenSizeWidth / 800;
+            float screenModY = screenSizeHeight / 480;
+
+            // Button Bounds width and height
+            int sModW = 500;
+            int sModH = 40;
+            if (bFullScreen)
+            {
+                // if full screen; do the math
+                screenModY += .3f;
+                screenModX += .45f;
+                sModW = Convert.ToInt32(screenModX * 500);
+                sModH = Convert.ToInt32(screenModY * 40);
+            }
+
             if (bClicked == true && bWait == false)
             {
                 var mouseState = Mouse.GetState();
                 var mousePosition = new Point(mouseState.X, mouseState.Y);
 
                 Rectangle[] Q = new Rectangle[8];
-                Q[0] = new Rectangle(200, 140, 500, 40);  // increment y by 60
-                Q[1] = new Rectangle(200, 200, 500, 40);
-                Q[2] = new Rectangle(200, 260, 500, 40);
+                Q[0] = new Rectangle(Convert.ToInt32(200 * screenModX), Convert.ToInt32(140 * screenModY), sModW, sModH);  // increment y by 60
+                Q[1] = new Rectangle(Convert.ToInt32(200 * screenModX), Convert.ToInt32(200 * screenModY), sModW, sModH);
+                Q[2] = new Rectangle(Convert.ToInt32(200 * screenModX), Convert.ToInt32(260 * screenModY), sModW, sModH);
                 Q[3] = new Rectangle(200, 320, 500, 40);
                 Q[4] = new Rectangle(200, 380, 500, 40);
                 Q[5] = new Rectangle(200, 440, 500, 40);  // when this is reached, we will need to change Y
@@ -879,6 +893,23 @@ namespace TurtleSim2000_Linux
                         }
                     }
                 }
+
+                if (1 == 2)
+                {
+                    GUI.bGamePad = true;
+                    if(dpady < 0)
+                    {
+                        GUI.hoveredAnswer++;
+                        if (GUI.hoveredAnswer > forkAnswers.Length) GUI.hoveredAnswer = 0;
+                    }
+                    if (dpady > 0)
+                    {
+                        GUI.hoveredAnswer--;
+                        if (GUI.hoveredAnswer < 0) GUI.hoveredAnswer = forkAnswers.Length;
+                    }
+
+                }
+
             }
         }
 
@@ -2520,6 +2551,23 @@ namespace TurtleSim2000_Linux
                                 }
                             }
 
+                            // For LESS THAN
+                            if (ifType == 2)
+                            {
+                                if (a <= b)
+                                {
+                                    ScriptCommands();
+                                }
+                                else
+                                {
+                                    while(MasterScript.Read(scriptreaderx, scriptreadery) != "#endif")
+                                    {
+                                        scriptreadery++;
+                                    }
+                                }
+                            }
+
+
                         }
 
                         if (MasterScript.Read(scriptreaderx, scriptreadery) == "#endif")
@@ -2734,6 +2782,11 @@ namespace TurtleSim2000_Linux
                             {
                                 charaColor = Color.DeepPink;
                                 charaCode = "Suzy:";
+                            }
+                            if (speakerName == "???")
+                            {
+                                charaColor = Color.DimGray;
+                                charaCode = "?????:";
                             }
                             #endregion
 
