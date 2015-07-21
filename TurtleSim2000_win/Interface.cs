@@ -17,12 +17,10 @@ namespace TurtleSim2000_Linux
     {
 
         //STORE GUI TEXTURES
-        Texture2D pgbar_filler_left;
-        Texture2D pgbar_filler_right;
-        Texture2D pgbar_filler_center;
-        Texture2D pgbar_right;
-        Texture2D pgbar_left;
-        Texture2D pgbar_center;
+        Texture2D pBar_backlayer;
+        Texture2D pBar_edges;
+        Texture2D pBar_progress;
+
         Texture2D buttonup;
         Texture2D homeworkAlert;
         Texture2D action_menu;
@@ -51,13 +49,10 @@ namespace TurtleSim2000_Linux
             // grab spritebatch from ref
             spriteBatch = sprBatch;
 
-            // LOAD -> Progress Bar
-            this.pgbar_center = Content.Load<Texture2D>("assets/gui/pgbar_center_empty");
-            this.pgbar_left = Content.Load<Texture2D>("assets/gui/pgbar_left_empty");
-            this.pgbar_right = Content.Load<Texture2D>("assets/gui/pgbar_right_empty");
-            this.pgbar_filler_center = Content.Load<Texture2D>("assets/gui/pgbar_fill_center_empty");
-            this.pgbar_filler_left = Content.Load<Texture2D>("assets/gui/pgbar_fill_left_empty");
-            this.pgbar_filler_right = Content.Load<Texture2D>("assets/gui/pgbar_fill_right_empty");
+            // LOAD -> New Progress Bar assets
+            this.pBar_backlayer = Content.Load<Texture2D>("assets/gui/bar_backlayer");
+            this.pBar_edges = Content.Load<Texture2D>("assets/gui/bar_edges");
+            this.pBar_progress = Content.Load<Texture2D>("assets/gui/bar_progress");
 
             // LOAD -> Fonts
             this.debugfont = Content.Load<SpriteFont>("fonts/debugfont");
@@ -85,9 +80,7 @@ namespace TurtleSim2000_Linux
             return 0;
         }
 
-        // ---------------------------------------------------------------------------------------------------------------------------
-        // --------------------------------------------        PRIMITIVES           --------------------------------------------------
-        // ---------------------------------------------------------------------------------------------------------------------------
+
 
 
         //----------------------------------------------------------------------------------------------------------------------------
@@ -149,105 +142,37 @@ namespace TurtleSim2000_Linux
             return 0;
         }
 
-        //PROGRESS BAR  SHOWS A BAR BASED ON X VALUE
-        public int ProBarShow(int pbarx, int pbary, int V, string name)
+        /// <summary>
+        /// Draws a progress bar with given X and Y coords and a Value
+        /// </summary>
+        /// <param name="pbarx">X coord on screen</param>
+        /// <param name="pbary">Y coord on screen</param>
+        /// <param name="V">Value to show</param>
+        /// <param name="name">What this bar is called. (can be left blank)</param>
+        /// <returns></returns>
+        public int ProBarShow(int pbarx, int pbary, int V, string name = "")
         {
-            if (V >= 10)
-                {
-                    spriteBatch.Draw(pgbar_filler_left, new Rectangle(pbarx, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_left, new Rectangle(pbarx, pbary, 10, 20), Color.White);
-                }
-                if (V >= 20)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 10, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 10, pbary, 10, 20), Color.White);
-                }
-                if (V >= 30)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 20, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 20, pbary, 10, 20), Color.White);
-                }
-                if (V >= 40)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 30, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 30, pbary, 10, 20), Color.White);
-                }
-                if (V >= 50)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 40, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 40, pbary, 10, 20), Color.White);
-                }
-                if (V >= 60)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 50, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 50, pbary, 10, 20), Color.White);
-                }
-                if (V >= 70)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 60, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 60, pbary, 10, 20), Color.White);
-                }
-                if (V >= 80)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 70, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 70, pbary, 10, 20), Color.White);
-                }
-                if (V >= 90)
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 80, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_center, new Rectangle(pbarx + 80, pbary, 10, 20), Color.White);
-                }
-                if (V >= 95)
-                {
-                    spriteBatch.Draw(pgbar_filler_right, new Rectangle(pbarx + 90, pbary, 10, 20), Color.Green);
-                }
-                else
-                {
-                    spriteBatch.Draw(pgbar_filler_right, new Rectangle(pbarx + 90, pbary, 10, 20), Color.White);
-                }
+            // Draw the backlayer first.
+            spriteBatch.Draw(pBar_backlayer, new Rectangle(pbarx, pbary, pBar_backlayer.Width +6, pBar_backlayer.Height - 6), Color.White);
 
-                spriteBatch.Draw(pgbar_left, new Rectangle(pbarx, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 10, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 20, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 30, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 40, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 50, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 60, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 70, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_center, new Rectangle(pbarx + 80, pbary, 10, 20), Color.White);
-                spriteBatch.Draw(pgbar_right, new Rectangle(pbarx + 90, pbary, 10, 20), Color.White);
+            // Draw in the total progress based on V
+            int spacer = 0;
+            for (int i = 0; i < V; i++)
+            {
+                spriteBatch.Draw(pBar_progress, new Rectangle(pbarx + 4 + spacer, pbary + 3, pBar_progress.Width, pBar_progress.Height - 6), Color.White);
+                spacer += 2;
+            }
 
-                spriteBatch.DrawString(debugfont, V + "%", new Vector2(pbarx + 35, pbary - 3), Color.White);
-                spriteBatch.DrawString(debugfont, name, new Vector2(pbarx + 103, pbary - 4), Color.White);
+            // Draw the progress inside the bar.
+            spriteBatch.DrawString(debugfont, V + "", new Vector2(pbarx + 85, pbary), Color.White);
 
-                return 0;
+            // Draw the edges of the bar
+            spriteBatch.Draw(pBar_edges, new Rectangle(pbarx, pbary, pBar_edges.Width + 6, pBar_edges.Height - 6), Color.White);
+
+            // Draw the name of the bar
+            spriteBatch.DrawString(debugfont, name, new Vector2(pbarx + 210, pbary), Color.White);
+
+            return 0;
         }
 
         //THE MAIN ACTION MENU  (THIS IS WHERE ALL THE ACTIONS ARE SHOWN)
@@ -304,5 +229,8 @@ namespace TurtleSim2000_Linux
             return 0;
         }
 
+
+
+        // Private
     }
 }

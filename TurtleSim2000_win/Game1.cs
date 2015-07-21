@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 63) v0.56 BETA";
-        string newthings = "BETA v0.56 changes: \n+Full Screen Mode \n+Ported to Monogame (Linux/Android) \n+New Chara manager \n+New Background Manager \n+Refactored old chara controls out \n+Cleaned up old legacy code. \n+Fixed (Sprite Missing) bug \n+Fixed dormroom not showing on start. \n+Chara moves more fluently now (linear move) \n+Chara can now be moved in on show \n+Can now shake screen";
+        String GameInfo = "TurtleSim 2000 (Build 65) v0.6 BETA";
+        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars!";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -704,7 +704,7 @@ namespace TurtleSim2000_Linux
             //Draw Progress bars.
             if (bHud == true)
             {
-                spriteBatch.Draw(messagebox, new Rectangle(0, -5, 200, 125), Color.White);
+                spriteBatch.Draw(messagebox, new Rectangle(0, -5, 300, 130), Color.White);
                 GUI.ProBarShow(10, 10, VC.GetHP(), "HP");
                 GUI.ProBarShow(10, 35, VC.GetEnergy(), "Energy");
                 GUI.ProBarShow(10, 60, VC.GetSocial(), "Social");
