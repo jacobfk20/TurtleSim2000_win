@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 65) v0.6 BETA";
-        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars!";
+        String GameInfo = "TurtleSim 2000 (Build 66) v0.6 BETA";
+        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still.";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -311,7 +311,7 @@ namespace TurtleSim2000_Linux
             GameVariables[487] = VC.GetSocial();
             GameVariables[488] = VC.GetFat();
             #endregion
-
+           
             // Dick with transition update function
             transition.Update();
 
@@ -527,6 +527,7 @@ namespace TurtleSim2000_Linux
 
                 Rectangle button1 = new Rectangle(btnX, 280, btnWidth, btnHeight);       //Start button
                 Rectangle button2 = new Rectangle(btnX, 200, btnWidth, btnHeight);       //Quit button
+                Rectangle button4 = new Rectangle(btnX, 240, btnWidth, btnHeight);       //Continue button
                 Rectangle button3 = new Rectangle(280, 20, 164, 164);                   //hidden debug button
 
                 if (bClicked == true || bAuthorMode == true)
@@ -548,6 +549,19 @@ namespace TurtleSim2000_Linux
                     if (button2.Contains(mousePosition))
                     {
                         bFirstrun = true;
+                    }
+                    if (button4.Contains(mousePosition))
+                    {
+                        bDorm = true;
+                        gameSaver.sD.gVariables = GameVariables;
+                        gameSaver.loadFromFile();
+                        VC.setValuesFromLoad(GameVariables[483], GameVariables[486], 5, 5, 5, 5, 5, "friday");
+                        //bStart = false;
+                        eventname = "wut";
+                        bRunevent = true;
+                        bShowtext = true;
+                        bStart = false;
+                        //bRunevent = true;
                     }
                     else
                     {
@@ -680,6 +694,8 @@ namespace TurtleSim2000_Linux
                 spriteBatch.DrawString(debugfont, "Quit", new Vector2(Convert.ToInt32(375), Convert.ToInt32(285)), Color.White);
                 spriteBatch.Draw(buttonup, new Rectangle(Convert.ToInt32(320), Convert.ToInt32(200), Convert.ToInt32(160), Convert.ToInt32(40)), Color.White);
                 spriteBatch.DrawString(debugfont, "Start Game", new Vector2(Convert.ToInt32(340), Convert.ToInt32(205)), Color.White);
+                spriteBatch.Draw(buttonup, new Rectangle(320, 240, 160, 40), Color.White);
+                spriteBatch.DrawString(debugfont, "Continue", new Vector2(350, 245), Color.White);
 
                 spriteBatch.End();
             }
@@ -704,7 +720,7 @@ namespace TurtleSim2000_Linux
             //Draw Progress bars.
             if (bHud == true)
             {
-                spriteBatch.Draw(messagebox, new Rectangle(0, -5, 300, 130), Color.White);
+                spriteBatch.Draw(messagebox, new Rectangle(0, -5, 300, 130), Color.White * 0.8f);
                 GUI.ProBarShow(10, 10, VC.GetHP(), "HP");
                 GUI.ProBarShow(10, 35, VC.GetEnergy(), "Energy");
                 GUI.ProBarShow(10, 60, VC.GetSocial(), "Social");
@@ -749,7 +765,7 @@ namespace TurtleSim2000_Linux
             {
                 spriteBatch.DrawString(debugfontsmall, GameInfo, new Vector2(536, 0), Color.White);
             }
-
+            
             spriteBatch.End();
 
             #region Debug/Error
@@ -825,7 +841,7 @@ namespace TurtleSim2000_Linux
             }
 
         }
-
+ 
         //Waits for player to answer, then sends answer to script
         protected void ForkQuestion()
         {
@@ -1488,6 +1504,7 @@ namespace TurtleSim2000_Linux
             if (eventname == "text")
             {
                 //this is a special case
+
             }
             if (eventname == "eat")
             {
@@ -1568,6 +1585,9 @@ namespace TurtleSim2000_Linux
                 GameVariables[453] = VC.GetTime();
 
                 gameSaver.SyncData(device, GameSwitches, GameVariables);
+                gameSaver.sD.gSwitches = GameSwitches;
+                gameSaver.sD.gVariables = GameVariables;
+                gameSaver.DumpToFile();
             }
 
             // Did the player skip class?

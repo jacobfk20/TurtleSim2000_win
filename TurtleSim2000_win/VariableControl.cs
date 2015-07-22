@@ -136,6 +136,20 @@ namespace TurtleSim2000_Linux
 
         }
 
+        public void setValuesFromLoad(int energy, int hp, int _social, int fat, int time, int day, int dayofweek, string week_day)
+        {
+            Energy = energy;
+            HP = hp;
+            social = _social;
+            Fat = fat;
+            Time = time;
+            Day = day;
+            DayofWeek = dayofweek;
+            weekday = week_day;
+        }
+
+
+
         //ADD Functions.  These Safely add value to their respected variable.
         public int addenergy(int v)
         {
@@ -189,6 +203,7 @@ namespace TurtleSim2000_Linux
             if (Fat > 99) bGameOver = true;
             return Fat;
         }
+
 
 
         //GET FUNCTIONS.  JUST RETURNS THE VARIABLE WHEN NEEDED.
