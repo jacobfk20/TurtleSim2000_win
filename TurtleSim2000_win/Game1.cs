@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 66) v0.6 BETA";
-        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still.";
+        String GameInfo = "TurtleSim 2000 (Build 67) v0.6 BETA";
+        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!!";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -550,17 +550,29 @@ namespace TurtleSim2000_Linux
                     {
                         bFirstrun = true;
                     }
+
+                    // For continueing from savegame
                     if (button4.Contains(mousePosition))
                     {
                         bDorm = true;
+
+                        // Load from file and store into game variables.
                         gameSaver.sD.gVariables = GameVariables;
                         gameSaver.loadFromFile();
-                        VC.setValuesFromLoad(GameVariables[483], GameVariables[486], 5, 5, 5, 5, 5, "friday");
+                        VC.setValuesFromLoad(GameVariables[485], GameVariables[486], GameVariables[487], GameVariables[488], GameVariables[453], GameVariables[455], GameVariables[454], "Friday");
                         //bStart = false;
+
+                        // setup background stuff
+                        bgManager.setBackground("School_ProDorm_bedroom");
+                        bgManager.setBackgroundDimensions(800, 480);
+                        bgManager.bShowBackground = true;
+
                         eventname = "wut";
                         bRunevent = true;
                         bShowtext = true;
                         bStart = false;
+                        bDorm = true;
+                        bHud = true;
                         //bRunevent = true;
                     }
                     else
