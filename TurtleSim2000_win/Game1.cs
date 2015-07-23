@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 67) v0.6 BETA";
-        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!!";
+        String GameInfo = "TurtleSim 2000 (Build 68) v0.6 BETA";
+        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -601,6 +601,18 @@ namespace TurtleSim2000_Linux
             animateactionmenu();  //calls the animator to move the menu about.
                                   //Also handles button collision events
 
+            //Events ran from player selection
+            if (bRunevent == true)
+            {
+                // zero out scriptreadery for bug on startup
+                scriptreadery = 0;
+
+                //I just put them all into a function.
+                Events();
+
+                bRunevent = false;
+            }
+
             //Waits for the Action Menu to be gone before drawing the text box
             if (bShowtext == true)
             {
@@ -612,15 +624,6 @@ namespace TurtleSim2000_Linux
 
             //events ran by either random, or incur onto the player.
             if (bMenu) PopEvents();
-
-            //Events ran from player selection
-            if (bRunevent == true)
-            {
-                //I just put them all into a function.
-                Events();
-
-                bRunevent = false;
-            }
 
             if (bQuestion == true) ForkQuestion();
 
@@ -1295,7 +1298,7 @@ namespace TurtleSim2000_Linux
             //set the Y value to that script number.
             if (scriptreadery == 0)
             {
-
+                scriptreaderx = 0;
                 while (MasterScript.Read(scriptreaderx, 0) != ename)
                 {
                     scriptreaderx++;
@@ -1393,9 +1396,11 @@ namespace TurtleSim2000_Linux
             if (trigger == "gamestart")
             {
                 bRunTut = true;
-                scriptreaderx = 0;
+                bShowtext = false;
+                scriptreaderx = 1;
                 scriptreadery = 0;
                 triggered = true;
+                
                 stamps.Popup("Waste of Time.\nYou Decided to play the worst\nGame ever!  Contraturation.");
             }
 
@@ -1654,7 +1659,7 @@ namespace TurtleSim2000_Linux
             if (sliceCom != "S[")
             {
                 while (bReloop == true && MasterScript.Read(scriptreaderx, scriptreadery) != null)
-                {
+                { 
 
                     #region Charaevent Family (TSS v2.1)
                     // set sliceCom to the params of "charaevent"
@@ -1906,7 +1911,7 @@ namespace TurtleSim2000_Linux
                     #region GameOver
                     if (MasterScript.Read(scriptreaderx, scriptreadery) == "gameover")
                     {
-                        this.Exit();
+                         this.Exit();
                     }
                     #endregion
 

@@ -50,10 +50,8 @@ namespace TurtleSim2000_Linux
         // Should be ran at game startup will return script count.
         public int Compile()
         {
-            int authorslot = 0;
-
             // Import legacy scripts...
-            compileLegacy();    // this is a private function of this class
+            //compileLegacy();    // this is a private function of this class
 
             // Zero out line and placeholder
             _L = 0;
@@ -176,6 +174,10 @@ namespace TurtleSim2000_Linux
                 // debug purposes.
                 //S += 1000;
             }
+
+            // Write all scripts to file.
+            storeScriptInfo();
+
             return S;
         }
 
@@ -263,6 +265,48 @@ namespace TurtleSim2000_Linux
             }
 
             return 0;
+        }
+
+        // Store all scripts in a string and write to file
+        private void storeScriptInfo()
+        {
+            // create a StreamWriter to log script info into
+            StreamWriter sW = new StreamWriter("ScriptLog.txt", false);
+
+            // Write some kind of header
+            sW.WriteLine("Script Compiler was able to Compile the following scripts in this order:");
+
+            for (int i = 0; i < S; i++)
+            {
+                sW.WriteLine(i + ": " + MasterScript[i, 0]);
+            }
+
+            // Write some kind of footer?
+            sW.WriteLine("End of Script Compiler duties.");
+            sW.WriteLine("---------------------------------------------------------------------------");
+
+            // close file
+            sW.Close();
+
+            // ---------------------------------- Log authors ------------------------------
+            StreamWriter sWW = new StreamWriter("ScriptAuthors.txt");
+
+            // Write header for author file
+            sWW.WriteLine("This file contains author data.  Who wrote what script is here.");
+            sWW.WriteLine("This is compiled by Script Compiler on game startup.");
+
+            for (int i = 0; i < authorslot; i++)
+            {
+                sWW.WriteLine("------------------------------------------------------------------------------");
+                sWW.WriteLine("Script Number: " + Authors[i, 0]);
+                sWW.WriteLine("Script Author: " + Authors[i, 1]);
+                sWW.WriteLine("Script Name  : " + Authors[i, 2]);
+            }
+
+            // Add footer
+            sWW.WriteLine("------------------------------------------------------------------------------");
+            sWW.WriteLine("%~End of Author data~%");
+            sWW.Close();
         }
 
     }
