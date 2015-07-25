@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 68) v0.6 BETA";
-        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1";
+        String GameInfo = "TurtleSim 2000 (Build 69) v0.6 BETA";
+        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1 \n+Added script return.";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -1337,6 +1337,22 @@ namespace TurtleSim2000_Linux
             //var mouseState = Mouse.GetState();
             if (bClicked == true && bQuestion == false && bTypewritting == false && bWait == false)
             {
+
+                // To return the script reader if GS[490]"Script Return" = true. 
+                if (GameSwitches[490] == true && MasterScript.Read(scriptreaderx, scriptreadery + 1) == null)
+                {
+                    // Set script reader x and y to where we left off from the old script
+                    scriptreaderx = GameVariables[491];
+                    scriptreadery = GameVariables[492];
+
+                    // cleanup
+                    GameVariables[491] = 0;
+                    GameVariables[492] = 0;
+                    GameSwitches[490] = false;
+
+                    //if (MasterScript.Read(scriptreaderx, scriptreadery) == null) bClicked = true;
+                }
+
                 //fixfirstscripterror = false;
                 if (MasterScript.Read(scriptreaderx, scriptreadery + 1) != null)
                 {
@@ -1350,19 +1366,19 @@ namespace TurtleSim2000_Linux
                     //run through the script commands and like.. run them.
                     ScriptCommands();
 
-                    //This line is 100% useless.
+                    // Advances script when we jump around and we land on the same line.
                     if (MasterScript.Read(scriptreaderx, scriptreadery) == null) bClicked = true;
 
                     if (bWait == false) TypewritterEffect();
                 }
                 else
                 {
-                    scriptreaderx = 0;
-                    scriptreadery = 0;
+                        scriptreaderx = 0;
+                        scriptreadery = 0;
 
-                    bShowtext = false;
-                    bMenu = true;
-                    if (bAuthorMode == true) this.Exit();
+                        bShowtext = false;
+                        bMenu = true;
+                        if (bAuthorMode == true) this.Exit();
                 }
             }
             //if(script[scriptreaderx,scriptreadery] != null) dialouge = script[scriptreaderx, scriptreadery];
@@ -2121,6 +2137,24 @@ namespace TurtleSim2000_Linux
                                 // get : pos
                                 colPos = line.IndexOf(":");
 
+                                // see if there is a return argument and store '-' index
+                                int hyIndex = 0;
+                                if (line.Contains("-return"))
+                                {
+                                    hyIndex = line.IndexOf('-');
+                                    line = line.Remove(hyIndex, 7);
+
+                                    // Set game variables and switches up
+                                    GameVariables[491] = scriptreaderx;         // These will tell the script int. to return to this script on end
+                                    GameVariables[492] = scriptreadery++;
+                                    GameSwitches[490] = true;
+
+                                    // check and make sure there is no space at the end.
+                                    if (line[hyIndex - 1] == ' ') line = line.Remove(hyIndex - 1, 1);
+                                }
+                                
+
+
                                 // Get script:
                                 script = line.Substring(colPos + 2);
 
@@ -2128,7 +2162,7 @@ namespace TurtleSim2000_Linux
 
                                 // Clean up:
                                 dialouge = null;
-                                scriptreaderx = 0;
+                                //scriptreaderx = 0;
                                 scriptreadery = 0;
                             }
                             else
