@@ -19,7 +19,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 69) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 70) v0.6 BETA";
         string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1 \n+Added script return.";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
@@ -1321,7 +1321,7 @@ namespace TurtleSim2000_Linux
 
                 //RUNS  THROUGH ALL SCRIPT COMMANDS AND EXECUTES THEM!
                 //THIS ONE FUNCTION IS VARY IMPORTANT TO EVERYTHING!!!
-                ScriptCommands();
+                ScriptCommandsHelper();
 
                 TypewritterEffect();
 
@@ -1331,7 +1331,7 @@ namespace TurtleSim2000_Linux
 
             if (reRunAfterWait && bWait == false)
             {
-                ScriptCommands();
+                ScriptCommandsHelper();
             }
 
             //var mouseState = Mouse.GetState();
@@ -1343,7 +1343,7 @@ namespace TurtleSim2000_Linux
                 {
                     // Set script reader x and y to where we left off from the old script
                     scriptreaderx = GameVariables[491];
-                    scriptreadery = GameVariables[492];
+                    scriptreadery = GameVariables[492] + 1;
 
                     // cleanup
                     GameVariables[491] = 0;
@@ -1362,9 +1362,8 @@ namespace TurtleSim2000_Linux
                     }
                     else scriptreadery++;
 
-
                     //run through the script commands and like.. run them.
-                    ScriptCommands();
+                    ScriptCommandsHelper();
 
                     // Advances script when we jump around and we land on the same line.
                     if (MasterScript.Read(scriptreaderx, scriptreadery) == null) bClicked = true;
@@ -1662,20 +1661,16 @@ namespace TurtleSim2000_Linux
         }
 
         //Script Commands Get Defined HERE! 
-        private void ScriptCommands()
+        private int ScriptCommands()
         {
-            bool bReloop = true;
-            int loopis = 0;
 
             // Check if the code is a command:
             // We check by seeing if it is a speech command, and ignore if it is.
             // This should increase speed as we don't have to check every line 100+ times
             string sliceCom = "?";
             if (MasterScript.Read(scriptreaderx, scriptreadery) != null) sliceCom = MasterScript.Read(scriptreaderx, scriptreadery).Substring(0, 1);
-            if (sliceCom != "S[")
+            if (sliceCom != "S[" && sliceCom != "?")
             {
-                while (bReloop == true && MasterScript.Read(scriptreaderx, scriptreadery) != null)
-                { 
 
                     #region Charaevent Family (TSS v2.1)
                     // set sliceCom to the params of "charaevent"
@@ -1747,10 +1742,12 @@ namespace TurtleSim2000_Linux
                                     {
                                         ErrorReason = "Incorrect syntax for charaevent show. Line: " + scriptreadery + " in script " + scriptreaderx;
                                         bError = true;
+                                    return -2;
                                     }
                                 }
 
                                 scriptreadery++;
+                                return 1;
 
                             }
                             #endregion
@@ -1794,12 +1791,14 @@ namespace TurtleSim2000_Linux
                                         Console.WriteLine("TSS: moving chara - " + charName + " " + charAmount + " pixels to the " + charDir);
 
                                            scriptreadery++;
+                                        return 1;
                                         
                                     }
                                     else
                                     {
                                         ErrorReason = "Syntax Error: Missing a '=' in line: " + MasterScript.Read(scriptreaderx, scriptreadery);
                                         bError = true;
+                                    return -2;
                                     }
                                 }
 
@@ -1829,6 +1828,7 @@ namespace TurtleSim2000_Linux
                                         string scriptHang = MasterScript.Read(scriptreaderx, scriptreadery);
                                         ErrorReason = "Tried to convert string to integer.  String to convert: " + sliceCom + "\n Whole string: " + scriptHang;
                                         bError = true;
+                                    return -2;
                                     }
 
                                     // Apply actions
@@ -1838,6 +1838,7 @@ namespace TurtleSim2000_Linux
 
                                     // Check and see if there are any actors on screen:
                                     if (charaManager.drawnCharas == 0) bHud = true;
+                                return 1;
 
                                 }
                                 else
@@ -1847,13 +1848,15 @@ namespace TurtleSim2000_Linux
 
                                     bHud = true;
                                     scriptreadery++;
+                                return 1;
                                 }
                             }
-                            #endregion
+                        #endregion
+
                         }
                     }
                     #endregion
-
+                    
                     #region bgChange (TSS v2)
                     // set sliceCom to the params of "charaevent"
                     if (MasterScript.Read(scriptreaderx, scriptreadery).Length >= 8)
@@ -1899,6 +1902,7 @@ namespace TurtleSim2000_Linux
                                             if (TransitionType == "FadeBlack") transition.Show("FadeBlack", 60);
 
                                             scriptreadery++;
+                                        return 1;
                                         }
                                     }
                                 }
@@ -1908,6 +1912,7 @@ namespace TurtleSim2000_Linux
                                     string scriptname = MasterScript.Read(scriptreaderx, 0);
                                     ErrorReason = "Syntax error: Missing '=' sign on line: " + MasterScript.Read(scriptreaderx, scriptreadery) + "\nOn script: " + scriptname;
                                     bError = true;
+                                return -2;
                                 }
                             }
                             else
@@ -1919,6 +1924,7 @@ namespace TurtleSim2000_Linux
                                 bgManager.setBackgroundDimensions(800, 480);
 
                                 scriptreadery++;
+                            return 1;
                             }
                         }
                     }
@@ -1928,6 +1934,7 @@ namespace TurtleSim2000_Linux
                     if (MasterScript.Read(scriptreaderx, scriptreadery) == "gameover")
                     {
                          this.Exit();
+                    return 1;
                     }
                     #endregion
 
@@ -1960,6 +1967,7 @@ namespace TurtleSim2000_Linux
                                 songstart = false;
                                 bPlayMusic = true;
                                 scriptreadery++;
+                            return 1;
                             }
                             else
                             // for stoping music:
@@ -1967,6 +1975,7 @@ namespace TurtleSim2000_Linux
                             {
                                 bPlayMusic = false;
                                 scriptreadery++;
+                            return 1;
                             }
                             else
                             {
@@ -1974,6 +1983,7 @@ namespace TurtleSim2000_Linux
                                 Console.WriteLine("Syntax Error: Music commands are: Stop, Play. Script: " + MasterScript.Read(scriptreaderx, 0));
                                 ErrorReason = "Syntax Error: Music commands are: Stop, Play. Not: " + line.Substring(6, 4) + "\nScript: " + MasterScript.Read(scriptreaderx, 0);
                                 bError = true;
+                            return -2;
                             }
                         }
                     }
@@ -2024,6 +2034,7 @@ namespace TurtleSim2000_Linux
                                         ErrorReason = "Tried to convert string to int32 on line: " + line;
                                         Console.WriteLine(ErrorReason);
                                         bError = true;
+                                    return -2;
                                     }
 
                                     // Rip out mod
@@ -2035,6 +2046,7 @@ namespace TurtleSim2000_Linux
                                 Console.WriteLine("playing sound: " + sfx);
                                 scriptreadery++;
                                 soundEffect.Play();
+                            return 1;
                             }
                             else
                             {
@@ -2042,6 +2054,7 @@ namespace TurtleSim2000_Linux
                                 ErrorReason = "Syntax Error: Missing '=' on line: " + line + "\nScript:" + MasterScript.Read(scriptreaderx, 0);
                                 Console.WriteLine(ErrorReason);
                                 bError = true;
+                            return -2;
                             }
                         }
                     }
@@ -2071,10 +2084,12 @@ namespace TurtleSim2000_Linux
                                 ErrorReason = "Syntax Error: Missing '=' on line: " + line + "\nScript:" + MasterScript.Read(scriptreaderx, 0);
                                 Console.WriteLine(ErrorReason);
                                 bError = true;
+                            return -2;
                             }
 
                             // Move on from here:
                             scriptreadery++;
+                        return 1;
                         }
                     }
                     #endregion
@@ -2114,11 +2129,13 @@ namespace TurtleSim2000_Linux
                             i++;
                         } while (MasterScript.Read(scriptreaderx, scriptreadery) != "Fork End");
 
-                        //scriptreadery++;
+                    //scriptreadery++;
 
                         bQuestion = true;
                         charaManager.setDarkenChara(true);  // Darkens chara so they don't have bad contrast with answer boxes.
-                    }
+
+                    return 2;
+                }
                     #endregion
 
                     #region Jumpto Script (TSS v2)
@@ -2164,6 +2181,7 @@ namespace TurtleSim2000_Linux
                                 dialouge = null;
                                 //scriptreaderx = 0;
                                 scriptreadery = 0;
+                            return 2;
                             }
                             else
                             {
@@ -2171,6 +2189,7 @@ namespace TurtleSim2000_Linux
                                 ErrorReason = "Syntax Error: Missing ':' on line: " + line + "\nScript:" + MasterScript.Read(scriptreaderx, 0);
                                 Console.WriteLine(ErrorReason);
                                 bError = true;
+                            return -2;
                             }
                         }
                     }
@@ -2197,7 +2216,7 @@ namespace TurtleSim2000_Linux
                                     WaitTime = Convert.ToInt32(sliceCom);
                                     scriptreadery++;
                                     reRunAfterWait = true;
-                                    loopis = 5;
+                                return 2;
                                 }
                                 else
                                 {
@@ -2206,6 +2225,7 @@ namespace TurtleSim2000_Linux
                                     string script = MasterScript.Read(scriptreaderx, 0);
                                     ErrorReason = "Syntax Error: Missing '=' in line: " + line + ". \nScript: " + script;
                                     bError = true;
+                                return -2;
                                 }
                             }
                             else
@@ -2216,7 +2236,7 @@ namespace TurtleSim2000_Linux
                                 WaitTime = Convert.ToInt32(MasterScript.Read(scriptreaderx, scriptreadery));
                                 scriptreadery++;
                                 reRunAfterWait = true;
-                                loopis = 5;
+                            return 2;
                             }
                         }
                     }
@@ -2282,6 +2302,7 @@ namespace TurtleSim2000_Linux
                                 }
 
                                 scriptreadery++;
+                            return 1;
                             }
                             #endregion
 
@@ -2329,6 +2350,7 @@ namespace TurtleSim2000_Linux
                                 }
 
                                 scriptreadery++;
+                            return 1;
                             }
                             #endregion
 
@@ -2362,6 +2384,7 @@ namespace TurtleSim2000_Linux
                                 }
 
                                 scriptreadery++;
+                            return 1;
                             }
                             #endregion
 
@@ -2395,6 +2418,7 @@ namespace TurtleSim2000_Linux
                                 }
 
                                 scriptreadery++;
+                            return 1;
                             }
                             #endregion
 
@@ -2447,6 +2471,7 @@ namespace TurtleSim2000_Linux
                                 Console.WriteLine("Failed to convert string to int32");
                                 ErrorReason = "Tried to convert string to Int32: " + line + "\nScript: " + MasterScript.Read(scriptreaderx, 0);
                                 bError = true;
+                            return -2;
                             }
 
                             // get = pos
@@ -2457,6 +2482,7 @@ namespace TurtleSim2000_Linux
                                 Console.WriteLine("Syntax Error: missing '=' on line: " + line);
                                 ErrorReason = "Syntax Error: missing '=' on line: " + line + "\nScript: " + MasterScript.Read(scriptreaderx, 0);
                                 bError = true;
+                            return -2;
                             }
 
                             // Get True or False
@@ -2471,9 +2497,11 @@ namespace TurtleSim2000_Linux
                                 Console.WriteLine("Tried to change Switch[" + s + "] to a none boolean type: '" + tf + "' on Line: " + line);
                                 ErrorReason = "Tried to change Switch[" + s + "] to a none boolean type: " + tf + "on Line: " + line + "\nScript: " + MasterScript.Read(scriptreaderx, 0);
                                 bError = true;
+                            return -2;
                             }
 
                             scriptreadery++;
+                        return 1;
                         }
                     }
                     #endregion
@@ -2507,10 +2535,12 @@ namespace TurtleSim2000_Linux
                                 ErrorReason = "Syntax Error: Missing ':' on line: " + line + "\nScript:" + MasterScript.Read(scriptreaderx, 0);
                                 Console.WriteLine(ErrorReason);
                                 bError = true;
+                            return -2;
                             }
 
                             // Get outa here!
                             scriptreadery++;
+                        return 1;
                         }
                     }
                     #endregion
@@ -2596,7 +2626,7 @@ namespace TurtleSim2000_Linux
                             {
                                 if (a == b)
                                 {
-                                    ScriptCommands();
+                                    return 0;
                                 }
                                 else
                                 {
@@ -2605,13 +2635,14 @@ namespace TurtleSim2000_Linux
                                     {
                                         scriptreadery++;
                                     }
+                                return 1;
                                 }
                             }
                             if (ifType == 1)
                             {
                                 if (a >= b)
                                 {
-                                    ScriptCommands();
+                                    return 0;
                                 }
                                 else
                                 {
@@ -2619,6 +2650,7 @@ namespace TurtleSim2000_Linux
                                     {
                                         scriptreadery++;
                                     }
+                                return 1;
                                 }
                             }
 
@@ -2627,7 +2659,7 @@ namespace TurtleSim2000_Linux
                             {
                                 if (a <= b)
                                 {
-                                    ScriptCommands();
+                                    return 0;
                                 }
                                 else
                                 {
@@ -2635,6 +2667,7 @@ namespace TurtleSim2000_Linux
                                     {
                                         scriptreadery++;
                                     }
+                                return 1;
                                 }
                             }
 
@@ -2644,16 +2677,33 @@ namespace TurtleSim2000_Linux
                         if (MasterScript.Read(scriptreaderx, scriptreadery) == "#endif")
                         {
                             scriptreadery++;
+                        return 1;
                         }
                     }
-                    #endregion
+                #endregion
 
-                    if (loopis == 5) bReloop = false;
-                    loopis++;
-                }
+                return 0;
 
-                Console.WriteLine("Reading from Script: " + scriptreaderx + " On line: " + scriptreadery);
+                //Console.WriteLine("Reading from Script: " + scriptreaderx + " On line: " + scriptreadery);
             }
+            return 0;
+        }
+
+        // Handles how many times we need to run through commands.
+        private void ScriptCommandsHelper()
+        {
+            bool bLoop = true;
+            int returnReason = 0;
+
+            while (bLoop)
+            {
+                returnReason = ScriptCommands();
+
+                if (returnReason == 2) bLoop = false;
+                if (returnReason == 0) bLoop = false;
+            }
+
+            return;
         }
 
         // The Effect that makes the thought and speech type out char by char
