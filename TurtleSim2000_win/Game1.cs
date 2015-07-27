@@ -19,8 +19,8 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 70) v0.6 BETA";
-        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1 \n+Added script return.";
+        String GameInfo = "TurtleSim 2000 (Build 71) v0.6 BETA";
+        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1 \n+Added script return. \n+Fixed everything script return broke. \n+Fixed first script letter not drawing \n+Fixed some lines repeating themselves.";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -100,6 +100,7 @@ namespace TurtleSim2000_Linux
         bool bRunTut = false;             //first time running the game will put it in tutorial mode.
         bool bWait = false;               //tells the game to hold while in a script
         bool reRunAfterWait = false;      //Tells the game to re-run script commands because a WAIT command shut them off too early.
+        bool bReRunScriptInit = false;    // Tells the game to re-run script init.  Usually done after a script jump.  This makes everything clean.
         bool bPlayMusic = false;           //Determines if music should play.. or not.  (determined by user)
         bool bAuthorMode = false;          //tells the game to run a debug script on startup.
 
@@ -1296,9 +1297,10 @@ namespace TurtleSim2000_Linux
             //is, it will cycle through the array until it finds the
             //matching eventname in the script array, then
             //set the Y value to that script number.
-            if (scriptreadery == 0)
+            if (scriptreadery == 0 || bReRunScriptInit == true)
             {
                 scriptreaderx = 0;
+                bReRunScriptInit = false;
                 while (MasterScript.Read(scriptreaderx, 0) != ename)
                 {
                     scriptreaderx++;
@@ -1321,9 +1323,26 @@ namespace TurtleSim2000_Linux
 
                 //RUNS  THROUGH ALL SCRIPT COMMANDS AND EXECUTES THEM!
                 //THIS ONE FUNCTION IS VARY IMPORTANT TO EVERYTHING!!!
-                ScriptCommandsHelper();
+                int returnReason = ScriptCommandsHelper();
 
-                TypewritterEffect();
+                // If ScriptCommandsHelper returns with a 2, then we need to refresh this function.  so return.
+                if (returnReason == 2)
+                {
+                    // tell the engine to redo the start of a script as if the player clicked.
+                    bReRunScriptInit = true;
+
+                    return;
+                }
+
+                // If scriptCommandHelper returns 3, and GS[490] is true, then force return to old script
+                if (returnReason == 3)
+                {
+
+                }
+                else
+                {
+                    TypewritterEffect();
+                }
 
                 //if (MasterScript.Read(scriptreaderx, scriptreadery) != null && bQuestion == false) dialougetr = forDialog;
 
@@ -1333,6 +1352,7 @@ namespace TurtleSim2000_Linux
             {
                 ScriptCommandsHelper();
             }
+
 
             //var mouseState = Mouse.GetState();
             if (bClicked == true && bQuestion == false && bTypewritting == false && bWait == false)
@@ -2179,7 +2199,7 @@ namespace TurtleSim2000_Linux
 
                                 // Clean up:
                                 dialouge = null;
-                                //scriptreaderx = 0;
+                                scriptreaderx = 0;
                                 scriptreadery = 0;
                             return 2;
                             }
@@ -2626,7 +2646,7 @@ namespace TurtleSim2000_Linux
                             {
                                 if (a == b)
                                 {
-                                    return 0;
+                                    return 1;
                                 }
                                 else
                                 {
@@ -2642,7 +2662,7 @@ namespace TurtleSim2000_Linux
                             {
                                 if (a >= b)
                                 {
-                                    return 0;
+                                    return 1;
                                 }
                                 else
                                 {
@@ -2659,7 +2679,7 @@ namespace TurtleSim2000_Linux
                             {
                                 if (a <= b)
                                 {
-                                    return 0;
+                                    return 1;
                                 }
                                 else
                                 {
@@ -2682,6 +2702,9 @@ namespace TurtleSim2000_Linux
                     }
                 #endregion
 
+                // Check if the line is null and return with 3
+                if (sliceCom == null) return 3;
+
                 return 0;
 
                 //Console.WriteLine("Reading from Script: " + scriptreaderx + " On line: " + scriptreadery);
@@ -2690,20 +2713,25 @@ namespace TurtleSim2000_Linux
         }
 
         // Handles how many times we need to run through commands.
-        private void ScriptCommandsHelper()
+        private int ScriptCommandsHelper()
         {
             bool bLoop = true;
             int returnReason = 0;
+            int commandsRan = 0;
 
             while (bLoop)
             {
                 returnReason = ScriptCommands();
 
-                if (returnReason == 2) bLoop = false;
                 if (returnReason == 0) bLoop = false;
+                if (returnReason == 1) commandsRan++;
+                if (returnReason == 2) bLoop = false;
+                if (returnReason == 3) bLoop = false;
             }
 
-            return;
+            if (returnReason == 2) Console.WriteLine("Returning 2, reseting script reader and textwindow!");
+
+            return returnReason;
         }
 
         // The Effect that makes the thought and speech type out char by char
