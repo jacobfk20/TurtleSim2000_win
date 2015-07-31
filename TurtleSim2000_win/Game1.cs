@@ -19,8 +19,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 71) v0.6 BETA";
-        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1 \n+Added script return. \n+Fixed everything script return broke. \n+Fixed first script letter not drawing \n+Fixed some lines repeating themselves.";
+        String GameInfo = "TurtleSim 2000 (Build 72) v0.6 BETA";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -35,19 +34,13 @@ namespace TurtleSim2000_Linux
         //gui textures
         Texture2D buttonup;
         Texture2D buttondown;
-        Texture2D logo;
-        Texture2D logo2;
+
         Texture2D messagebox;
         Texture2D messagebox2;
         Texture2D messagebox3;
         Texture2D clock_tex;
         Texture2D buttonselector;
         Texture2D ButtonA;
-
-        // Intro Background asses
-        Texture2D bg_gate;
-        Texture2D bg_forest;
-        Texture2D bg_courtyard;
 
         //Chara
         CharaManager charaManager;           // NEWEST WAY OF DEALING WITH EVERYTHING TO DO WITH CHARA!
@@ -64,10 +57,6 @@ namespace TurtleSim2000_Linux
         int totscripts = 0;              //Gets the total amount of compiled scripts
 
         int actionmenuscroller = -300;   //moves the menu back and forth when it is called or closed
-        int bgscroller = 0;              //moves the background on the START MENU
-        int bgscrollslowerdowner = 0;    //Slows the scroll down more.
-        int logoscaler = 0;              //Scales the logo X and Y.
-        bool reversescaler = false;      //Reverses the X and Y.
 
         //engine bool
         bool bStart = true;               //Main game menu.  (only true on startup.)
@@ -131,6 +120,7 @@ namespace TurtleSim2000_Linux
         Stamps stamps = new Stamps();
         Save gameSaver = new Save();
         Background bgManager;                       // Handles all background bullshit.  Show/Import
+        Scene_Start sceneStart;                     // SCENE: Handles the start scene and all of it's controls.
 
         int DayofWeek = 1;                           //Day of the week (1-7; Gets converted to names)
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
@@ -235,8 +225,8 @@ namespace TurtleSim2000_Linux
             buttonup = Content.Load<Texture2D>("assets/gui/gui_button_up");
             buttondown = Content.Load<Texture2D>("assets/gui/gui_button_down");
             buttonselector = Content.Load<Texture2D>("assets/gui/gui_button_selector");
-            logo = Content.Load<Texture2D>("assets/gui/tex_logo");
-            logo2 = Content.Load<Texture2D>("assets/gui/logo_2");
+
+            
             debugfont = Content.Load<SpriteFont>("fonts/debugfont");
             debugfontsmall = Content.Load<SpriteFont>("fonts/debugfontsmall");
             speechfont = Content.Load<SpriteFont>("fonts/speechfont");
@@ -246,11 +236,6 @@ namespace TurtleSim2000_Linux
             messagebox3 = Content.Load<Texture2D>("assets/gui/messagebox3");
             clock_tex = Content.Load<Texture2D>("assets/gui/clock");
             ButtonA = Content.Load<Texture2D>("assets/gui/gui_button_A");
-
-            // Intro backgrounds
-            bg_courtyard = Content.Load<Texture2D>("assets/backgrounds/school_courtyard");
-            bg_gate = Content.Load<Texture2D>("assets/backgrounds/school_gate");
-            bg_forest = Content.Load<Texture2D>("assets/backgrounds/school_forest1");
 
             //music
             basic = Content.Load<Song>("assets/music/Ah_Eh_I_Oh_You");
@@ -278,6 +263,10 @@ namespace TurtleSim2000_Linux
             // setup charamanager
             charaManager = new CharaManager(this.Content);
             bgManager = new Background(this.Content);
+
+            // setup scenes
+            sceneStart = new Scene_Start(this.Content, screenSizeWidth, screenSizeHeight);
+            sceneStart.GameInfo = GameInfo;
 
         }
 
@@ -492,48 +481,19 @@ namespace TurtleSim2000_Linux
             //handles for start screen
             if (bStart == true)
             {
-
-                //bg_scroller
-                bgscrollslowerdowner++;
-                if (bgscrollslowerdowner == 3)
-                {
-                    bgscroller += 1;
-                    if (bgscroller >= 2400) bgscroller = 0;
-
-                    if (reversescaler == false)
-                    {
-                        logoscaler++;
-                    }
-                    else
-                    {
-                        logoscaler -= 1;
-                    }
-                    if (logoscaler == 10) reversescaler = true;
-                    if (logoscaler == 0) reversescaler = false;
-
-                    bgscrollslowerdowner = 0;
-                }
+                // update scene_Start
+                sceneStart.Update();
 
                 //buttons to click
                 #region Button Controller
-                // Modifiers for full screen mode
-                float screenModX = screenSizeWidth / 800;
-                if (bFullScreen) screenModX *= .45f;
-                float screenModY = screenSizeHeight / 480 + .3f;
-                if (bFullScreen) screenModY *= .3f;
 
-                int btnWidth = Convert.ToInt32(screenModX * 160);
-                int btnHeight = Convert.ToInt32(screenModY * 40);
-                int btnX = Convert.ToInt32(screenModX * 320);
+                // Send Control updates to all scenes:
+                sceneStart.UpdateControls(mousePosition, bClicked);
 
-                Rectangle button1 = new Rectangle(btnX, 280, btnWidth, btnHeight);       //Start button
-                Rectangle button2 = new Rectangle(btnX, 200, btnWidth, btnHeight);       //Quit button
-                Rectangle button4 = new Rectangle(btnX, 240, btnWidth, btnHeight);       //Continue button
-                Rectangle button3 = new Rectangle(280, 20, 164, 164);                   //hidden debug button
 
                 if (bClicked == true || bAuthorMode == true)
                 {
-                    if (button3.Contains(mousePosition) || bAuthorMode == true)
+                    if (bAuthorMode == true)
                     {
                         eventname = "debug";
                         bDorm = true;
@@ -543,17 +503,17 @@ namespace TurtleSim2000_Linux
                         bShowtext = true;
 
                     }
-                    if (button1.Contains(mousePosition))
+                    if (sceneStart.btnQuit.bPressed)
                     {
                         this.Exit();
                     }
-                    if (button2.Contains(mousePosition))
+                    if (sceneStart.btnStart.bPressed)
                     {
                         bFirstrun = true;
                     }
 
                     // For continueing from savegame
-                    if (button4.Contains(mousePosition))
+                    if (sceneStart.btnContinue.bPressed)
                     {
                         bDorm = true;
 
@@ -686,38 +646,10 @@ namespace TurtleSim2000_Linux
             //set background color
             GraphicsDevice.Clear(Color.DarkRed);
 
-            #region StartMenu
-            if (bStart == true)
-            {
+            // If game is just starting, Handle the start screen
+            if (bStart == true) sceneStart.Draw(spriteBatch);
 
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-
-                //scrolling background
-                spriteBatch.Draw(bg_gate, new Rectangle(0 - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
-                spriteBatch.Draw(bg_forest, new Rectangle(screenSizeWidth - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
-                spriteBatch.Draw(bg_courtyard, new Rectangle(screenSizeWidth * 2 - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
-                spriteBatch.Draw(bg_gate, new Rectangle(screenSizeWidth * 3 - bgscroller, 0, screenSizeWidth, screenSizeHeight), Color.Gray);
-
-                spriteBatch.DrawString(debugfontsmall, "Total Scripts: " + totscripts + "  Total Lines: " + MasterScript.TotalLines() + "  Script Name: " + MasterScript.Read(34, 0) + "Screen Size: " + screenSizeWidth + " " + screenSizeHeight, new Vector2(Convert.ToInt32(250), Convert.ToInt32(177)), Color.White);
-                spriteBatch.DrawString(debugfontsmall, "Added Features:\n" + newthings, new Vector2(Convert.ToInt32(10), Convert.ToInt32(180)), Color.White);
-                spriteBatch.DrawString(debugfontsmall, GameInfo, new Vector2(screenSizeWidth - 260, screenSizeHeight - 20), Color.White);
-                spriteBatch.DrawString(debugfontsmall, "Produced by Jacob Karleskint and Tclub Games", new Vector2(Convert.ToInt32(10), Convert.ToInt32(460)), Color.White);
-
-                //menu buttons 280 (480 / 2 = 240) +40
-                spriteBatch.Draw(messagebox, new Rectangle(Convert.ToInt32(240), 0, Convert.ToInt32(320), Convert.ToInt32(180)), Color.White);
-                spriteBatch.Draw(logo2, new Rectangle(Convert.ToInt32(240) - logoscaler, Convert.ToInt32(-20) - logoscaler, Convert.ToInt32(320) + logoscaler + logoscaler, Convert.ToInt32(250) + logoscaler + logoscaler), Color.White);
-                spriteBatch.Draw(buttonup, new Rectangle(Convert.ToInt32(320), Convert.ToInt32(280), Convert.ToInt32(160), Convert.ToInt32(40)), Color.White);
-                spriteBatch.DrawString(debugfont, "Quit", new Vector2(Convert.ToInt32(375), Convert.ToInt32(285)), Color.White);
-                spriteBatch.Draw(buttonup, new Rectangle(Convert.ToInt32(320), Convert.ToInt32(200), Convert.ToInt32(160), Convert.ToInt32(40)), Color.White);
-                spriteBatch.DrawString(debugfont, "Start Game", new Vector2(Convert.ToInt32(340), Convert.ToInt32(205)), Color.White);
-                spriteBatch.Draw(buttonup, new Rectangle(320, 240, 160, 40), Color.White);
-                spriteBatch.DrawString(debugfont, "Continue", new Vector2(350, 245), Color.White);
-
-                spriteBatch.End();
-            }
-
-            #endregion
-
+            
             spriteBatch.Begin();
 
             //background manage here
