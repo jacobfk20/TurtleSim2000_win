@@ -21,7 +21,7 @@ namespace TurtleSim2000_Linux
 
         // Get game info from main class
         public string GameInfo;
-        string newthings = "Version 0.56 -> 0.6 BETA changes: \n+Redesigned and coded Progress bars! \n+You can now SAVE!  Yes! \n+Loading is almost possible!  Crashes still. \n+Fixed bugs when saving and loading!! \n+Fixed a ton of textwindow bugs. \n+Rewrote some scripts to TSSv2.1 \n+Added script return. \n+Fixed everything script return broke. \n+Fixed first script letter not drawing \n+Fixed some lines repeating themselves. \n+Created Button Object \n+Created Scene for Start";
+        string newthings = "Eh, check github for changes.";
 
         // Textures
         Texture2D logo;
@@ -29,6 +29,7 @@ namespace TurtleSim2000_Linux
         Texture2D bg_gate;
         Texture2D bg_forest;
         Texture2D bg_courtyard;
+        Texture2D trans_BlackBars;      // Black bars that draw onto the sides of the backgrounds that scroll *this is polish*
 
         // Fonts
         SpriteFont nFont;
@@ -65,6 +66,7 @@ namespace TurtleSim2000_Linux
             bg_courtyard = contentManager.Load<Texture2D>("assets/backgrounds/school_courtyard");
             bg_gate = contentManager.Load<Texture2D>("assets/backgrounds/school_gate");
             bg_forest = contentManager.Load<Texture2D>("assets/backgrounds/school_forest1");
+            trans_BlackBars = contentmanager.Load<Texture2D>("assets/gui/trans_blackbars");
             // Fonts
             nFont = contentManager.Load<SpriteFont>("fonts/debugfont");
             debugFont_tiny = contentManager.Load<SpriteFont>("fonts/debugfontsmall");
@@ -99,8 +101,8 @@ namespace TurtleSim2000_Linux
                 if (logoscaler == 0) reversescaler = false;
 
                 bgscrollslowerdowner = 0;
+                
             }
-
 
 
         }
@@ -114,9 +116,13 @@ namespace TurtleSim2000_Linux
 
             // Draw background with scroll
             sB.Draw(bg_gate, new Rectangle(0 - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);
+            sB.Draw(trans_BlackBars, new Rectangle(0 - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);                // Black trans bars
             sB.Draw(bg_forest, new Rectangle(SceneWidth - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);
+            sB.Draw(trans_BlackBars, new Rectangle(SceneWidth - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);       // Black trans Bars
             sB.Draw(bg_courtyard, new Rectangle(SceneWidth * 2 - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);
+            sB.Draw(trans_BlackBars, new Rectangle(SceneWidth * 2 - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);   // Black trans bars
             sB.Draw(bg_gate, new Rectangle(SceneWidth * 3 - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);
+            sB.Draw(trans_BlackBars, new Rectangle(SceneWidth * 3 - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);   // Black trans bars
 
             // Draw TurtleSim Logo
             sB.Draw(messagebox, new Rectangle(Convert.ToInt32(240), 0, Convert.ToInt32(320), Convert.ToInt32(180)), Color.White);

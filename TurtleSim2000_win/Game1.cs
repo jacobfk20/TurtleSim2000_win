@@ -19,7 +19,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 72) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 73) v0.6 BETA";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -121,6 +121,12 @@ namespace TurtleSim2000_Linux
         Save gameSaver = new Save();
         Background bgManager;                       // Handles all background bullshit.  Show/Import
         Scene_Start sceneStart;                     // SCENE: Handles the start scene and all of it's controls.
+        ProgressBar pBar;
+        ProgressBar pBar_Social;
+        ProgressBar pBar_Fat;
+        ProgressBar pBar_Energy;
+        ProgressBar pBar_Charlsee;
+        ProgressBar pBar_HeroHP;
 
         int DayofWeek = 1;                           //Day of the week (1-7; Gets converted to names)
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
@@ -268,6 +274,14 @@ namespace TurtleSim2000_Linux
             sceneStart = new Scene_Start(this.Content, screenSizeWidth, screenSizeHeight);
             sceneStart.GameInfo = GameInfo;
 
+            // Progress Bar testing
+            pBar = new ProgressBar(this.Content, "HP", new Rectangle(10, 10, 180, 40));
+            pBar_Energy = new ProgressBar(this.Content, "Energy", new Rectangle(10, 35, 180, 40));
+            pBar_Fat = new ProgressBar(this.Content, "Fat", new Rectangle(10, 85, 1, 1));
+            pBar_Social = new ProgressBar(this.Content, "Social", new Rectangle(10, 60, 1, 1));
+            pBar_Charlsee = new ProgressBar(this.Content, "Charlsee HP", new Rectangle(20, 20, 1, 1));
+            pBar_HeroHP = new ProgressBar(this.Content, "Hero HP", new Rectangle(600, 340, 1, 1));
+
         }
 
         protected override void UnloadContent()
@@ -286,6 +300,8 @@ namespace TurtleSim2000_Linux
             stamps.update();
             bgManager.Update();
 
+            
+
             // update game variable 100 randomly every frame.
             GameVariables[100] = Rando.Next(6);
 
@@ -301,7 +317,21 @@ namespace TurtleSim2000_Linux
             GameVariables[487] = VC.GetSocial();
             GameVariables[488] = VC.GetFat();
             #endregion
-           
+
+            pBar.setValue(VC.GetHP());
+            pBar_Fat.setValue(VC.GetFat());
+            pBar_Energy.setValue(VC.GetEnergy());
+            pBar_Social.setValue(VC.GetSocial());
+            pBar_HeroHP.setValue(GameVariables[80]);
+            pBar_Charlsee.setValue(GameVariables[81]);
+
+            pBar.Update();
+            pBar_Fat.Update();
+            pBar_Energy.Update();
+            pBar_Social.Update();
+            pBar_Charlsee.Update();
+            pBar_HeroHP.Update();
+
             // Dick with transition update function
             transition.Update();
 
@@ -669,13 +699,14 @@ namespace TurtleSim2000_Linux
             if (bHud == true)
             {
                 spriteBatch.Draw(messagebox, new Rectangle(0, -5, 300, 130), Color.White * 0.8f);
-                GUI.ProBarShow(10, 10, VC.GetHP(), "HP");
-                GUI.ProBarShow(10, 35, VC.GetEnergy(), "Energy");
-                GUI.ProBarShow(10, 60, VC.GetSocial(), "Social");
-                GUI.ProBarShow(10, 85, VC.GetFat(), "Fat");
+                pBar.Draw(spriteBatch);
+                pBar_Energy.Draw(spriteBatch);
+                pBar_Social.Draw(spriteBatch);
+                pBar_Fat.Draw(spriteBatch);
                 if (GameVariables[0] >= 1) GUI.ProBarShow(10, 110, GameVariables[0], "Emi's Affection");
             }
 
+            
             if (bHud == true) VC.Clock(spriteBatch);
 
             if (bShowtext == true)
@@ -702,8 +733,8 @@ namespace TurtleSim2000_Linux
 
             if (GameVariables[80] > 0)
             {
-                GUI.ProBarShow(600, 340, GameVariables[80], "Health");
-                GUI.ProBarShow(20, 20, GameVariables[81], "Charlsee HP");
+                pBar_HeroHP.Draw(spriteBatch);
+                pBar_Charlsee.Draw(spriteBatch);
             }
 
             stamps.draw(spriteBatch);
