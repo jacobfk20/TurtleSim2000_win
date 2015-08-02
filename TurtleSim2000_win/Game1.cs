@@ -19,7 +19,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 73) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 74) v0.6 BETA";
         // [Things that need ported to the LINUX build]
         // Variable Escape Seq $[x] {found in: typewritter effect}
 
@@ -90,7 +90,7 @@ namespace TurtleSim2000_Linux
         bool bWait = false;               //tells the game to hold while in a script
         bool reRunAfterWait = false;      //Tells the game to re-run script commands because a WAIT command shut them off too early.
         bool bReRunScriptInit = false;    // Tells the game to re-run script init.  Usually done after a script jump.  This makes everything clean.
-        bool bPlayMusic = false;           //Determines if music should play.. or not.  (determined by user)
+        bool bPlayMusic = true;           //Determines if music should play.. or not.  (determined by user)
         bool bAuthorMode = false;          //tells the game to run a debug script on startup.
 
         //GAME STORY SWITCHES
@@ -533,6 +533,16 @@ namespace TurtleSim2000_Linux
                         bShowtext = true;
 
                     }
+                    if (sceneStart.btnDemo.bPressed)
+                    {
+                        eventname = "demo";
+                        bDorm = true;
+                        bRunevent = true;
+                        bStart = false;
+                        bDebugmode = true;
+                        bShowtext = true;
+                    }
+
                     if (sceneStart.btnQuit.bPressed)
                     {
                         this.Exit();

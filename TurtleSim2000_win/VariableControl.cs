@@ -32,11 +32,11 @@ namespace TurtleSim2000_Linux
         public string CreateClass(Random r)
         {
             string classname;
-            string[] a = { "Advanced ", "Beginer ", "Face ", "Psycho-", "Jar ", "Pizza ", "Mexican ", "Future ", "Nature" };
-            string[] b = { "Hugging", "crafting", "weaving", "Economics", "Managment", "Shoe-tieing", "Aerodynamics"};
+            string[] a = { "Advanced ", "Beginer ", "Face ", "Psycho-", "Jar ", "Pizza ", "Mexican ", "Future ", "Nature", "Couch", "Baby", "\"Fuck it\"" };
+            string[] b = { "Hugging", "crafting", "weaving", "Economics", "Managment", "Shoe-tieing", "Aerodynamics", "Loving", "Social Services", "Film History", "Programming", "Communication"};
             string[] c = { " Theory", " 101", "", "", "" };
             
-            classname = a[r.Next(9)] + b[r.Next(7)] + c[r.Next(5)];
+            classname = a[r.Next(11)] + b[r.Next(11)] + c[r.Next(5)];
 
             return classname;
         }

@@ -39,6 +39,7 @@ namespace TurtleSim2000_Linux
         public Button btnStart;
         public Button btnContinue;
         public Button btnQuit;
+        public Button btnDemo;
 
         // Updates for scrolling and scaling
         int logoscaler = 0;
@@ -75,7 +76,7 @@ namespace TurtleSim2000_Linux
             btnStart = new Button(contentManager, "Start Game", new Rectangle(320, 200, 160, 40));
             btnContinue = new Button(contentManager, "Continue", new Rectangle(320, 240, 160, 40));
             btnQuit = new Button(contentManager, "Quit", new Rectangle(320, 280, 160, 40));
-
+            btnDemo = new Button(contentManager, "Demo", new Rectangle(320, 320, 160, 40));
         }
 
 
@@ -104,7 +105,6 @@ namespace TurtleSim2000_Linux
                 
             }
 
-
         }
 
 
@@ -132,6 +132,7 @@ namespace TurtleSim2000_Linux
             btnStart.Draw(sB);
             btnContinue.Draw(sB);
             btnQuit.Draw(sB);
+            btnDemo.Draw(sB);
 
             sB.DrawString(debugFont_tiny, "Added Features:\n" + newthings, new Vector2(10, 180), Color.White);
             sB.DrawString(debugFont_tiny, GameInfo, new Vector2(SceneWidth - 260, SceneHeight - 20), Color.White);
@@ -151,6 +152,7 @@ namespace TurtleSim2000_Linux
             btnStart.UpdateControls(mousepos, bClicked);
             btnContinue.UpdateControls(mousepos, bClicked);
             btnQuit.UpdateControls(mousepos, bClicked);
+            btnDemo.UpdateControls(mousepos, bClicked);
 
         }
     }
