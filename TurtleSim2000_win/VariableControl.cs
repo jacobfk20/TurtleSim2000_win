@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 
 namespace TurtleSim2000_Linux
 {
     class VariableControl
     {
-        Texture2D clock_tex;
-        SpriteFont clockfont;
+
+        public Clock clock;
 
         //TODO WITH CLOCK AND TIME
         int Time = 500;
@@ -32,7 +30,7 @@ namespace TurtleSim2000_Linux
         public string CreateClass(Random r)
         {
             string classname;
-            string[] a = { "Advanced ", "Beginer ", "Face ", "Psycho-", "Jar ", "Pizza ", "Mexican ", "Future ", "Nature", "Couch", "Baby", "\"Fuck it\"" };
+            string[] a = { "Advanced ", "Beginer ", "Face ", "Psycho-", "Jar ", "Pizza ", "Mexican ", "Future ", "Nature ", "Couch ", "Baby ", "\"Fuck it\" " };
             string[] b = { "Hugging", "crafting", "weaving", "Economics", "Managment", "Shoe-tieing", "Aerodynamics", "Loving", "Social Services", "Film History", "Programming", "Communication"};
             string[] c = { " Theory", " 101", "", "", "" };
             
@@ -42,10 +40,10 @@ namespace TurtleSim2000_Linux
         }
 
         //INITs the Variable Controls Functions.  Specify textures and fonts here.
-        public int Init(Texture2D clock_Texture, SpriteFont ClockFont)
+        public int Init(ContentManager content)
         {
-            clock_tex = clock_Texture;
-            clockfont = ClockFont;
+            clock = new Clock(content);
+            
             return 0;
         }
 
@@ -59,7 +57,9 @@ namespace TurtleSim2000_Linux
         //Used to add time safely
         public int addtime(int v)
         {
-    
+            // Just add v to the new clock.  LAZY!
+            clock.addTime(v);
+
             int oldt;
             if (v >= 1)
             {
@@ -105,35 +105,15 @@ namespace TurtleSim2000_Linux
             return 0;
         }
 
-        //formats time so it is readable and draws it
-        public int Clock(SpriteBatch spriteBatch)
+        public void Update()
         {
+            clock.Update();
+        }
 
-            int nTime;
-            bool bPM = false;
-
-            if (Time >= 1300)
-            {
-                nTime = Time - 1200;
-                bPM = true;
-            }
-            else
-            {
-                bPM = false;
-                nTime = Time;
-            }
-
-            if (nTime == 0) nTime = 1200;
-
-            if (bAddtime == true) addtime(-1);
-
-            spriteBatch.Draw(clock_tex, new Rectangle(650, 5, 150, 50), Color.White);
-
-            if (bPM == true) spriteBatch.DrawString(clockfont, nTime + " PM", new Vector2(666, 12), Color.Red);
-            else
-                spriteBatch.DrawString(clockfont, nTime + "  AM", new Vector2(666, 12), Color.Red);
-            return 0;
-
+        //formats time so it is readable and draws it
+        public void Clock(SpriteBatch spriteBatch)
+        {
+            clock.Draw(spriteBatch);
         }
 
         public void setValuesFromLoad(int energy, int hp, int _social, int fat, int time, int day, int dayofweek, string week_day)

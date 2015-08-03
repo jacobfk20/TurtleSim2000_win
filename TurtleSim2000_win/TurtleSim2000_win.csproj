@@ -55,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Save.cs" />
     <Compile Include="scenes\Scene_Start.cs" />
+    <Compile Include="scenes\Scene_StartOptions.cs" />
     <Compile Include="ScriptCompiler.cs" />
     <Compile Include="modules\Stamps.cs" />
     <Compile Include="Transitions.cs" />

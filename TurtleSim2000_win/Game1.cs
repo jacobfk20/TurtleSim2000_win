@@ -6,7 +6,6 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
@@ -19,9 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 74) v0.6 BETA";
-        // [Things that need ported to the LINUX build]
-        // Variable Escape Seq $[x] {found in: typewritter effect}
+        String GameInfo = "TurtleSim 2000 (Build 75) v0.6 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -76,13 +73,6 @@ namespace TurtleSim2000_Linux
         bool bRunevent = false;           //Tells the engine to run a specific event (actions)
         bool bGameover = false;           //If the player loses; opens a new scene
         bool bWin = false;                //If the player wins; opens a new scene
-        bool bClicked = false;            //is enabled for 1 frame; will send a (click)
-        bool bclicking = false;           //to  determine if the player is holding the mouse button
-        bool bGamePad = false;            //tells the game either Gamepad or Mouse/keyboard
-        bool DpadDown = false;            //tells input that dpad is down
-        bool DpadUp = false;              //tells input that dpad is up
-        bool DpadLeft = false;            //tells input that dpad is left
-        bool DpadRight = false;           //tells input that dpad is right
         bool fixfirstscripterror = true;  //helps patch up the "nothing to say" error at first event.
         bool bQuestion = false;           //If the player is being asked a question, this halts script reader from continueing.
         bool bDebugmode = false;          //tells the game to run a certain script set by the developer on startup.
@@ -115,6 +105,7 @@ namespace TurtleSim2000_Linux
         string ErrorReason = "Fuck, I don't know.";
 
         //Game Objects
+        Controls controller = new Controls();
         VariableControl VC = new VariableControl();
         GameEvents gameEvents = new GameEvents();
         Stamps stamps = new Stamps();
@@ -127,6 +118,7 @@ namespace TurtleSim2000_Linux
         ProgressBar pBar_Energy;
         ProgressBar pBar_Charlsee;
         ProgressBar pBar_HeroHP;
+        Clock clock;
 
         int DayofWeek = 1;                           //Day of the week (1-7; Gets converted to names)
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
@@ -256,7 +248,7 @@ namespace TurtleSim2000_Linux
             #endregion
 
             //Variable Controls Init
-            VC.Init(clock_tex, clockfont);
+            VC.Init(this.Content);
 
             // Load Transitions
             transition.loadContent(spriteBatch, this.Content);
@@ -282,6 +274,9 @@ namespace TurtleSim2000_Linux
             pBar_Charlsee = new ProgressBar(this.Content, "Charlsee HP", new Rectangle(20, 20, 1, 1));
             pBar_HeroHP = new ProgressBar(this.Content, "Hero HP", new Rectangle(600, 340, 1, 1));
 
+            // Clock
+            clock = new Clock(this.Content);
+
         }
 
         protected override void UnloadContent()
@@ -299,7 +294,8 @@ namespace TurtleSim2000_Linux
 
             stamps.update();
             bgManager.Update();
-
+            clock.Update();
+            VC.Update();
             
 
             // update game variable 100 randomly every frame.
@@ -429,83 +425,10 @@ namespace TurtleSim2000_Linux
             #endregion
 
             //-------------------------- Controls (mouse and button actions) -----------------
-            #region Controls
+            // Updates all controls (Mouse, Keyboard, GamePad)
+            controller.Update();
 
-            //get mouse position.
-            var mouseState = Mouse.GetState();
-            var keyboardState = Keyboard.GetState();
-            var mousePosition = new Point(mouseState.X, mouseState.Y);
-
-
-
-            if (bGamePad == true)
-            {
-                if (GamePad.GetState(PlayerIndex.One).Buttons.X == ButtonState.Pressed) GamePad.SetVibration(PlayerIndex.Two, vibrator, vibrator);
-                else if (GamePad.GetState(PlayerIndex.One).Buttons.X == ButtonState.Released) GamePad.SetVibration(PlayerIndex.Two, 0.0f, 0.0f);
-                if (GamePad.GetState(PlayerIndex.Two).Buttons.X == ButtonState.Pressed) GamePad.SetVibration(PlayerIndex.One, vibrator2, vibrator2);
-                else if (GamePad.GetState(PlayerIndex.Two).Buttons.X == ButtonState.Released) GamePad.SetVibration(PlayerIndex.One, 0.0f, 0.0f);
-
-                //for pushing A to click
-                if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Pressed) bclicking = true;
-                if (GamePad.GetState(PlayerIndex.One).Buttons.A == ButtonState.Released & bclicking == true)
-                {
-                    bClicked = true;
-                    bclicking = false;
-                }
-
-                //D-pad controls
-                if (GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed) DpadDown = true;
-                if (GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Released & DpadDown == true)
-                {
-                    dpady += 1;
-                    DpadDown = false;
-                }
-                if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed) DpadUp = true;
-                if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Released & DpadUp == true)
-                {
-                    dpady -= 1;
-                    DpadUp = false;
-                }
-                if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed) DpadLeft = true;
-                if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Released & DpadLeft == true)
-                {
-                    dpadx -= 1;
-                    DpadLeft = false;
-                }
-                if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed) DpadRight = true;
-                if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Released & DpadRight == true)
-                {
-                    dpadx += 1;
-                    DpadRight = false;
-                }
-            }
-            else
-            {
-                if (GamePad.GetState(PlayerIndex.One).Buttons.Y == ButtonState.Pressed) VC.addfat(1);
-
-                if (mouseState.LeftButton == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Space)) bclicking = true;
-                if (mouseState.LeftButton == ButtonState.Released && keyboardState.IsKeyUp(Keys.Space))
-                {
-                    if (bclicking == true)
-                    {
-                        bClicked = true;
-                        bclicking = false;
-                    }
-                }
-
-                if (keyboardState.IsKeyDown(Keys.S) && frames == 1)
-                {
-                    if (bPlayMusic) bPlayMusic = false;
-                    else
-                    {
-                        bPlayMusic = true;
-                        songstart = false;
-                    }
-                }
-            }
-            #endregion
-
-            if (bGamePad == true) ButtonSelector();
+            if (controller.bGamePad == true) ButtonSelector();
 
             #region StartScreen Logic
             //handles for start screen
@@ -518,10 +441,10 @@ namespace TurtleSim2000_Linux
                 #region Button Controller
 
                 // Send Control updates to all scenes:
-                sceneStart.UpdateControls(mousePosition, bClicked);
+                sceneStart.UpdateControls(controller.MousePos, controller.bClicked);
 
 
-                if (bClicked == true || bAuthorMode == true)
+                if (controller.bClicked == true || bAuthorMode == true)
                 {
                     if (bAuthorMode == true)
                     {
@@ -531,6 +454,7 @@ namespace TurtleSim2000_Linux
                         bStart = false;
                         bDebugmode = true;
                         bShowtext = true;
+                        sceneStart.Unload();
 
                     }
                     if (sceneStart.btnDemo.bPressed)
@@ -541,6 +465,12 @@ namespace TurtleSim2000_Linux
                         bStart = false;
                         bDebugmode = true;
                         bShowtext = true;
+                        sceneStart.Unload();
+                    }
+
+                    if (sceneStart.sceneOptions.btnFullScreen.bPressed)
+                    {
+                        graphics.ToggleFullScreen();
                     }
 
                     if (sceneStart.btnQuit.bPressed)
@@ -550,6 +480,7 @@ namespace TurtleSim2000_Linux
                     if (sceneStart.btnStart.bPressed)
                     {
                         bFirstrun = true;
+                        //sceneStart.Unload();
                     }
 
                     // For continueing from savegame
@@ -578,7 +509,7 @@ namespace TurtleSim2000_Linux
                     }
                     else
                     {
-                        if (bGamePad == true)
+                        if (controller.bGamePad == true)
                         {
                            // bFirstrun = true;
                         }
@@ -636,7 +567,7 @@ namespace TurtleSim2000_Linux
             {
                 int strlng = dialougetr.Length;
                 //if player clicks during mid-typing; just print it all at once.
-                if (bClicked == true && dialogCharPos >= 2)
+                if (controller.bClicked == true && dialogCharPos >= 2)
                 {
                     dialouge = dialougetr;
                     dialogCharPos = strlng;
@@ -669,7 +600,7 @@ namespace TurtleSim2000_Linux
 
             #endregion
 
-            bClicked = false;
+            controller.bClicked = false;
 
             base.Update(gameTime);
         }
@@ -851,7 +782,7 @@ namespace TurtleSim2000_Linux
                 sModH = Convert.ToInt32(screenModY * 40);
             }
 
-            if (bClicked == true && bWait == false)
+            if (controller.bClicked == true && bWait == false)
             {
                 var mouseState = Mouse.GetState();
                 var mousePosition = new Point(mouseState.X, mouseState.Y);
@@ -868,7 +799,7 @@ namespace TurtleSim2000_Linux
                 //Q[8] = new Rectangle(200, 220, 500, 40);
 
 
-                if (bGamePad == false)
+                if (controller.bGamePad == false)
                 {
                     int i = 0;
                     while (forkAnswers[i] != null)
@@ -981,11 +912,11 @@ namespace TurtleSim2000_Linux
             Rectangle button8 = new Rectangle(30 + actionmenuscroller, 420, 130, 30);
             Rectangle button14 = new Rectangle(160 + actionmenuscroller, 420, 130, 30);
 
-            if (bClicked == true)
+            if (controller.bClicked == true)
             {
                 if (actionmenuscroller == -20)
                 {
-                    if (bGamePad == false)
+                    if (controller.bGamePad == false)
                     {
                         //  FOR NORMAL MOUSE OPERATION
                         if (button3.Contains(mousePosition))
@@ -1328,7 +1259,7 @@ namespace TurtleSim2000_Linux
 
 
             //var mouseState = Mouse.GetState();
-            if (bClicked == true && bQuestion == false && bTypewritting == false && bWait == false)
+            if (controller.bClicked == true && bQuestion == false && bTypewritting == false && bWait == false)
             {
 
                 // To return the script reader if GS[490]"Script Return" = true. 
@@ -1359,7 +1290,7 @@ namespace TurtleSim2000_Linux
                     ScriptCommandsHelper();
 
                     // Advances script when we jump around and we land on the same line.
-                    if (MasterScript.Read(scriptreaderx, scriptreadery) == null) bClicked = true;
+                    if (MasterScript.Read(scriptreaderx, scriptreadery) == null) controller.bClicked = true;
 
                     if (bWait == false) TypewritterEffect();
                 }

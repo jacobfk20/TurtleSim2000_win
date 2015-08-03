@@ -40,6 +40,10 @@ namespace TurtleSim2000_Linux
         public Button btnContinue;
         public Button btnQuit;
         public Button btnDemo;
+        public Button btnOptions;
+
+        // Other Windows and Scenes
+        public Scene_StartOptions sceneOptions;
 
         // Updates for scrolling and scaling
         int logoscaler = 0;
@@ -77,6 +81,23 @@ namespace TurtleSim2000_Linux
             btnContinue = new Button(contentManager, "Continue", new Rectangle(320, 240, 160, 40));
             btnQuit = new Button(contentManager, "Quit", new Rectangle(320, 280, 160, 40));
             btnDemo = new Button(contentManager, "Demo", new Rectangle(320, 320, 160, 40));
+            btnOptions = new Button(contentmanager, "Options", new Rectangle(320, 360, 160, 40));
+
+            // Other Scenes and Windows
+            sceneOptions = new Scene_StartOptions(contentmanager);
+        }
+
+
+
+        public void Unload()
+        {
+            logo.Dispose();
+            messagebox.Dispose();
+            bg_gate.Dispose();
+            bg_forest.Dispose();
+            bg_courtyard.Dispose();
+            trans_BlackBars.Dispose();
+            
         }
 
 
@@ -104,6 +125,9 @@ namespace TurtleSim2000_Linux
                 bgscrollslowerdowner = 0;
                 
             }
+
+            // For other Scenes
+            sceneOptions.Update();
 
         }
 
@@ -133,10 +157,14 @@ namespace TurtleSim2000_Linux
             btnContinue.Draw(sB);
             btnQuit.Draw(sB);
             btnDemo.Draw(sB);
+            btnOptions.Draw(sB);
 
             sB.DrawString(debugFont_tiny, "Added Features:\n" + newthings, new Vector2(10, 180), Color.White);
             sB.DrawString(debugFont_tiny, GameInfo, new Vector2(SceneWidth - 260, SceneHeight - 20), Color.White);
             sB.DrawString(debugFont_tiny, "Produced by Jacob Karleskint and Tclub Games", new Vector2(10, 460), Color.White);
+
+            // For Options window
+            sceneOptions.Draw(sB);
 
             // End SpriteBatch
             sB.End();
@@ -149,10 +177,22 @@ namespace TurtleSim2000_Linux
             MousePos = mousepos;
 
             // send all this to the buttons
-            btnStart.UpdateControls(mousepos, bClicked);
-            btnContinue.UpdateControls(mousepos, bClicked);
-            btnQuit.UpdateControls(mousepos, bClicked);
-            btnDemo.UpdateControls(mousepos, bClicked);
+            if (!sceneOptions.bEnabled)
+            {
+                btnStart.UpdateControls(mousepos, bClicked);
+                btnContinue.UpdateControls(mousepos, bClicked);
+                btnQuit.UpdateControls(mousepos, bClicked);
+                btnDemo.UpdateControls(mousepos, bClicked);
+                btnOptions.UpdateControls(mousepos, bClicked);
+
+                if (btnOptions.bPressed) sceneOptions.bEnabled = true;
+            }
+            else
+            {
+                // Update Options window logic
+                sceneOptions.UpdateControls(mousepos, bClicked);
+
+            }
 
         }
     }
