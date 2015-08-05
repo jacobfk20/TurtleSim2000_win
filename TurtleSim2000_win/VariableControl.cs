@@ -131,59 +131,6 @@ namespace TurtleSim2000_Linux
 
 
         //ADD Functions.  These Safely add value to their respected variable.
-        public int addenergy(int v)
-        {
-            if (Energy + v > 100)
-            {
-                Energy = 100;
-            }
-            else Energy += v;
-
-            if (Energy > 120) bGameOver = true;
-            if (Energy <= 0) bGameOver = true;
-            return Energy;
-        }
-
-        public int addhp(int v)
-        {
-            if (HP + v > 100)
-            {
-                HP = 100;
-            }
-            else HP += v;
-
-            if (HP <= 0) bGameOver = true;
-            if (HP >= 100) bGameOver = true;
-            return HP;
-        }
-
-        public int addsocial(int v)
-        {
-
-            if (social + v > 100)
-            {
-                social = 100;
-            }
-            else social += v;
-
-            if (social > 99) return -1;
-            if (social <= 0) return -2;
-            return social;
-
-        }
-
-        public int addfat(int v)
-        {
-            if (Fat + v > 100)
-            {
-                Fat = 100;
-            }
-            else Fat += v;
-
-            if (Fat > 99) bGameOver = true;
-            return Fat;
-        }
-
 
 
         //GET FUNCTIONS.  JUST RETURNS THE VARIABLE WHEN NEEDED.

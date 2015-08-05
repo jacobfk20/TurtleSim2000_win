@@ -10,7 +10,7 @@ namespace TurtleSim2000_Linux
         Random Rando = new Random(494936921);
 
         // All Events for Walking
-        public string WalkingEvents(VariableControl VC, ref int[] gVariables, ref bool[] gSwitches)
+        public string WalkingEvents(VariableControl VC, ref int[] gVariables, ref bool[] gSwitches, ref PlayerData Player)
         {
             string eventname = "0";
             
@@ -23,10 +23,10 @@ namespace TurtleSim2000_Linux
                 {
                     gVariables[10] = VC.GetDay();
                     eventname = "walk_meetemi";
-                    VC.addsocial(1);
+                    Player.addSocial(1);
                     VC.addtime(100);
-                    VC.addhp(-2);
-                    VC.addfat(-1);
+                    Player.addHp(-2);
+                    Player.addFat(-1);
                     gSwitches[3] = true;
                 }
 
@@ -49,7 +49,7 @@ namespace TurtleSim2000_Linux
         }
 
         // All Events for Eating
-        public string Eat(VariableControl VC, ref int[] gVariables, ref bool[] gSwitches)
+        public string Eat(VariableControl VC, ref int[] gVariables, ref bool[] gSwitches, ref PlayerData Player)
         {
             string eventname = "0";
 
@@ -60,7 +60,7 @@ namespace TurtleSim2000_Linux
                 if (gVariables[10] + 1 <= VC.GetDay())
                 {
                     eventname = "eat_emi";
-                    VC.addsocial(1);
+                    Player.addSocial(1);
                     VC.addtime(100);
                     gSwitches[4] = true;
                 }

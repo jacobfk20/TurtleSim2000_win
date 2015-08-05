@@ -50,6 +50,7 @@
     <Compile Include="Interface.cs" />
     <Compile Include="Minor.cs" />
     <Compile Include="modules\Clock.cs" />
+    <Compile Include="modules\PlayerData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="modules\ProgressBar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

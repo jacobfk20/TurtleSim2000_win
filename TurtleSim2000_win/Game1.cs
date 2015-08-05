@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 75) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 76) v0.6 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -105,6 +105,7 @@ namespace TurtleSim2000_Linux
         string ErrorReason = "Fuck, I don't know.";
 
         //Game Objects
+        PlayerData Player = new PlayerData();
         Controls controller = new Controls();
         VariableControl VC = new VariableControl();
         GameEvents gameEvents = new GameEvents();
@@ -120,17 +121,10 @@ namespace TurtleSim2000_Linux
         ProgressBar pBar_HeroHP;
         Clock clock;
 
-        int DayofWeek = 1;                           //Day of the week (1-7; Gets converted to names)
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
         int WaitTime = 0;                            //amount of time (in seconds) to wait in a script.
-        string weekday = "Monday";                   //Named version of above int.
-        string s_class = "";                         //What class is happening today
-        string s_class1 = "Ergonomics";              //First class slot
-        string s_class2 = "Banana Boating 101";      //Second Class slot
-        string s_class3 = "Advanced Shoe Tieing";    //Third Class slot
-        int Turns = 0;                               //How many actions the player has done in one game playthrough
 
-        string playername = "Hush";               //Default playername
+        int Turns = 0;                               //How many actions the player has done in one game playthrough
 
         //string[,] script = new string[101,500];     //MasterScript string array; holds all scripts (old)
         string dialouge = "Nothing to say";         //This pulls the dialouge from script and displays it.
@@ -314,10 +308,10 @@ namespace TurtleSim2000_Linux
             GameVariables[488] = VC.GetFat();
             #endregion
 
-            pBar.setValue(VC.GetHP());
-            pBar_Fat.setValue(VC.GetFat());
-            pBar_Energy.setValue(VC.GetEnergy());
-            pBar_Social.setValue(VC.GetSocial());
+            pBar.setValue(Player.State.HP);
+            pBar_Fat.setValue(Player.State.Fat);
+            pBar_Energy.setValue(Player.State.Energy);
+            pBar_Social.setValue(Player.State.Social);
             pBar_HeroHP.setValue(GameVariables[80]);
             pBar_Charlsee.setValue(GameVariables[81]);
 
@@ -528,8 +522,6 @@ namespace TurtleSim2000_Linux
             #region Game Event Handlers
             if (bFirstrun == true || bRunTut == true) setupgame();
 
-            dayactions();
-
             animateactionmenu();  //calls the animator to move the menu about.
                                   //Also handles button collision events
 
@@ -634,7 +626,7 @@ namespace TurtleSim2000_Linux
 
             //Draw The Action Menu
             GUI.ActionMenuShow(actionmenuscroller, GameVariables[490], VC);
-            if (bMenu == true) GUI.ClassWindowShow(VC.GetDay(), VC.GetWeekDay(), s_class, GameVariables[452]);
+            if (bMenu == true) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, GameVariables[452]);
 
             //Draw Progress bars.
             if (bHud == true)
@@ -644,7 +636,6 @@ namespace TurtleSim2000_Linux
                 pBar_Energy.Draw(spriteBatch);
                 pBar_Social.Draw(spriteBatch);
                 pBar_Fat.Draw(spriteBatch);
-                if (GameVariables[0] >= 1) GUI.ProBarShow(10, 110, GameVariables[0], "Emi's Affection");
             }
 
             
@@ -733,19 +724,17 @@ namespace TurtleSim2000_Linux
                 bFirstrun = false;
                 songstart = false;
                 bStart = false;
-
+                
                 // Randomly create class names
-                s_class1 = VC.CreateClass(Rando);
-                s_class2 = VC.CreateClass(Rando);
-                s_class3 = VC.CreateClass(Rando);
+                Player.CreateClasses(Rando, 3);
             }
 
             if (bRunTut == true)
             {
-                VC.addhp(60);
-                VC.addenergy(60);
-                VC.addsocial(40);
-                VC.addfat(20);
+                Player.addHp(60);
+                Player.addEnergy(60);
+                Player.addSocial(40);
+                Player.addFat(20);
                 bDorm = true;
                 bHud = true;
                 ErrorReason = "LOL, there is no script to run.  Sorry, bro.";
@@ -847,28 +836,6 @@ namespace TurtleSim2000_Linux
                 }
 
             }
-        }
-
-        //what class the player has during the day s/he is currently in
-        protected void dayactions()
-        {
-
-            if (VC.GetDayOfWeek() == 1)
-            {
-                s_class = s_class1;
-            }
-            else
-            if (VC.GetDayOfWeek() == 3)
-            {
-                s_class = s_class2;
-            }
-            else
-            if (VC.GetDayOfWeek() == 5)
-            {
-                s_class = s_class3;
-            }
-            else
-                s_class = "";
         }
 
         //Action Menu Animator
@@ -1328,7 +1295,7 @@ namespace TurtleSim2000_Linux
             if (trigger == "sMetEmi_badend")
             {
                 GameSwitches[5] = true;
-                VC.addsocial(-2);
+                Player.addSocial(-2);
                 triggered = true;
             }
 
@@ -1409,51 +1376,51 @@ namespace TurtleSim2000_Linux
             if (eventname == "sleep")
             {
                 VC.addtime(800);
-                VC.addenergy(30);
-                VC.addfat(2);
+                Player.addEnergy(30);
+                Player.addFat(2);
             }
             if (eventname == "tv")
             {
                 VC.addtime(200);
-                VC.addenergy(-5);
-                VC.addfat(4);
-                VC.addhp(-1);
-                VC.addsocial(-2);
+                Player.addEnergy(-5);
+                Player.addFat(4);
+                Player.addHp(-1);
+                Player.addSocial(-2);
             }
             if (eventname == "xbox")
             {
                 VC.addtime(400);
-                VC.addenergy(-6);
-                VC.addfat(2);
-                VC.addhp(-7);
-                VC.addsocial(-1);
+                Player.addEnergy(-6);
+                Player.addFat(2);
+                Player.addHp(-7);
+                Player.addSocial(-1);
             }
             if (eventname == "write")
             {
                 VC.addtime(200);
-                VC.addenergy(-5);
-                VC.addfat(1);
-                VC.addhp(-2);
-                VC.addsocial(-1);
+                Player.addEnergy(-5);
+                Player.addFat(1);
+                Player.addHp(-2);
+                Player.addSocial(-1);
             }
             if (eventname == "music")
             {
                 VC.addtime(300);
-                VC.addenergy(-4);
-                VC.addhp(-4);
-                VC.addsocial(-1);
-                VC.addfat(2);
+                Player.addEnergy(-4);
+                Player.addHp(-4);
+                Player.addSocial(-1);
+                Player.addFat(2);
             }
             if (eventname == "walk")
             {
                 VC.addtime(200);
-                VC.addenergy(-10);
-                VC.addhp(-8);
-                VC.addfat(-5);
-                VC.addsocial(2);
+                Player.addEnergy(-10);
+                Player.addHp(-8);
+                Player.addFat(-5);
+                Player.addSocial(2);
 
                 // Run through GameEvents and see if any trigger.
-                string oEvent = gameEvents.WalkingEvents(VC, ref GameVariables, ref GameSwitches);
+                string oEvent = gameEvents.WalkingEvents(VC, ref GameVariables, ref GameSwitches, ref Player);
                 if (oEvent != "0") eventname = oEvent;
             }
 
@@ -1465,13 +1432,13 @@ namespace TurtleSim2000_Linux
             if (eventname == "eat")
             {
                 VC.addtime(200);
-                VC.addenergy(-10);
-                VC.addhp(30);
-                VC.addfat(2);
-                VC.addsocial(1);
+                Player.addEnergy(-10);
+                Player.addHp(30);
+                Player.addFat(2);
+                Player.addSocial(1);
 
                 // Run through GameEvents and see if any trigger
-                string oEvent = gameEvents.Eat(VC, ref GameVariables, ref GameSwitches);
+                string oEvent = gameEvents.Eat(VC, ref GameVariables, ref GameSwitches, ref Player);
                 if (oEvent != "0") eventname = oEvent;
             }
             if (eventname == "homework")
@@ -1485,17 +1452,17 @@ namespace TurtleSim2000_Linux
                     if (timetoadd >= 500)
                     {
                         timetoadd = 500;
-                        VC.addenergy(-5);
-                        VC.addhp(-3);
-                        VC.addfat(3);
+                        Player.addEnergy(-5);
+                        Player.addHp(-3);
+                        Player.addFat(3);
                     }
 
                     VC.addtime(200 + timetoadd);
 
-                    VC.addenergy(-5);
-                    VC.addhp(-2);
-                    VC.addfat(1);
-                    VC.addsocial(-1);
+                    Player.addEnergy(-5);
+                    Player.addHp(-2);
+                    Player.addFat(1);
+                    Player.addSocial(-1);
 
                     GameVariables[490] = 0;
                 }
@@ -1506,10 +1473,10 @@ namespace TurtleSim2000_Linux
                 if (VC.GetTime() >= 800 & VC.GetTime() <= 1700)
                 {
                     VC.addtime(200);
-                    VC.addenergy(-6);
-                    VC.addhp(-3);
-                    VC.addfat(1);
-                    VC.addsocial(1);
+                    Player.addEnergy(-6);
+                    Player.addHp(-3);
+                    Player.addFat(1);
+                    Player.addSocial(1);
                     string oEvent = gameEvents.School(VC, ref GameVariables, ref GameSwitches);
                     if (oEvent != "0") eventname = oEvent;
                     else
@@ -1526,10 +1493,10 @@ namespace TurtleSim2000_Linux
             if (eventname == "porn")
             {
                 VC.addtime(100);
-                VC.addenergy(-10);
-                VC.addhp(-8);
-                VC.addfat(6);
-                VC.addsocial(-2);
+                Player.addEnergy(-10);
+                Player.addHp(-8);
+                Player.addFat(6);
+                Player.addSocial(-2);
             }
 
             if (eventname == "savegame")
@@ -1577,7 +1544,7 @@ namespace TurtleSim2000_Linux
                 eventname = "emi_calls_one";
                 bMenu = false;
                 bShowtext = true;
-                VC.addsocial(1);
+                Player.addSocial(1);
                 GameSwitches[0] = true;
             }
 
@@ -2719,7 +2686,7 @@ namespace TurtleSim2000_Linux
                             }
 
                             // Add the variable's value to the new string
-                            dialogWithValue += playername;
+                            dialogWithValue += Player.Name;
 
                             // Determin how many char's we need to skip to get the second half
                             int toSkip = 4;
@@ -2774,7 +2741,7 @@ namespace TurtleSim2000_Linux
                             if (speakerName == "pro")
                             {
                                 charaColor = Color.Green;
-                                charaCode = playername + ":";
+                                charaCode = Player.Name + ":";
                             }
                             if (speakerName == "kay" || speakerName == "shz")
                             {

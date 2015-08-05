@@ -144,6 +144,15 @@ namespace TurtleSim2000_Linux
             bAddTime = true;
         }
 
+        /// <summary>
+        /// Sets the clock straight to a certain time.
+        /// </summary>
+        public void setTime(int hour, int min)
+        {
+            Hour = hour;
+            Minute = min;
+        }
+
 
 
     }
