@@ -22,6 +22,8 @@ namespace TurtleSim2000_Linux
             public string thursday;
             public string friday;
             public string currentClass;
+            public int totalHomework;
+            public int homeworkOfWeek;
         }
         public ClassSchedule Schedule;
 
@@ -63,7 +65,7 @@ namespace TurtleSim2000_Linux
             updateGameVariables();          // Takes Player.State ints and puts them in GameVariables
             updateClass();                  // Updates what class the player is in today (currentday)
             updateWeekDay();                // Updates what week day (printed) it is.
-            updateFullTime();               // Updates the 24 hour time from Clock.
+            //updateFullTime();               // Updates the 24 hour time from Clock.
         }
 
 
@@ -118,18 +120,10 @@ namespace TurtleSim2000_Linux
             State.Energy = GameVariables[485];
             State.Social = GameVariables[487];
             State.Fat = GameVariables[488];
+
             
         }
 
-        /// <summary>
-        /// Updates the gameTime in Player Data.  Get time from Clock object
-        /// </summary>
-        public void setTime(int hour, int minute, bool bPm)
-        {
-            Time.Hour = hour;
-            Time.Minute = minute;
-            Time.bPM = bPm;
-        }
 
 
 
@@ -235,6 +229,25 @@ namespace TurtleSim2000_Linux
             
         }
 
+        /// <summary>
+        ///  Set time from clock.  Don't use this method to add time!  Player Only needs reference to time.
+        /// </summary>
+        public void setTime(int fulltime)
+        {
+            Time.FullTime = fulltime;
+        }
+
+        /// <summary>
+        /// Updates the gameTime in Player Data.  Get time from Clock object
+        /// </summary>
+        public void setTime(int hour, int minute, bool bPm)
+        {
+            Time.Hour = hour;
+            Time.Minute = minute;
+            Time.bPM = bPm;
+        }
+
+
         #endregion
 
 
@@ -251,6 +264,46 @@ namespace TurtleSim2000_Linux
             if (Time.DayOfWeek == 4) Schedule.currentClass = Schedule.thursday;
             if (Time.DayOfWeek == 5) Schedule.currentClass = Schedule.friday;
             if (Time.DayOfWeek == 6) Schedule.currentClass = "";
+
+            // update homework
+            if (Time.FullTime >= 1500)
+            {
+                // For Monday
+                if (Time.DayOfWeek == 1 && Schedule.homeworkOfWeek == 0)        // Checks if day is Monday, and if the player hasn't recieved homework yet.
+                {
+                    Schedule.totalHomework++;
+                    Schedule.homeworkOfWeek++;
+                }
+
+                // For Tuesday (Major class)
+                if (Time.DayOfWeek == 2 && Schedule.homeworkOfWeek == 1)
+                {
+                    Schedule.totalHomework++;
+                    Schedule.homeworkOfWeek++;
+                }
+
+                // For Wednesday
+                if (Time.DayOfWeek == 3 && Schedule.homeworkOfWeek == 2)
+                {
+                    Schedule.totalHomework++;
+                    Schedule.homeworkOfWeek++;
+                }
+
+                // For Thursday (not usually enrolled in a class on thursday.)
+                if (Time.DayOfWeek == 4 && Schedule.homeworkOfWeek == 3)
+                {
+                    Schedule.totalHomework++;
+                    Schedule.homeworkOfWeek++;
+                }
+
+                // For Friday
+                if (Time.DayOfWeek == 5 && Schedule.homeworkOfWeek == 4)
+                {
+                    Schedule.totalHomework++;
+                    Schedule.homeworkOfWeek++;
+                    Schedule.homeworkOfWeek = 0;
+                }
+            }
         }
 
         // updates what day it is.

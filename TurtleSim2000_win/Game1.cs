@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 77) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 78) v0.6 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -281,6 +281,12 @@ namespace TurtleSim2000_Linux
             bgManager.Update();
             clock.Update();
             Player.Update();
+
+            // get time from clock and put it in PlayerData
+            Player.setTime(clock.Time.fullTime);
+            Player.Time.Day = clock.Time.Day;
+            Player.Time.DayOfWeek = clock.Time.DayOfWeek;
+            Player.setTime(clock.Hour, clock.Minute, clock.bPM);
             
 
             // update game variable 100 randomly every frame.
@@ -1332,26 +1338,6 @@ namespace TurtleSim2000_Linux
 
             // Keep add time in this variable then add it to both clock and Player.Time later
             int addTimeMinutes = 0;
-
-            //do we need to add homework?
-            if (Time >= 1200)
-            {
-                if (Player.Time.DayOfWeek == 1)
-                {
-                    if (FakeDayofWeek == 0) Player.GameVariables[490]++;
-                    FakeDayofWeek = 1;
-                }
-                if (Player.Time.DayOfWeek == 3)
-                {
-                    if (FakeDayofWeek == 1) Player.GameVariables[490]++;
-                    FakeDayofWeek = 2;
-                }
-                if (Player.Time.DayOfWeek == 5)
-                {
-                    if (FakeDayofWeek == 2) Player.GameVariables[490]++;
-                    FakeDayofWeek = 0;
-                }
-            }
 
             if (eventname == "sleep")
             {

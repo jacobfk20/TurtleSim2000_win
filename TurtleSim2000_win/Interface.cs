@@ -203,7 +203,7 @@ namespace TurtleSim2000_Linux
             spriteBatch.Draw(buttonup, new Rectangle(160 + actionmenuscroller, 380, 120, 30), Color.White);
             spriteBatch.Draw(buttonup, new Rectangle(30 + actionmenuscroller, 420, 120, 30), Color.White);
             spriteBatch.Draw(buttonup, new Rectangle(160 + actionmenuscroller, 420, 120, 30), Color.White);
-            if (HomeworkAmount >= 1) spriteBatch.Draw(homeworkAlert, new Rectangle(268 + actionmenuscroller, 296, 24, 24), Color.White);
+            if (Player.Schedule.totalHomework >= 1) spriteBatch.Draw(homeworkAlert, new Rectangle(268 + actionmenuscroller, 296, 24, 24), Color.White);
 
             //Text on buttons
             spriteBatch.DrawString(debugfont, "Sleep", new Vector2(60 + actionmenuscroller, 221), Color.White);
@@ -212,7 +212,7 @@ namespace TurtleSim2000_Linux
             spriteBatch.DrawString(debugfont, "Go Eat", new Vector2(188 + actionmenuscroller, 261), clrEat);
             spriteBatch.DrawString(debugfont, "Xbox", new Vector2(70 + actionmenuscroller, 301), Color.White);
             spriteBatch.DrawString(debugfont, "Homework", new Vector2(175 + actionmenuscroller, 301), Color.White);
-            if (HomeworkAmount >= 1) spriteBatch.DrawString(debugfontsmall, "" + HomeworkAmount, new Vector2(278 + actionmenuscroller, 301), Color.White);
+            if (Player.Schedule.totalHomework >= 1) spriteBatch.DrawString(debugfontsmall, "" + Player.Schedule.totalHomework, new Vector2(278 + actionmenuscroller, 301), Color.White);
             spriteBatch.DrawString(debugfont, "Write", new Vector2(62 + actionmenuscroller, 341), Color.White);
             spriteBatch.DrawString(debugfont, "Class", new Vector2(192 + actionmenuscroller, 341), classC);
             spriteBatch.DrawString(debugfont, "Music", new Vector2(63 + actionmenuscroller, 381), Color.White);

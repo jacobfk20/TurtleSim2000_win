@@ -23,11 +23,19 @@ namespace TurtleSim2000_Linux
         SpriteFont fontClock;
 
         public Color ClockColor = Color.Blue;           // The color of the clock's text.  Changeable in game.
+        
+        public struct _Time
+        {
+            public int fullTime;
+            public int Day;
+            public int DayOfWeek;
+        }
+        public _Time Time;
 
         bool bHour24 = false;                           // Sets the clock in 24 hour format instead of 12.
-        bool bAddTime = false;                          // Sets the clock to add time (animation)
-        bool bPM = false;                               // If using 12 hour format, this will set time to PM. False = AM.
-
+        public bool bAddTime = false;                   // Sets the clock to add time (animation)
+        public bool bPM = false;                        // If using 12 hour format, this will set time to PM. False = AM.
+        
         string TimeColon = ":";                         // Draws the : between hour and minutes.  Animates off and on.
         public string AMPM = "AM";
         string strHour = "04";                          // String form of Hour.  For displaying 0's in front.
@@ -65,7 +73,7 @@ namespace TurtleSim2000_Linux
             if (bAddTime)
             {
                 Minute++;
-                addMin--;
+                addMin++;
 
                 // Add an hour if minutes are over 59
                 if (Minute > 59)
@@ -80,7 +88,12 @@ namespace TurtleSim2000_Linux
 
                         // Set PM/AM accordingly.
                         if (!bPM) bPM = true;
-                        else bPM = false;
+                        else
+                        {
+                            Time.Day++;
+                            Time.DayOfWeek++;
+                            bPM = false;
+                        }
                     }
                     
                 }
@@ -112,6 +125,13 @@ namespace TurtleSim2000_Linux
 
             // If We're out of time to add, stop adding time.
             if (addMin <= 0) bAddTime = false;
+
+            // Convert to 24 hour for fullTime
+            Time.fullTime = (100 * Hour) + Minute;
+            if (bPM) Time.fullTime += 1200;
+
+            // Update Dayofweek
+            if (Time.DayOfWeek > 7) Time.DayOfWeek = 1;
             
         }
 
