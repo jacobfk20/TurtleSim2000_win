@@ -29,11 +29,11 @@ namespace TurtleSim2000_Linux
         bool bPM = false;                               // If using 12 hour format, this will set time to PM. False = AM.
 
         string TimeColon = ":";                         // Draws the : between hour and minutes.  Animates off and on.
-        string AMPM = "AM";
+        public string AMPM = "AM";
         string strHour = "04";                          // String form of Hour.  For displaying 0's in front.
         string strMinute = "02";                        // String form of Minute.  ^ that.
-        int Hour = 4;
-        int Minute = 02;
+        public int Hour = 4;
+        public int Minute = 02;
         int addMin = 0;                                 // How many minutes needed to be added (animation)
 
         int ColonFrames = 0;                            // Adds up and when hits a certain number, will animate :

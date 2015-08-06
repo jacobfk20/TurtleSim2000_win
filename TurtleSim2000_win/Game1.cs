@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 76) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 77) v0.6 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -83,12 +83,6 @@ namespace TurtleSim2000_Linux
         bool bPlayMusic = true;           //Determines if music should play.. or not.  (determined by user)
         bool bAuthorMode = false;          //tells the game to run a debug script on startup.
 
-        //GAME STORY SWITCHES
-        bool[] GameSwitches = new bool[500];      //for better saveing managment!  Store all in array and keep notes which is which.
-
-        //GAME STORY VARIABLES
-        int[] GameVariables = new int[500];       //For better saving managment!  Store all in array and keep notes which is which
-
         //GAME STORY ENGINE VARIABLES
         string[] forkAnswers = new string[8];
         string[] forkScript = new string[8];
@@ -107,7 +101,7 @@ namespace TurtleSim2000_Linux
         //Game Objects
         PlayerData Player = new PlayerData();
         Controls controller = new Controls();
-        VariableControl VC = new VariableControl();
+        //VariableControl VC = new VariableControl();
         GameEvents gameEvents = new GameEvents();
         Stamps stamps = new Stamps();
         Save gameSaver = new Save();
@@ -183,8 +177,8 @@ namespace TurtleSim2000_Linux
 
             for (int x = 0; x < 500; x++)
             {
-                GameSwitches[x] = false;
-                GameVariables[x] = 0;
+                Player.GameSwitches[x] = false;
+                Player.GameVariables[x] = 0;
             }
 
             // launch in fullscreen or in windowed.
@@ -241,9 +235,6 @@ namespace TurtleSim2000_Linux
             GUI.LoadContent(this.Content, spriteBatch);
             #endregion
 
-            //Variable Controls Init
-            VC.Init(this.Content);
-
             // Load Transitions
             transition.loadContent(spriteBatch, this.Content);
 
@@ -289,31 +280,19 @@ namespace TurtleSim2000_Linux
             stamps.update();
             bgManager.Update();
             clock.Update();
-            VC.Update();
+            Player.Update();
             
 
             // update game variable 100 randomly every frame.
-            GameVariables[100] = Rando.Next(6);
+            Player.GameVariables[100] = Rando.Next(6);
 
-            #region Put VC vars into GameVariables[]
-            // This will set all GameVariables to the VC counterpart
-            // They are only for reference.  changeing these will not
-            // change the actual in-game variable
-            GameVariables[453] = VC.GetTime();
-            GameVariables[454] = VC.GetDayOfWeek();
-            GameVariables[455] = VC.GetDay();
-            GameVariables[485] = VC.GetEnergy();
-            GameVariables[486] = VC.GetHP();
-            GameVariables[487] = VC.GetSocial();
-            GameVariables[488] = VC.GetFat();
-            #endregion
 
             pBar.setValue(Player.State.HP);
             pBar_Fat.setValue(Player.State.Fat);
             pBar_Energy.setValue(Player.State.Energy);
             pBar_Social.setValue(Player.State.Social);
-            pBar_HeroHP.setValue(GameVariables[80]);
-            pBar_Charlsee.setValue(GameVariables[81]);
+            pBar_HeroHP.setValue(Player.GameVariables[80]);
+            pBar_Charlsee.setValue(Player.GameVariables[81]);
 
             pBar.Update();
             pBar_Fat.Update();
@@ -327,7 +306,6 @@ namespace TurtleSim2000_Linux
 
             #region GameLogic (win/lose)
             //lets do some updates from Variable Control.
-            VC.GameStateUpdate(ref bGameover);         //give VC ref of variables here.
 
             if (bWin == true)
             {
@@ -483,11 +461,11 @@ namespace TurtleSim2000_Linux
                         bDorm = true;
 
                         // Load from file and store into game variables.
-                        gameSaver.sD.gVariables = GameVariables;
+                        gameSaver.sD.gVariables = Player.GameVariables;
                         gameSaver.loadFromFile();
-                        VC.setValuesFromLoad(GameVariables[485], GameVariables[486], GameVariables[487], GameVariables[488], GameVariables[453], GameVariables[455], GameVariables[454], "Friday");
+                        Player.loadFromSave();
                         //bStart = false;
-
+                        
                         // setup background stuff
                         bgManager.setBackground("School_ProDorm_bedroom");
                         bgManager.setBackgroundDimensions(800, 480);
@@ -625,9 +603,9 @@ namespace TurtleSim2000_Linux
             if (bDebugmode) spriteBatch.DrawString(debugfontsmall, "AUTHOR DEBUG MODE", new Vector2(670, 11), Color.White);
 
             //Draw The Action Menu
-            GUI.ActionMenuShow(actionmenuscroller, GameVariables[490], VC);
-            if (bMenu == true) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, GameVariables[452]);
-
+            GUI.ActionMenuShow(actionmenuscroller, Player.GameVariables[490], Player);
+            if (bMenu == true) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, Player.GameVariables[452]);
+          
             //Draw Progress bars.
             if (bHud == true)
             {
@@ -638,8 +616,8 @@ namespace TurtleSim2000_Linux
                 pBar_Fat.Draw(spriteBatch);
             }
 
-            
-            if (bHud == true) VC.Clock(spriteBatch);
+
+            if (bHud == true) clock.Draw(spriteBatch);
 
             if (bShowtext == true)
             {
@@ -663,7 +641,7 @@ namespace TurtleSim2000_Linux
 
             if (bQuestion == true) GUI.ForkQuestionShow(forkAnswers);
 
-            if (GameVariables[80] > 0)
+            if (Player.GameVariables[80] > 0)
             {
                 pBar_HeroHP.Draw(spriteBatch);
                 pBar_Charlsee.Draw(spriteBatch);
@@ -1225,21 +1203,20 @@ namespace TurtleSim2000_Linux
             }
 
 
-            //var mouseState = Mouse.GetState();
             if (controller.bClicked == true && bQuestion == false && bTypewritting == false && bWait == false)
             {
 
                 // To return the script reader if GS[490]"Script Return" = true. 
-                if (GameSwitches[490] == true && MasterScript.Read(scriptreaderx, scriptreadery + 1) == null)
+                if (Player.GameSwitches[490] == true && MasterScript.Read(scriptreaderx, scriptreadery + 1) == null)
                 {
                     // Set script reader x and y to where we left off from the old script
-                    scriptreaderx = GameVariables[491];
-                    scriptreadery = GameVariables[492] + 1;
+                    scriptreaderx = Player.GameVariables[491];
+                    scriptreadery = Player.GameVariables[492] + 1;
 
                     // cleanup
-                    GameVariables[491] = 0;
-                    GameVariables[492] = 0;
-                    GameSwitches[490] = false;
+                    Player.GameVariables[491] = 0;
+                    Player.GameVariables[492] = 0;
+                    Player.GameSwitches[490] = false;
 
                     //if (MasterScript.Read(scriptreaderx, scriptreadery) == null) bClicked = true;
                 }
@@ -1294,7 +1271,7 @@ namespace TurtleSim2000_Linux
 
             if (trigger == "sMetEmi_badend")
             {
-                GameSwitches[5] = true;
+                Player.GameSwitches[5] = true;
                 Player.addSocial(-2);
                 triggered = true;
             }
@@ -1320,21 +1297,21 @@ namespace TurtleSim2000_Linux
             if (trigger == "emi_calls_one_good")
             {
                 //will trigger Emi to walk with you at certain times
-                GameSwitches[1] = true;  //Emi_walksnow
+                Player.GameSwitches[1] = true;  //Emi_walksnow
                 triggered = true;
                 stamps.Popup("The Yes Man\nYou can't say no to that pouty face\nof hers.");
             }
 
             if (trigger == "emi_addheart")
             {
-                GameVariables[0]++;
+                Player.GameVariables[0]++;
                 triggered = true;
             }
 
             if (trigger == "charlsee_battle")
             {
-                GameVariables[80] = 100;
-                GameVariables[81] = 100;
+                Player.GameVariables[80] = 100;
+                Player.GameVariables[81] = 100;
                 triggered = true;
             }
 
@@ -1351,37 +1328,40 @@ namespace TurtleSim2000_Linux
         {
             int R = 0;
             R = Rando.Next(5);
-            int Time = VC.GetTime();
+            int Time = Player.Time.FullTime;
+
+            // Keep add time in this variable then add it to both clock and Player.Time later
+            int addTimeMinutes = 0;
 
             //do we need to add homework?
-            if (VC.GetTime() >= 1200)
+            if (Time >= 1200)
             {
-                if (VC.GetDayOfWeek() == 1)
+                if (Player.Time.DayOfWeek == 1)
                 {
-                    if (FakeDayofWeek == 0) GameVariables[490]++;
+                    if (FakeDayofWeek == 0) Player.GameVariables[490]++;
                     FakeDayofWeek = 1;
                 }
-                if (VC.GetDayOfWeek() == 3)
+                if (Player.Time.DayOfWeek == 3)
                 {
-                    if (FakeDayofWeek == 1) GameVariables[490]++;
+                    if (FakeDayofWeek == 1) Player.GameVariables[490]++;
                     FakeDayofWeek = 2;
                 }
-                if (VC.GetDayOfWeek() == 5)
+                if (Player.Time.DayOfWeek == 5)
                 {
-                    if (FakeDayofWeek == 2) GameVariables[490]++;
+                    if (FakeDayofWeek == 2) Player.GameVariables[490]++;
                     FakeDayofWeek = 0;
                 }
             }
 
             if (eventname == "sleep")
             {
-                VC.addtime(800);
+                addTimeMinutes = 800;
                 Player.addEnergy(30);
                 Player.addFat(2);
             }
             if (eventname == "tv")
             {
-                VC.addtime(200);
+                addTimeMinutes = 200;
                 Player.addEnergy(-5);
                 Player.addFat(4);
                 Player.addHp(-1);
@@ -1389,7 +1369,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "xbox")
             {
-                VC.addtime(400);
+                addTimeMinutes = 400;
                 Player.addEnergy(-6);
                 Player.addFat(2);
                 Player.addHp(-7);
@@ -1397,7 +1377,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "write")
             {
-                VC.addtime(200);
+                addTimeMinutes = 200;
                 Player.addEnergy(-5);
                 Player.addFat(1);
                 Player.addHp(-2);
@@ -1405,7 +1385,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "music")
             {
-                VC.addtime(300);
+                addTimeMinutes = 300;
                 Player.addEnergy(-4);
                 Player.addHp(-4);
                 Player.addSocial(-1);
@@ -1413,14 +1393,14 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "walk")
             {
-                VC.addtime(200);
+                addTimeMinutes = 200;
                 Player.addEnergy(-10);
                 Player.addHp(-8);
                 Player.addFat(-5);
                 Player.addSocial(2);
 
                 // Run through GameEvents and see if any trigger.
-                string oEvent = gameEvents.WalkingEvents(VC, ref GameVariables, ref GameSwitches, ref Player);
+                string oEvent = gameEvents.WalkingEvents(ref Player);
                 if (oEvent != "0") eventname = oEvent;
             }
 
@@ -1431,24 +1411,24 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "eat")
             {
-                VC.addtime(200);
+                addTimeMinutes = 200;
                 Player.addEnergy(-10);
                 Player.addHp(30);
                 Player.addFat(2);
                 Player.addSocial(1);
 
                 // Run through GameEvents and see if any trigger
-                string oEvent = gameEvents.Eat(VC, ref GameVariables, ref GameSwitches, ref Player);
+                string oEvent = gameEvents.Eat(ref Player);
                 if (oEvent != "0") eventname = oEvent;
             }
             if (eventname == "homework")
             {
                 int timetoadd;
 
-                if (GameVariables[490] >= 1)
+                if (Player.GameVariables[490] >= 1)
                 {
 
-                    timetoadd = GameVariables[490] * 100;
+                    timetoadd = Player.GameVariables[490] * 100;
                     if (timetoadd >= 500)
                     {
                         timetoadd = 500;
@@ -1457,33 +1437,33 @@ namespace TurtleSim2000_Linux
                         Player.addFat(3);
                     }
 
-                    VC.addtime(200 + timetoadd);
+                    addTimeMinutes = 200 + timetoadd;
 
                     Player.addEnergy(-5);
                     Player.addHp(-2);
                     Player.addFat(1);
                     Player.addSocial(-1);
 
-                    GameVariables[490] = 0;
+                    Player.GameVariables[490] = 0;
                 }
                 else eventname = "nohomework";
             }
             if (eventname == "class")
             {
-                if (VC.GetTime() >= 800 & VC.GetTime() <= 1700)
+                if (Time >= 800 & Time <= 1700)
                 {
-                    VC.addtime(200);
+                    addTimeMinutes = 200;
                     Player.addEnergy(-6);
                     Player.addHp(-3);
                     Player.addFat(1);
                     Player.addSocial(1);
-                    string oEvent = gameEvents.School(VC, ref GameVariables, ref GameSwitches);
+                    string oEvent = gameEvents.School(ref Player);
                     if (oEvent != "0") eventname = oEvent;
                     else
                         eventname = "hadclass";
-                    GameVariables[450] = VC.GetDay();
-                    GameVariables[452] = 1;
-                    //gameEvents.School(VC, ref GameVariables, ref GameSwitches);
+                    Player.GameVariables[450] = Player.Time.Day;
+                    Player.GameVariables[452] = 1;
+                    //gameEvents.School(VC, ref Player.GameVariables, ref Player.GameSwitches);
                 }
                 else
                 {
@@ -1492,7 +1472,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "porn")
             {
-                VC.addtime(100);
+                addTimeMinutes = 100;
                 Player.addEnergy(-10);
                 Player.addHp(-8);
                 Player.addFat(6);
@@ -1505,33 +1485,37 @@ namespace TurtleSim2000_Linux
                 result = StorageDevice.BeginShowSelector(PlayerIndex.One, null, null);
                 StorageDevice device = StorageDevice.EndShowSelector(result);
 
-                GameVariables[453] = VC.GetTime();
+                Player.GameVariables[453] = Time;
 
-                gameSaver.SyncData(device, GameSwitches, GameVariables);
-                gameSaver.sD.gSwitches = GameSwitches;
-                gameSaver.sD.gVariables = GameVariables;
+                gameSaver.SyncData(device, Player.GameSwitches, Player.GameVariables);
+                gameSaver.sD.gSwitches = Player.GameSwitches;
+                gameSaver.sD.gVariables = Player.GameVariables;
                 gameSaver.DumpToFile();
             }
 
             // Did the player skip class?
-            if (VC.GetTime() >= 1700)
+            if (Time >= 1700)
             {
-                int dayOfWeek = VC.GetDayOfWeek();
+                int dayOfWeek = Player.Time.DayOfWeek;
                 if (dayOfWeek == 1 || dayOfWeek == 3 || dayOfWeek == 5)
                 {
-                    if (GameVariables[450] != VC.GetDay())
+                    if (Player.GameVariables[450] != Player.Time.Day)
                     {
                         // Add a skip day
-                        GameVariables[451]++;       // v[451] days skipped total
-                        GameVariables[452] = 2;     // v[452] 0 = not happend yet 1 = went to class 2 = skipped
+                        Player.GameVariables[451]++;       // v[451] days skipped total
+                        Player.GameVariables[452] = 2;     // v[452] 0 = not happend yet 1 = went to class 2 = skipped
                     }
                 }
             }
-            int dayofWeek = VC.GetDayOfWeek();
+            int dayofWeek = Player.Time.DayOfWeek;
             if (dayofWeek == 2 || dayofWeek == 4 || dayofWeek == 6)
             {
-                GameVariables[452] = 0;
+                Player.GameVariables[452] = 0;
             }
+
+            // Add time to both clock and Player.Time
+            clock.addTime(addTimeMinutes);
+            Player.addTime(addTimeMinutes);
 
         }
 
@@ -1539,13 +1523,13 @@ namespace TurtleSim2000_Linux
         int PopEvents()
         {
             //Emi calls first time.
-            if (GameVariables[10] < VC.GetDay() - 3 && GameSwitches[3] == true && GameSwitches[0] == false)
+            if (Player.GameVariables[10] < Player.Time.Day - 3 && Player.GameSwitches[3] == true && Player.GameSwitches[0] == false)
             {
                 eventname = "emi_calls_one";
                 bMenu = false;
                 bShowtext = true;
                 Player.addSocial(1);
-                GameSwitches[0] = true;
+                Player.GameSwitches[0] = true;
             }
 
             return 3;
@@ -2053,9 +2037,9 @@ namespace TurtleSim2000_Linux
                                     line = line.Remove(hyIndex, 7);
 
                                     // Set game variables and switches up
-                                    GameVariables[491] = scriptreaderx;         // These will tell the script int. to return to this script on end
-                                    GameVariables[492] = scriptreadery++;
-                                    GameSwitches[490] = true;
+                                    Player.GameVariables[491] = scriptreaderx;         // These will tell the script int. to return to this script on end
+                                    Player.GameVariables[492] = scriptreadery++;
+                                    Player.GameSwitches[490] = true;
 
                                     // check and make sure there is no space at the end.
                                     if (line[hyIndex - 1] == ' ') line = line.Remove(hyIndex - 1, 1);
@@ -2182,14 +2166,14 @@ namespace TurtleSim2000_Linux
 
                                     A = Rando.Next(0, A);
 
-                                    // Set finished result to gamevariables
-                                    GameVariables[V] += A;
+                                    // Set finished result to Player.GameVariables
+                                    Player.GameVariables[V] += A;
                                 }
                                 else
                                 {
                                     sliceCom = sliceCom.Substring(2);
                                     A = Convert.ToInt32(sliceCom);      // Convert to int
-                                    GameVariables[V] += A;               // Store finished result in gamevariables[]
+                                    Player.GameVariables[V] += A;               // Store finished result in Player.GameVariables[]
                                 }
 
                                 scriptreadery++;
@@ -2216,8 +2200,8 @@ namespace TurtleSim2000_Linux
 
                                     A = Rando.Next(A);
 
-                                    // Set finished result to gamevariables
-                                    GameVariables[V] -= A;
+                                    // Set finished result to Player.GameVariables
+                                    Player.GameVariables[V] -= A;
                                 }
 
                                 // See if it is getting a value from another variable
@@ -2227,17 +2211,17 @@ namespace TurtleSim2000_Linux
                                     // Get var value and get gamevariable int
                                     int vPos = sliceCom.IndexOf("v");
                                     varMod = sliceCom.Substring(vPos + 1);
-                                    A = GameVariables[Convert.ToInt32(varMod)];
+                                    A = Player.GameVariables[Convert.ToInt32(varMod)];
 
                                     // subtract gamevariable from gamevariable
-                                    GameVariables[V] -= A;
+                                    Player.GameVariables[V] -= A;
 
                                 }
                                 else
                                 {
                                     sliceCom = sliceCom.Substring(2);
                                     A = Convert.ToInt32(sliceCom);      // Convert to int
-                                    GameVariables[V] -= A;               // Store finished result in gamevariables[]
+                                    Player.GameVariables[V] -= A;               // Store finished result in Player.GameVariables[]
                                 }
 
                                 scriptreadery++;
@@ -2264,14 +2248,14 @@ namespace TurtleSim2000_Linux
 
                                     A = Rando.Next(A);
 
-                                    // Set finished result to gamevariables
-                                    GameVariables[V] = A;
+                                    // Set finished result to Player.GameVariables
+                                    Player.GameVariables[V] = A;
                                 }
                                 else
                                 {
                                     sliceCom = sliceCom.Substring(2);
                                     A = Convert.ToInt32(sliceCom);      // Convert to int
-                                    GameVariables[V] = A;               // Store finished result in gamevariables[]
+                                    Player.GameVariables[V] = A;               // Store finished result in Player.GameVariables[]
                                 }
 
                                 scriptreadery++;
@@ -2298,14 +2282,14 @@ namespace TurtleSim2000_Linux
 
                                     A = Rando.Next(0, A);
                                     
-                                    // Set finished result to gamevariables
-                                    GameVariables[V] *= A;
+                                    // Set finished result to Player.GameVariables
+                                    Player.GameVariables[V] *= A;
                                 }
                                 else
                                 {
                                     sliceCom = sliceCom.Substring(2);
                                     A = Convert.ToInt32(sliceCom);      // Convert to int
-                                    GameVariables[V] *= A;               // Store finished result in gamevariables[]
+                                    Player.GameVariables[V] *= A;               // Store finished result in Player.GameVariables[]
                                 }
 
                                 scriptreadery++;
@@ -2336,7 +2320,7 @@ namespace TurtleSim2000_Linux
                             }
                             else intP = Convert.ToInt32(P);
 
-                            GameVariables[V] += intP;
+                            Player.GameVariables[V] += intP;
 
                         }
                     }
@@ -2381,8 +2365,8 @@ namespace TurtleSim2000_Linux
                             tf = line.Substring(opPos + 2);
 
                             // Mod game Switches with collected data.
-                            if (tf == "false") GameSwitches[s] = false;
-                            if (tf == "true") GameSwitches[s] = true;
+                            if (tf == "false") Player.GameSwitches[s] = false;
+                            if (tf == "true") Player.GameSwitches[s] = true;
                             else
                             {
                                 Console.WriteLine("Tried to change Switch[" + s + "] to a none boolean type: '" + tf + "' on Line: " + line);
@@ -2499,16 +2483,16 @@ namespace TurtleSim2000_Linux
                             b = Convert.ToInt32(arg2);
 
                             // Get Game Data
-                            if (aType == 1) a = GameVariables[a];
-                            if (bType == 1) b = GameVariables[b];
+                            if (aType == 1) a = Player.GameVariables[a];
+                            if (bType == 1) b = Player.GameVariables[b];
                             if (aType == 2)
                             {
-                                if (GameSwitches[a]) a = 1;
+                                if (Player.GameSwitches[a]) a = 1;
                                 else a = 0;
                             }
                             if (bType == 2)
                             {
-                                if (GameSwitches[b]) b = 1;
+                                if (Player.GameSwitches[b]) b = 1;
                                 else b = 0;
                             }
 
@@ -2643,7 +2627,7 @@ namespace TurtleSim2000_Linux
                             }
 
                             // Add the variable's value to the new string
-                            dialogWithValue += Convert.ToString(GameVariables[varToDisplay]);
+                            dialogWithValue += Convert.ToString(Player.GameVariables[varToDisplay]);
 
                             // Determin how many char's we need to skip to get the second half
                             int toSkip = 4;

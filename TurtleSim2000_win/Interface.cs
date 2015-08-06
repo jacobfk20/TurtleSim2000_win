@@ -176,16 +176,16 @@ namespace TurtleSim2000_Linux
         }
 
         //THE MAIN ACTION MENU  (THIS IS WHERE ALL THE ACTIONS ARE SHOWN)
-        public int ActionMenuShow(int actionmenuscroller, int HomeworkAmount, VariableControl VC)
+        public int ActionMenuShow(int actionmenuscroller, int HomeworkAmount, PlayerData Player)
         {
 
             Color classC = Color.White;
             Color clrEat = Color.White;
 
-            if (VC.GetTime() <= 1700 & VC.GetTime() >= 800 && VC.GetDayOfWeek() == 1 || VC.GetDayOfWeek() == 3 || VC.GetDayOfWeek() == 5) classC = Color.White;
+            if (Player.Time.FullTime <= 1700 & Player.Time.FullTime >= 800 && Player.Time.DayOfWeek == 1 || Player.Time.DayOfWeek == 3 || Player.Time.DayOfWeek == 5) classC = Color.White;
             else classC = Color.Gray;
 
-            if (VC.GetTime() >= 2100 || VC.GetTime() <= 400) clrEat = Color.Gray;
+            if (Player.Time.FullTime >= 2100 || Player.Time.FullTime <= 400) clrEat = Color.Gray;
             else clrEat = Color.White;
 
             //Action Menu

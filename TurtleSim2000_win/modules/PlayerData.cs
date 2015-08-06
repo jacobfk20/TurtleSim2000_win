@@ -10,6 +10,9 @@ namespace TurtleSim2000_Linux
         // Player Name!
         public string Name = "Hush";
 
+        // Save/Load Object
+        Save gLoad;
+
         // Player Class schedule
         public struct ClassSchedule
         {
@@ -41,11 +44,13 @@ namespace TurtleSim2000_Linux
 
         public struct _Time
         {
+            public int FullTime;
             public int Turns;
             public int Hour;
             public int Minute;
             public int DayOfWeek;
             public int Day;
+            public bool bPM;
             public string weekDay;
         }
         public _Time Time;
@@ -55,8 +60,10 @@ namespace TurtleSim2000_Linux
 
         public void Update()
         {
-            updateClass();
-            updateWeekDay();
+            updateGameVariables();          // Takes Player.State ints and puts them in GameVariables
+            updateClass();                  // Updates what class the player is in today (currentday)
+            updateWeekDay();                // Updates what week day (printed) it is.
+            updateFullTime();               // Updates the 24 hour time from Clock.
         }
 
 
@@ -90,6 +97,38 @@ namespace TurtleSim2000_Linux
 
 
 
+        }
+
+
+        public void loadFromSave()
+        {
+            // Load from save
+            gLoad.loadFromFile();
+
+            // Take public variables from it and put 'em in here!
+            GameVariables = gLoad.sD.gVariables;
+            GameSwitches = gLoad.sD.gSwitches;
+
+            // Take GameVariables and put them into Player.State and Player.Time
+            Time.Day = GameVariables[455];
+            Time.Hour = GameVariables[452];
+            Time.Minute = GameVariables[453];
+            Time.DayOfWeek = GameVariables[454];
+            State.HP = GameVariables[486];
+            State.Energy = GameVariables[485];
+            State.Social = GameVariables[487];
+            State.Fat = GameVariables[488];
+            
+        }
+
+        /// <summary>
+        /// Updates the gameTime in Player Data.  Get time from Clock object
+        /// </summary>
+        public void setTime(int hour, int minute, bool bPm)
+        {
+            Time.Hour = hour;
+            Time.Minute = minute;
+            Time.bPM = bPm;
         }
 
 
@@ -148,11 +187,52 @@ namespace TurtleSim2000_Linux
             return State.Fat;
         }
 
-        //Used to add time safely
-        public int addTime(int minute)
+        /// <summary>
+        /// Adds time safely to the clock.  This function adds via single int.  (30 = 30 minutes) (120 = 120 minutes [2 hours])
+        /// </summary>
+        public void addTime(int fulltime)
         {
+            // Check and make sure the time the user adds is less than an hour and deal with it now.
+            if (fulltime < 60)
+            {
+                // Make sure Minutes wont go over 60.
+                if (Time.Minute + fulltime > 59)
+                {
+                    Time.Hour++;
+                    Time.Minute = Time.Minute + fulltime - 60;
+                }
+                else Time.Minute += fulltime;
+                return;
+            }
 
-            return 0;
+            // I HATE DICKING WITH TIME!!  Here will add the full time into Hours and Minutes
+            while (fulltime != 0)
+            {
+                if (fulltime >= 60)
+                {
+                    // Does all the shit to add an hour.
+                    fulltime = addHour(fulltime);
+                }
+                else
+                {
+                    // Adds in the remaining minutes and checks if needs extra hour.
+                    if (Time.Minute + fulltime > 59)
+                    {
+                        fulltime = addHour(fulltime);
+
+                        Time.Minute = Time.Minute + fulltime - 60;
+                        fulltime = 0;
+                    }
+                    else
+                    {
+                        // Adds in the reamaining minutes
+                        Time.Minute += fulltime;
+                        fulltime = 0;
+                    }
+                }
+            }
+
+            
         }
 
         #endregion
@@ -185,5 +265,58 @@ namespace TurtleSim2000_Linux
             if (Time.DayOfWeek == 7) Time.weekDay = "Sunday";
         }
 
+        // Update player data into game variables for script reference.
+        private void updateGameVariables()
+        {
+            GameVariables[452] = Time.Hour;
+            GameVariables[453] = Time.Minute;
+            GameVariables[454] = Time.DayOfWeek;
+            GameVariables[455] = Time.Day;
+            GameVariables[485] = State.Energy;
+            GameVariables[486] = State.HP;
+            GameVariables[487] = State.Social;
+            GameVariables[488] = State.Fat;
+        }
+
+        // Updates the 24 hour clock from 12 hour clock.  (used easier for some events)
+        private void updateFullTime()
+        {
+            Time.FullTime = Time.Hour + Time.Minute;
+            if (Time.bPM) Time.FullTime += 1200;
+        }
+
+        // Safely adds an hour.
+        private int addHour(int fulltime)
+        {
+            // Adding hours
+            if (Time.Hour >= 12)
+            {
+                Time.Hour = 1;
+                if (Time.bPM)
+                {
+                    Time.bPM = false;
+                    addDay();
+                }
+                else Time.bPM = true;
+                fulltime -= 60;
+            }
+            else
+            {
+                Time.Hour++;
+                fulltime -= 60;
+            }
+            return fulltime;
+        }
+
+        private void addDay()
+        {
+            Time.Day++;
+            Time.DayOfWeek++;
+
+            if (Time.DayOfWeek > 7)
+            {
+                Time.DayOfWeek = 1;
+            }
+        }
     }
 }
