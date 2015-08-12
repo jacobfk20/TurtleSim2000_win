@@ -469,7 +469,7 @@ namespace TurtleSim2000_Linux
                 shakeTime--;
 
                 // if we're at the end of shake time
-                if (shakeTime == 0)
+                if (shakeTime <= 0)
                 {
                     for(int i = 0; i < drawnCharas; i++)
                     {

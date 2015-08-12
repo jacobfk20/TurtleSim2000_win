@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Background.cs" />
     <Compile Include="Basic.cs" />
+    <Compile Include="modules\ActionMenu.cs" />
     <Compile Include="modules\Button.cs" />
     <Compile Include="modules\Chara.cs" />
     <Compile Include="CharaManager.cs" />

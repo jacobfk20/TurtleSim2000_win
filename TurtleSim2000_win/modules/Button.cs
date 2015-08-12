@@ -94,11 +94,11 @@ namespace TurtleSim2000_Linux
         /// <summary>
         /// Draws the button to screen.  Must be called in game draw loop!
         /// </summary>
-        public void Draw(SpriteBatch sB)
+        public void Draw(SpriteBatch sB, float alpha = 1f)
         {
-            if (!bHover) sB.Draw(texButton, boxDim, Color.White);
-            else sB.Draw(texButton_down, boxDim, Color.White);
-            sB.DrawString(texFont, Text, textPos, Color.White);
+            if (!bHover) sB.Draw(texButton, boxDim, Color.White * alpha);
+            else sB.Draw(texButton_down, boxDim, Color.White * alpha);
+            sB.DrawString(texFont, Text, textPos, Color.White * alpha);
         }
 
 

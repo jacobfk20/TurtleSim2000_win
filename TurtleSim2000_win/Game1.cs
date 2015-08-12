@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 78) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 79) v0.6 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -849,7 +849,7 @@ namespace TurtleSim2000_Linux
 
             var mouseState = Mouse.GetState();
             var mousePosition = new Point(mouseState.X, mouseState.Y);
-
+            
             Rectangle button3 = new Rectangle(30 + actionmenuscroller, 220, 130, 30);
             Rectangle button9 = new Rectangle(160 + actionmenuscroller, 220, 130, 30);
             Rectangle button4 = new Rectangle(30 + actionmenuscroller, 260, 130, 30);
@@ -1341,13 +1341,13 @@ namespace TurtleSim2000_Linux
 
             if (eventname == "sleep")
             {
-                addTimeMinutes = 800;
+                addTimeMinutes = 480;
                 Player.addEnergy(30);
                 Player.addFat(2);
             }
             if (eventname == "tv")
             {
-                addTimeMinutes = 200;
+                addTimeMinutes = 120;
                 Player.addEnergy(-5);
                 Player.addFat(4);
                 Player.addHp(-1);
@@ -1355,7 +1355,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "xbox")
             {
-                addTimeMinutes = 400;
+                addTimeMinutes = 240;
                 Player.addEnergy(-6);
                 Player.addFat(2);
                 Player.addHp(-7);
@@ -1363,7 +1363,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "write")
             {
-                addTimeMinutes = 200;
+                addTimeMinutes = 120;
                 Player.addEnergy(-5);
                 Player.addFat(1);
                 Player.addHp(-2);
@@ -1371,7 +1371,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "music")
             {
-                addTimeMinutes = 300;
+                addTimeMinutes = 180;
                 Player.addEnergy(-4);
                 Player.addHp(-4);
                 Player.addSocial(-1);
@@ -1379,7 +1379,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "walk")
             {
-                addTimeMinutes = 200;
+                addTimeMinutes = 140;
                 Player.addEnergy(-10);
                 Player.addHp(-8);
                 Player.addFat(-5);
@@ -1397,7 +1397,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "eat")
             {
-                addTimeMinutes = 200;
+                addTimeMinutes = 120;
                 Player.addEnergy(-10);
                 Player.addHp(30);
                 Player.addFat(2);
@@ -1414,16 +1414,16 @@ namespace TurtleSim2000_Linux
                 if (Player.GameVariables[490] >= 1)
                 {
 
-                    timetoadd = Player.GameVariables[490] * 100;
-                    if (timetoadd >= 500)
+                    timetoadd = Player.GameVariables[490] * 60;
+                    if (timetoadd >= 300)
                     {
-                        timetoadd = 500;
+                        timetoadd = 300;
                         Player.addEnergy(-5);
                         Player.addHp(-3);
                         Player.addFat(3);
                     }
 
-                    addTimeMinutes = 200 + timetoadd;
+                    addTimeMinutes = 120 + timetoadd;
 
                     Player.addEnergy(-5);
                     Player.addHp(-2);
@@ -1438,7 +1438,7 @@ namespace TurtleSim2000_Linux
             {
                 if (Time >= 800 & Time <= 1700)
                 {
-                    addTimeMinutes = 200;
+                    addTimeMinutes = 120;
                     Player.addEnergy(-6);
                     Player.addHp(-3);
                     Player.addFat(1);
@@ -1458,7 +1458,7 @@ namespace TurtleSim2000_Linux
             }
             if (eventname == "porn")
             {
-                addTimeMinutes = 100;
+                addTimeMinutes = 60;
                 Player.addEnergy(-10);
                 Player.addHp(-8);
                 Player.addFat(6);
