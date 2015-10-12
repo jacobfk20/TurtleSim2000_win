@@ -73,7 +73,8 @@ namespace TurtleSim2000_Linux
             if (bAddTime)
             {
                 Minute++;
-                addMin++;
+                addMin--;
+                if (addMin <= 0) bAddTime = false;
 
                 // Add an hour if minutes are over 59
                 if (Minute > 59)

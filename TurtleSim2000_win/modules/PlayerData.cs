@@ -11,7 +11,7 @@ namespace TurtleSim2000_Linux
         public string Name = "Hush";
 
         // Save/Load Object
-        Save gLoad;
+        Save gLoad = new Save();
 
         // Player Class schedule
         public struct ClassSchedule

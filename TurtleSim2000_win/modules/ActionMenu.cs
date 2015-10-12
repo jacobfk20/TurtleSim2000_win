@@ -20,8 +20,18 @@ namespace TurtleSim2000_Linux
         /// </summary>
         public bool Show = false;
 
-        int scroller = 0;                           // Holds scroll (X position) on screen
-        int MAXSCROLL = 320;                        // How far to scroll this window.
+        /// <summary>
+        /// Tells if this module is fully ready for input.
+        /// </summary>
+        public bool Active = false;
+
+        /// <summary>
+        /// X coord value of the action menu for scrolling
+        /// </summary>
+        public int scroller = 0;                    // Holds scroll (X position) on screen
+
+        int MAXSCROLL = 280;                        // How far to scroll this window.
+        int SCROLLSPEED = 10;                       // how fast to scroll this window
         float masterFade = 0f;                      // Holds how much to alpha fade everything.
 
         int gamepadSelected = 0;                    // Which button the selector is on.
@@ -46,18 +56,18 @@ namespace TurtleSim2000_Linux
 
         public ActionMenu(ContentManager content)
         {
-            btnSleep = new Button(content, "Sleep", new Rectangle(30, 220, 130, 30));
-            btnText = new Button(content, "Text", new Rectangle(160, 220, 130, 30));
-            btnTV = new Button(content, "TV", new Rectangle(30, 260, 130, 30));
-            btnEat = new Button(content, "Eat", new Rectangle(160, 260, 130, 30));
-            btnGame = new Button(content, "Play Game", new Rectangle(30, 300, 130, 30));
-            btnClass = new Button(content, "Class", new Rectangle(160, 300, 130, 30));
-            btnWrite = new Button(content, "Write", new Rectangle(30, 340, 130, 30));
-            btnHomework = new Button(content, "Homework", new Rectangle(160, 340, 130, 30));
-            btnMusic = new Button(content, "Music", new Rectangle(30, 380, 130, 30));
-            btnPorn = new Button(content, "Porn", new Rectangle(160, 380, 130, 30));
-            btnWalk = new Button(content, "Walk", new Rectangle(30, 420, 130, 30));
-            btnSave = new Button(content, "Save", new Rectangle(160, 420, 130, 30));
+            btnSleep = new Button(content, "Sleep", new Rectangle(-280, 220, 130, 30));
+            btnText = new Button(content, "Text", new Rectangle(-140, 220, 130, 30));
+            btnTV = new Button(content, "TV", new Rectangle(-280, 260, 130, 30));
+            btnEat = new Button(content, "Eat", new Rectangle(-140, 260, 130, 30));
+            btnGame = new Button(content, "Play Game", new Rectangle(-280, 300, 130, 30));
+            btnClass = new Button(content, "Class", new Rectangle(-140, 300, 130, 30));
+            btnWrite = new Button(content, "Write", new Rectangle(-280, 340, 130, 30));
+            btnHomework = new Button(content, "Homework", new Rectangle(-140, 340, 130, 30));
+            btnMusic = new Button(content, "Music", new Rectangle(-280, 380, 130, 30));
+            btnPorn = new Button(content, "Porn", new Rectangle(-140, 380, 130, 30));
+            btnWalk = new Button(content, "Walk", new Rectangle(-280, 420, 130, 30));
+            btnSave = new Button(content, "Save", new Rectangle(-140, 420, 130, 30));
 
             // Load in background
             background = content.Load<Texture2D>("assets/gui/notebook/notebookAsset");
@@ -69,16 +79,46 @@ namespace TurtleSim2000_Linux
             // This will fade and scroll the menu IN
             if (Show == true && scroller < MAXSCROLL)
             {
-                scroller++;
-                masterFade += MAXSCROLL * 0.0000115f;
+                scroller += SCROLLSPEED;
+                masterFade += MAXSCROLL * 0.000115f;
+
+                if (scroller >= MAXSCROLL) Active = true;
+
+                btnSleep.addXposition(SCROLLSPEED);
+                btnEat.addXposition(SCROLLSPEED);
+                btnGame.addXposition(SCROLLSPEED);
+                btnHomework.addXposition(SCROLLSPEED);
+                btnMusic.addXposition(SCROLLSPEED);
+                btnPorn.addXposition(SCROLLSPEED);
+                btnSave.addXposition(SCROLLSPEED);
+                btnText.addXposition(SCROLLSPEED);
+                btnTV.addXposition(SCROLLSPEED);
+                btnWalk.addXposition(SCROLLSPEED);
+                btnWrite.addXposition(SCROLLSPEED);
+                btnClass.addXposition(SCROLLSPEED);
             }
 
             // This will fade and scroll the menu OUT
-            if (Show == false && scroller > 0)
+            if (Show == false && scroller > -300)
             {
-                scroller--;
-                masterFade -= MAXSCROLL * 0.0000115f;
+                scroller -= SCROLLSPEED;
+                masterFade -= MAXSCROLL * 0.000115f;
+                Active = false;
+
+                btnSleep.addXposition(-SCROLLSPEED);
+                btnEat.addXposition(-SCROLLSPEED);
+                btnGame.addXposition(-SCROLLSPEED);
+                btnHomework.addXposition(-SCROLLSPEED);
+                btnMusic.addXposition(-SCROLLSPEED);
+                btnPorn.addXposition(-SCROLLSPEED);
+                btnSave.addXposition(-SCROLLSPEED);
+                btnText.addXposition(-SCROLLSPEED);
+                btnTV.addXposition(-SCROLLSPEED);
+                btnWalk.addXposition(-SCROLLSPEED);
+                btnWrite.addXposition(-SCROLLSPEED);
+                btnClass.addXposition(-SCROLLSPEED);
             }
+
 
         }
 
@@ -86,7 +126,7 @@ namespace TurtleSim2000_Linux
         public void Draw(SpriteBatch sB)
         {
             // Draw the background
-            sB.Draw(background, new Rectangle(-300 + scroller, 120, 300, 400), Color.White * masterFade);
+            sB.Draw(background, new Rectangle(-300 + scroller, 120, 340, 400), Color.White * masterFade);
 
             // Draw the buttons
             btnSleep.Draw(sB, masterFade);
@@ -127,7 +167,10 @@ namespace TurtleSim2000_Linux
             btnSave.UpdateControls(mousepos, bClicked);
 
             // get what button is pushed, and return with eventname
-            if (btnSleep.bPressed) eName = "sleep";
+            if (btnSleep.bPressed)
+            {
+                eName = "sleep";
+            }
             if (btnText.bPressed) eName = "text";
             if (btnTV.bPressed) eName = "tv";
             if (btnEat.bPressed) eName = "eat";
@@ -138,7 +181,7 @@ namespace TurtleSim2000_Linux
             if (btnMusic.bPressed) eName = "music";
             if (btnPorn.bPressed) eName = "porn";
             if (btnWalk.bPressed) eName = "walk";
-            if (btnSave.bPressed) eName = "save";
+            if (btnSave.bPressed) eName = "savegame";
 
             return eName;
         }

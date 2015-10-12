@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 79) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 80) v0.6 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -114,6 +114,8 @@ namespace TurtleSim2000_Linux
         ProgressBar pBar_Charlsee;
         ProgressBar pBar_HeroHP;
         Clock clock;
+        ActionMenu actionMenu;                      // Deals with the action menu and buttons within it
+
 
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
         int WaitTime = 0;                            //amount of time (in seconds) to wait in a script.
@@ -261,6 +263,9 @@ namespace TurtleSim2000_Linux
 
             // Clock
             clock = new Clock(this.Content);
+
+            // Action menu
+            actionMenu = new ActionMenu(this.Content);
 
         }
 
@@ -432,6 +437,7 @@ namespace TurtleSim2000_Linux
                         bStart = false;
                         bDebugmode = true;
                         bShowtext = true;
+                        bAuthorMode = true;
                         sceneStart.Unload();
 
                     }
@@ -442,6 +448,7 @@ namespace TurtleSim2000_Linux
                         bRunevent = true;
                         bStart = false;
                         bDebugmode = true;
+                        bAuthorMode = true;
                         bShowtext = true;
                         sceneStart.Unload();
                     }
@@ -524,8 +531,10 @@ namespace TurtleSim2000_Linux
             //Waits for the Action Menu to be gone before drawing the text box
             if (bShowtext == true)
             {
-                bMenu = false;
-                if (actionmenuscroller == -300) textwindow(eventname);
+                actionMenu.Show = false;
+
+                textwindow(eventname);
+
             }
 
             //place events here.  it will only run once then de-activate itself.
@@ -578,6 +587,8 @@ namespace TurtleSim2000_Linux
 
             controller.bClicked = false;
 
+            actionMenu.Update();
+
             base.Update(gameTime);
         }
 
@@ -609,7 +620,8 @@ namespace TurtleSim2000_Linux
             if (bDebugmode) spriteBatch.DrawString(debugfontsmall, "AUTHOR DEBUG MODE", new Vector2(670, 11), Color.White);
 
             //Draw The Action Menu
-            GUI.ActionMenuShow(actionmenuscroller, Player.GameVariables[490], Player);
+            //GUI.ActionMenuShow(actionmenuscroller, Player.GameVariables[490], Player);
+            actionMenu.Draw(spriteBatch);
             if (bMenu == true) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, Player.GameVariables[452]);
           
             //Draw Progress bars.
@@ -627,7 +639,7 @@ namespace TurtleSim2000_Linux
 
             if (bShowtext == true)
             {
-                if (actionmenuscroller == -300)
+                if (actionMenu.scroller == -300)
                 {
 
                     // Draw chara
@@ -685,6 +697,7 @@ namespace TurtleSim2000_Linux
             #endregion
 
             base.Draw(gameTime);
+
         }
 
         // =========================================================================================
@@ -727,6 +740,7 @@ namespace TurtleSim2000_Linux
                 bShowtext = false;
                 bError = false;
                 bMenu = true;
+                actionMenu.Show = true;
                 bFirstrun = false;
                 bStart = false;
                 songstart = false;
@@ -826,254 +840,18 @@ namespace TurtleSim2000_Linux
         protected void animateactionmenu()
         {
 
-            #region Animation
-            if (bMenu == true)
-            {
-                if (actionmenuscroller < -20)
+            // --- USE FOR NEW ACTION MENU MODULE ---
+                string ename = actionMenu.updateHitTest(controller.MousePos, controller.bClicked);
+                if (ename != null && ename != "" && actionMenu.Active)
                 {
-                    actionmenuscroller += 10;
+                    eventname = ename;
+                    bShowtext = true;
+                    bRunevent = true;
+                    actionMenu.Show = false;
                 }
-            }
-
-            if (bMenu == false)
-            {
-                if (bStart == false)
-                {
-                    if (actionmenuscroller > -300)
-                    {
-                        actionmenuscroller -= 7;
-                    }
-                }
-            }
-            #endregion  //animates the menu
-
-            var mouseState = Mouse.GetState();
-            var mousePosition = new Point(mouseState.X, mouseState.Y);
             
-            Rectangle button3 = new Rectangle(30 + actionmenuscroller, 220, 130, 30);
-            Rectangle button9 = new Rectangle(160 + actionmenuscroller, 220, 130, 30);
-            Rectangle button4 = new Rectangle(30 + actionmenuscroller, 260, 130, 30);
-            Rectangle button10 = new Rectangle(160 + actionmenuscroller, 260, 130, 30);
-            Rectangle button5 = new Rectangle(30 + actionmenuscroller, 300, 130, 30);
-            Rectangle button11 = new Rectangle(160 + actionmenuscroller, 300, 130, 30);
-            Rectangle button6 = new Rectangle(30 + actionmenuscroller, 340, 130, 30);
-            Rectangle button12 = new Rectangle(160 + actionmenuscroller, 340, 130, 30);
-            Rectangle button7 = new Rectangle(30 + actionmenuscroller, 380, 130, 30);
-            Rectangle button13 = new Rectangle(160 + actionmenuscroller, 380, 130, 30);
-            Rectangle button8 = new Rectangle(30 + actionmenuscroller, 420, 130, 30);
-            Rectangle button14 = new Rectangle(160 + actionmenuscroller, 420, 130, 30);
+            // --- END USE ---
 
-            if (controller.bClicked == true)
-            {
-                if (actionmenuscroller == -20)
-                {
-                    if (controller.bGamePad == false)
-                    {
-                        //  FOR NORMAL MOUSE OPERATION
-                        if (button3.Contains(mousePosition))
-                        {
-                            bShowtext = true;
-                            bRunevent = true;
-                            eventname = "sleep";
-                        }
-                        if (button4.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "tv";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button5.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "xbox";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button6.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "write";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button7.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "music";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button8.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "walk";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button9.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "text";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button10.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "eat";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button11.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "homework";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button12.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "class";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button13.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "porn";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button14.Contains(mousePosition))
-                        {
-                            bRunevent = true;
-                            eventname = "savegame";
-                            bMenu = false;
-                            bShowtext = true;
-
-                        }
-                    }
-                    else
-                    {
-                        //FOR GAME PAD OPERATION
-                        if (button3.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bShowtext = true;
-                            bRunevent = true;
-                            eventname = "sleep";
-                        }
-                        if (button4.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "tv";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button5.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "xbox";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button6.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "write";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button7.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "music";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button8.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "walk";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button9.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "text";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button10.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "eat";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button11.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "homework";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button12.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "study";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button13.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "porn";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-                        if (button14.Intersects(new Rectangle(SelectorPosX + actionmenuscroller, SelectorPosY, 130, 30)))
-                        {
-                            bRunevent = true;
-                            eventname = "savegame";
-                            bMenu = false;
-                            bShowtext = true;
-                        }
-
-                        //Make sure the selector doesn't go out of bounds.
-                        if (dpady >= 7)
-                        {
-                            if (dpadx == 1)
-                            {
-                                dpady = 1;
-                                dpadx = 2;
-                            }
-                            else
-                            {
-                                dpady = 6;
-                            }
-                        }
-                        if (dpady == 0)
-                        {
-                            if (dpadx == 2)
-                            {
-                                dpady = 6;
-                                dpadx = 1;
-                            }
-                            else
-                            {
-                                dpadx = 6;
-                            }
-                        }
-                        if (dpadx >= 3) dpadx = 2;
-                        if (dpadx == 0) dpadx = 1;
-
-                    }
-                }
-
-            }
 
         }
 
@@ -1250,7 +1028,8 @@ namespace TurtleSim2000_Linux
                         scriptreadery = 0;
 
                         bShowtext = false;
-                        bMenu = true;
+                        //bMenu = true;
+                        actionMenu.Show = true;
                         if (bAuthorMode == true) this.Exit();
                 }
             }
@@ -2864,45 +2643,51 @@ namespace TurtleSim2000_Linux
                     bShowTransWindow = false;
                 }
 
-                int modLength = 0;
-                char[] strchar = new char[strlength + modLength];
 
-                StringReader strReader = new StringReader(gaystring);
-                int cPointer = 0;
-                for (int i = 0; i < strlength; i++)
+                // Actual TypeWritter effect
+                if (bShowtextWindow || bShowTransWindow)
                 {
-                    strReader.Read(strchar, cPointer, strlength);
-                }
+                    int modLength = 0;
+                    char[] strchar = new char[strlength + modLength];
 
-                if (strlength >= 76)
-                {
-                    for (int x = 0; x < 10; x++)
+                    StringReader strReader = new StringReader(gaystring);
+                    int cPointer = 0;
+                    for (int i = 0; i < strlength; i++)
                     {
-                        if (strchar[65 + x] == ' ')
-                        {
-                            strchar[65 + x] = '\n';
-                            x = 1000;
-                        }
+                        strReader.Read(strchar, cPointer, strlength);
                     }
-                    if (strlength >= 152)
+
+                    if (strlength >= 76)
                     {
                         for (int x = 0; x < 10; x++)
                         {
-                            if (strchar[140 + x] == ' ')
+                            if (strchar[65 + x] == ' ')
                             {
-                                strchar[140 + x] = '\n';
+                                strchar[65 + x] = '\n';
                                 x = 1000;
                             }
                         }
+                        if (strlength >= 152)
+                        {
+                            for (int x = 0; x < 10; x++)
+                            {
+                                if (strchar[140 + x] == ' ')
+                                {
+                                    strchar[140 + x] = '\n';
+                                    x = 1000;
+                                }
+                            }
+                        }
                     }
-                }
 
-                string forDialog = new string(strchar);
+                    string forDialog = new string(strchar);
 
-                bTypewritting = true;
-                dialouge = null;
+                    bTypewritting = true;
+                    dialouge = null;
+
 
                 if (MasterScript.Read(scriptreaderx, scriptreadery) != null && bQuestion == false) dialougetr = forDialog;
+                }
             }
         }
     }

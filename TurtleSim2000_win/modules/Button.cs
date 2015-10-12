@@ -5,14 +5,9 @@
 // =====================================================================================
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
-using Microsoft.Xna.Framework.Design;
 using Microsoft.Xna.Framework.Content;
 
 namespace TurtleSim2000_Linux
@@ -29,6 +24,11 @@ namespace TurtleSim2000_Linux
         /// </summary>
         public bool bPressed = false;
 
+        /// <summary>
+        /// Keeps if this control is enabled and clickable or not.
+        /// </summary>
+        public bool bEnabled = true;
+
         // This will hold if the mouse is hovering over this button.
         bool bHover = false;
 
@@ -36,6 +36,7 @@ namespace TurtleSim2000_Linux
         string Text = "Button Text";
 
         Vector2 textPos;                                // Where to draw the text.  
+        Vector2 textCenterPadding;                      // How much to add to textpos to center text in button.
         int textScale = 0;                              // How much to scale the button's text
         int fontHeight = 28;                            // How tall the average char is.
 
@@ -96,9 +97,12 @@ namespace TurtleSim2000_Linux
         /// </summary>
         public void Draw(SpriteBatch sB, float alpha = 1f)
         {
-            if (!bHover) sB.Draw(texButton, boxDim, Color.White * alpha);
-            else sB.Draw(texButton_down, boxDim, Color.White * alpha);
-            sB.DrawString(texFont, Text, textPos, Color.White * alpha);
+            Color button = Color.White;
+            if (!bEnabled) button = Color.Gray;
+
+            if (!bHover) sB.Draw(texButton, boxDim, button * alpha);
+            else sB.Draw(texButton_down, boxDim, button * alpha);
+            sB.DrawString(texFont, Text, textPos, button * alpha);
         }
 
 
@@ -134,8 +138,11 @@ namespace TurtleSim2000_Linux
         /// <returns>True: This button has been pressed.  False: Not pressed.</returns>
         public bool UpdateControls(Point mousePos, bool bClicked)
         {
-            // Check if the mouse is hovering over this button
-            if (boxDim.Contains(mousePos))
+            // zero out bPressed
+            bPressed = false;
+
+            // Check if the mouse is hovering over this button && if this control is enabled
+            if (boxDim.Contains(mousePos)  && bEnabled)
             {
                 // Set hover to true.  This can be used to draw a seperate texture of the button.
                 bHover = true;
@@ -155,6 +162,35 @@ namespace TurtleSim2000_Linux
             return false;
         }
 
+
+        /// <summary>
+        /// Updates the value to X position.
+        /// </summary>
+        public void updateXposition(int x)
+        {
+            boxDim.X = x;
+            textPos.X = x + textCenterPadding.X;
+        }
+
+        /// <summary>
+        /// Updates the Y value of Y position.
+        /// </summary>
+        /// <param name="y"></param>
+        public void updateYposition(int y)
+        {
+            boxDim.Y = y;
+            textPos.Y = y + textCenterPadding.Y;
+        }
+
+        /// <summary>
+        /// Add value to X position; return new X value.
+        /// </summary>
+        public int addXposition(int x)
+        {
+            boxDim.X += x;
+            textPos.X = boxDim.X + textCenterPadding.X;
+            return boxDim.X;
+        }
 
 
 
@@ -181,13 +217,17 @@ namespace TurtleSim2000_Linux
             // Try and get center of box. Y
             float halfY = boxDim.Height / 2;                        // Gets the button's Height, halves it.
             halfY -= fontHeight / 2;                                // Takes the font's average height, and halves it to get font center.
-            textPos.Y += Convert.ToInt32(halfY);                    // Maybe add something here when text gets scaled.
+            textCenterPadding.Y = Convert.ToInt32(halfY);           // Store the padding in a var so it can be used again without the math 
             
 
             // Try and get center of box for X.
             float halfX = boxDim.Width / 2;
-            halfX -= Text.Length * 5.6f;            // For every char subtract string by x amount.
-            textPos.X += Convert.ToInt32(halfX);
+            halfX -= Text.Length * 5.6f;                            // For every char subtract string by x amount.
+            textCenterPadding.X += Convert.ToInt32(halfX);
+
+            // add the padding to textpos
+            textPos.X += textCenterPadding.X;
+            textPos.Y += textCenterPadding.Y;
         }
     }
 }

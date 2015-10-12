@@ -113,6 +113,10 @@ namespace TurtleSim2000_Linux
             // Check and see if the gamesave file is even there.
             if (SaveFilePresent())
             {
+                // init Game Variables/Switches
+                sD.gSwitches = new bool[500];
+                sD.gVariables = new int[500];
+
                 // open the savegame file
                 System.IO.StreamReader sR = new StreamReader("save.sav");
 
@@ -127,7 +131,7 @@ namespace TurtleSim2000_Linux
 
                 // check and make sure this is a turtlesim save
                 string header = "";
-                for (int i = 0; i < 20; i++)
+                for (int i = 0; i < 18; i++)
                 {
                     header += saveFile[i];
                 }
