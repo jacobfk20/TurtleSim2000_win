@@ -30,7 +30,7 @@ namespace TurtleSim2000_Linux
 
         public Point MousePos = new Point(1, 1);
 
-
+        Matrix ScreenMatrix;
 
 
         public Controls()
@@ -39,13 +39,16 @@ namespace TurtleSim2000_Linux
 
 
 
-        public void Update()
+        public void Update(bool activeWindow, Matrix screenMatrix)
         {
             // Disable bclicked
             bClicked = false;
+            
+            // set matrix
+            ScreenMatrix = screenMatrix;
 
             // Update Mouse/Keyboard/Gamepad.
-            if (!bGamePad) updateMouseKeyboard();
+            if (!bGamePad && activeWindow) updateMouseKeyboard();
             if (bGamePad) updateGamepad();
 
             // See if there is a gamepad connected.
@@ -61,9 +64,21 @@ namespace TurtleSim2000_Linux
             // Get Mouse and keyboard states.
             var mouseState = Mouse.GetState();
             var keyboardState = Keyboard.GetState();
+            
 
             // Get where the mouse is on screen X,Y point.
             MousePos = new Point(mouseState.X, mouseState.Y);
+
+            // Adjust mouse pos to virtual screen
+            Vector2 scaledMouse;
+            scaledMouse.X = MousePos.X;
+            scaledMouse.Y = MousePos.Y;
+
+            scaledMouse.X /= ScreenMatrix.Scale.X;
+            scaledMouse.Y /= ScreenMatrix.Scale.Y;
+
+            MousePos.X = Convert.ToInt32(scaledMouse.X);
+            MousePos.Y = Convert.ToInt32(scaledMouse.Y);
 
             // Logic to see if the player clicked.
             if (mouseState.LeftButton == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Space)) bClicking = true;

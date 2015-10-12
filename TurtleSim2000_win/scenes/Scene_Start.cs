@@ -136,7 +136,7 @@ namespace TurtleSim2000_Linux
         public void Draw(SpriteBatch sB)
         {
             // Start SpriteBatch
-            sB.Begin();
+            sB.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Resolution.getTransformationMatrix());
 
             // Draw background with scroll
             sB.Draw(bg_gate, new Rectangle(0 - bgscroller, 0, SceneWidth, SceneHeight), Color.Gray);

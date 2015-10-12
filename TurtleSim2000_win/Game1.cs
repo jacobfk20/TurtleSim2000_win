@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 80) v0.6 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 81) v0.65 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -162,18 +162,26 @@ namespace TurtleSim2000_Linux
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            Resolution.Init(ref graphics);
+            Resolution.SetVirtualResolution(800, 480);
+            Resolution.SetResolution(1600, 960, false);
+
             Content.RootDirectory = "Content";
+
+            Window.Title = GameInfo;
+            
         }
 
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            
             this.IsMouseVisible = true;
             base.Initialize();
 
-            graphics.PreferredBackBufferHeight = 480;
-            graphics.PreferredBackBufferWidth = 800;
+            //graphics.PreferredBackBufferHeight = 720;
+            //graphics.PreferredBackBufferWidth = 1280;
+            graphics.ApplyChanges();
 
             //dbWindow.Show();
 
@@ -194,8 +202,8 @@ namespace TurtleSim2000_Linux
             }
             else
             {
-                screenSizeHeight = 480;
-                screenSizeWidth = 800;
+                screenSizeHeight = 720;
+                screenSizeWidth = 1280;
             }
 
             //graphics.ToggleFullScreen();
@@ -292,7 +300,6 @@ namespace TurtleSim2000_Linux
             Player.Time.Day = clock.Time.Day;
             Player.Time.DayOfWeek = clock.Time.DayOfWeek;
             Player.setTime(clock.Hour, clock.Minute, clock.bPM);
-            
 
             // update game variable 100 randomly every frame.
             Player.GameVariables[100] = Rando.Next(6);
@@ -409,7 +416,7 @@ namespace TurtleSim2000_Linux
 
             //-------------------------- Controls (mouse and button actions) -----------------
             // Updates all controls (Mouse, Keyboard, GamePad)
-            controller.Update();
+            controller.Update(IsActive, Resolution.getTransformationMatrix());
 
             if (controller.bGamePad == true) ButtonSelector();
 
@@ -607,8 +614,8 @@ namespace TurtleSim2000_Linux
             // If game is just starting, Handle the start screen
             if (bStart == true) sceneStart.Draw(spriteBatch);
 
-            
-            spriteBatch.Begin();
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Resolution.getTransformationMatrix());
 
             //background manage here
             if (bDorm == true)  //CHANGE THIS TO GO OFF A DIFFERENT BOOL!!!!
@@ -620,9 +627,8 @@ namespace TurtleSim2000_Linux
             if (bDebugmode) spriteBatch.DrawString(debugfontsmall, "AUTHOR DEBUG MODE", new Vector2(670, 11), Color.White);
 
             //Draw The Action Menu
-            //GUI.ActionMenuShow(actionmenuscroller, Player.GameVariables[490], Player);
             actionMenu.Draw(spriteBatch);
-            if (bMenu == true) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, Player.GameVariables[452]);
+            if (actionMenu.Show) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, Player.GameVariables[452]);
           
             //Draw Progress bars.
             if (bHud == true)
@@ -665,7 +671,7 @@ namespace TurtleSim2000_Linux
                 pBar_Charlsee.Draw(spriteBatch);
             }
 
-            stamps.draw(spriteBatch);
+            //stamps.draw(spriteBatch);
 
             // If in author mode draw TSS version please
             if (bAuthorMode)
@@ -859,60 +865,6 @@ namespace TurtleSim2000_Linux
         protected void ButtonSelector()
         {
 
-            if (bMenu == true)
-            {
-
-                if (dpady >= 7)
-                {
-                    if (dpadx == 1)
-                    {
-                        dpady = 1;
-                        dpadx = 2;
-                    }
-                    else
-                    {
-                        dpady = 6;
-                    }
-                }
-                if (dpady == 0)
-                {
-                    if (dpadx == 2)
-                    {
-                        dpady = 6;
-                        dpadx = 1;
-                    }
-                    else
-                    {
-                        dpadx = 6;
-                    }
-                }
-                if (dpadx >= 3) dpadx = 2;
-                if (dpadx == 0) dpadx = 1;
-
-                if (dpadx == 1) SelectorPosX = 30;
-                if (dpadx == 2) SelectorPosX = 160;
-                if (dpady == 1) SelectorPosY = 220;
-                if (dpady == 2) SelectorPosY = 260;
-                if (dpady == 3) SelectorPosY = 300;
-                if (dpady == 4) SelectorPosY = 340;
-                if (dpady == 5) SelectorPosY = 380;
-                if (dpady == 6) SelectorPosY = 420;
-
-            }
-            if (bQuestion == true)
-            {
-                if (dpady >= 3)
-                {
-                    dpady = 2;
-                }
-                if (dpady == 0)
-                {
-                    dpadx = 1;
-                }
-
-                if (dpady == 1) SelectorPosY = 220;
-                if (dpady == 2) SelectorPosY = 280;
-            }
         }
 
         //Text window  (AND SCRIPT READER)
