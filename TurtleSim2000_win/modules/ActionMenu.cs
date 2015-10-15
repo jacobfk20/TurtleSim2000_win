@@ -37,6 +37,8 @@ namespace TurtleSim2000_Linux
         int gamepadSelected = 0;                    // Which button the selector is on.
         Controls.Dpad dPad = new Controls.Dpad();   // Dpad struct for comparing and holding what dpad button is pushed.
 
+        int Homework = 0;                           // How much homework the player has.  Just for little pop up bubble
+
         public Button btnSleep;
         public Button btnText;
         public Button btnTV;
@@ -51,6 +53,10 @@ namespace TurtleSim2000_Linux
         public Button btnWalk;
 
         Texture2D background;
+        Texture2D homeworkBubble;
+
+        SpriteFont smallFont;
+        SpriteFont bigFont;
 
 
 
@@ -71,11 +77,19 @@ namespace TurtleSim2000_Linux
 
             // Load in background
             background = content.Load<Texture2D>("assets/gui/notebook/notebookAsset");
+            homeworkBubble = content.Load<Texture2D>("assets/gui/gui_homeworkelert");
+
+            smallFont = content.Load<SpriteFont>("fonts/debugfontsmall");
+            bigFont = content.Load<SpriteFont>("fonts/debugfont");
+
         }
 
 
-        public void Update()
+        public void Update(int homework)
         {
+            // store homework ammount
+            Homework = homework;
+
             // This will fade and scroll the menu IN
             if (Show == true && scroller < MAXSCROLL)
             {
@@ -141,6 +155,13 @@ namespace TurtleSim2000_Linux
             btnPorn.Draw(sB, masterFade);
             btnWalk.Draw(sB, masterFade);
             btnSave.Draw(sB, masterFade);
+
+            // Draw homework alert
+            if (Homework > 0)
+            {
+                sB.Draw(homeworkBubble, new Rectangle(-25 + scroller, 330, 32, 32), Color.White * masterFade);
+                sB.DrawString(smallFont, "" + Homework, new Vector2(-10 + scroller, 340), Color.White * masterFade);
+            }
         }
 
 

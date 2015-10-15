@@ -24,6 +24,10 @@ namespace TurtleSim2000_Linux
             public string currentClass;
             public int totalHomework;
             public int homeworkOfWeek;
+            public int skippedDays;
+            public bool classAttended;
+            public int classAttendState;
+            public int lastDayChecked;
         }
         public ClassSchedule Schedule;
 
@@ -253,8 +257,6 @@ namespace TurtleSim2000_Linux
 
 
 
-
-
         // Updates what class is happening today.
         private void updateClass()
         {
@@ -266,7 +268,7 @@ namespace TurtleSim2000_Linux
             if (Time.DayOfWeek == 6) Schedule.currentClass = "";
 
             // update homework
-            if (Time.FullTime >= 1500)
+            if (Time.FullTime >= 1500 && Time.FullTime < 2300)
             {
                 // For Monday
                 if (Time.DayOfWeek == 1 && Schedule.homeworkOfWeek == 0)        // Checks if day is Monday, and if the player hasn't recieved homework yet.
@@ -304,6 +306,29 @@ namespace TurtleSim2000_Linux
                     Schedule.homeworkOfWeek = 0;
                 }
             }
+
+            if (Schedule.classAttended) Schedule.classAttendState = 1;
+
+            // See if player skipped class
+            if (Time.FullTime > 1700 && Time.FullTime < 2400 && Schedule.lastDayChecked != Time.Day)
+            {
+                if (Schedule.currentClass != null) if (Schedule.currentClass.Length > 2)      // Checks if class was today
+                {
+                    if (Schedule.classAttended == false)
+                    {
+                        Schedule.skippedDays++;
+                        Schedule.lastDayChecked = Time.Day;
+                        Schedule.classAttendState = 2;
+                    }
+                }
+            }
+
+            // reset class attendance at start of new day
+            if (Time.FullTime < 500)
+            {
+                Schedule.classAttendState = 0;
+                Schedule.classAttended = false;
+            }
         }
 
         // updates what day it is.
@@ -325,6 +350,7 @@ namespace TurtleSim2000_Linux
             GameVariables[453] = Time.Minute;
             GameVariables[454] = Time.DayOfWeek;
             GameVariables[455] = Time.Day;
+            GameVariables[458] = Schedule.totalHomework;
             GameVariables[485] = State.Energy;
             GameVariables[486] = State.HP;
             GameVariables[487] = State.Social;
@@ -334,7 +360,7 @@ namespace TurtleSim2000_Linux
         // Updates the 24 hour clock from 12 hour clock.  (used easier for some events)
         private void updateFullTime()
         {
-            Time.FullTime = Time.Hour + Time.Minute;
+            Time.FullTime = (Time.Hour * 100) + Time.Minute;
             if (Time.bPM) Time.FullTime += 1200;
         }
 

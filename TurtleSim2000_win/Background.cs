@@ -24,10 +24,17 @@ namespace TurtleSim2000_Linux
         Vector2 oldPos = new Vector2();
         bool bShakeScreen = false;
 
+        // for day/night
+        bool bContainsNight = false;
+        float alpha = 0f;
+
         Rectangle backGroundDims;
 
+        // Textures
         Texture2D currentBackground;
+        Texture2D currentBackgroundNight;
         string currentBackgroundString;
+        string currentBackgroundNightString;
 
         ContentManager contentManager;
 
@@ -74,14 +81,19 @@ namespace TurtleSim2000_Linux
             contentManager = content;
         }
 
-        public void Update()
+        public void Update(int time)
         {
             shakeScreen();
+            changeBackgroundDayNight(time);
         }
 
         public void Draw(SpriteBatch sb)
         {
-            if (bShowBackground) sb.Draw(currentBackground, backGroundDims, Color.White);
+            if (bShowBackground)
+            {
+                sb.Draw(currentBackground, backGroundDims, Color.White);
+                if (bContainsNight) sb.Draw(currentBackgroundNight, backGroundDims, Color.White * alpha);
+            }
         }
 
         /// <summary>
@@ -104,6 +116,20 @@ namespace TurtleSim2000_Linux
                 {
                     currentBackgroundString = background;
 
+                    // see if this background has different times of day
+                    bContainsNight = false;                                 // zero out variables
+                    currentBackgroundNightString = null;
+
+                    for (int x = 0; x < totalBackgrounds; x++)
+                    {
+                        if (backgroundList[x] == currentBackgroundString + "_night")
+                        {
+                            bContainsNight = true;
+                            currentBackgroundNightString = backgroundList[x];
+                            x = totalBackgrounds;
+                        }
+                    }
+
                     return i;
                 }
             }
@@ -125,6 +151,10 @@ namespace TurtleSim2000_Linux
         {
             // Set new background
             if(currentBackgroundString != null) currentBackground = contentManager.Load<Texture2D>(currentBackgroundString);
+
+            // set night version if it is available
+            if (bContainsNight && currentBackgroundNightString != null)
+                currentBackgroundNight = contentManager.Load<Texture2D>(currentBackgroundNightString);
         }
 
         /// <summary>
@@ -177,6 +207,19 @@ namespace TurtleSim2000_Linux
                     backGroundDims.X = Convert.ToInt32(oldPos.X);
                     backGroundDims.Y = Convert.ToInt32(oldPos.Y);
                 }
+            }
+        }
+
+        private void changeBackgroundDayNight(int time)
+        {
+            if (time > 1700)
+            {
+                alpha = time * 0.0004f;
+            }
+            if (time > 500 && time < 1200)
+            {
+                alpha = time * -0.0004f;
+                // some insane math needs to be done here.  Or some simple algo.
             }
         }
     }

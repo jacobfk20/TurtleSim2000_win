@@ -193,9 +193,19 @@ namespace TurtleSim2000_Linux
         }
 
 
+        /// <summary>
+        /// Changes the textures of the button so you can better fit it for a situation I guess.
+        /// </summary>
+        public void ChangeButtonTextures(string texButtonUp, string texButtonDown)
+        {
+            texButton = contentManager.Load<Texture2D>(texButtonUp);
+            texButton_down = contentManager.Load<Texture2D>(texButtonDown);
+        }
+
+
 
         // Loads in content for textures.
-        private void contentLoad()
+        private void contentLoad(string texUp = "", string texDown = "")
         {
             texButton = contentManager.Load<Texture2D>("assets/gui/gui_button_up");
             texButton_down = contentManager.Load<Texture2D>("assets/gui/gui_button_down");

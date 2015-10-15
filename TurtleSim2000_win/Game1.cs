@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 81) v0.65 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 82) v0.65 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -291,7 +291,7 @@ namespace TurtleSim2000_Linux
             frames += 1;
 
             stamps.update();
-            bgManager.Update();
+            bgManager.Update(clock.Time.fullTime);
             clock.Update();
             Player.Update();
 
@@ -594,7 +594,7 @@ namespace TurtleSim2000_Linux
 
             controller.bClicked = false;
 
-            actionMenu.Update();
+            actionMenu.Update(Player.Schedule.totalHomework);
 
             base.Update(gameTime);
         }
@@ -628,7 +628,7 @@ namespace TurtleSim2000_Linux
 
             //Draw The Action Menu
             actionMenu.Draw(spriteBatch);
-            if (actionMenu.Show) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, Player.GameVariables[452]);
+            if (actionMenu.Show) GUI.ClassWindowShow(Player.Time.Day, Player.Time.weekDay, Player.Schedule.currentClass, Player.Schedule.classAttendState);
           
             //Draw Progress bars.
             if (bHud == true)
@@ -769,21 +769,19 @@ namespace TurtleSim2000_Linux
             if (bFullScreen)
             {
                 // if full screen; do the math
-                screenModY += .3f;
-                screenModX += .45f;
+                screenModY = 0;
+                screenModX = 0;
                 sModW = Convert.ToInt32(screenModX * 500);
                 sModH = Convert.ToInt32(screenModY * 40);
             }
 
             if (controller.bClicked == true && bWait == false)
             {
-                var mouseState = Mouse.GetState();
-                var mousePosition = new Point(mouseState.X, mouseState.Y);
 
                 Rectangle[] Q = new Rectangle[8];
-                Q[0] = new Rectangle(Convert.ToInt32(200 * screenModX), Convert.ToInt32(140 * screenModY), sModW, sModH);  // increment y by 60
-                Q[1] = new Rectangle(Convert.ToInt32(200 * screenModX), Convert.ToInt32(200 * screenModY), sModW, sModH);
-                Q[2] = new Rectangle(Convert.ToInt32(200 * screenModX), Convert.ToInt32(260 * screenModY), sModW, sModH);
+                Q[0] = new Rectangle(Convert.ToInt32(200), Convert.ToInt32(140), 500, 40);  // increment y by 60
+                Q[1] = new Rectangle(Convert.ToInt32(200), Convert.ToInt32(200), 500, 40);
+                Q[2] = new Rectangle(Convert.ToInt32(200), Convert.ToInt32(260), 500, 40);
                 Q[3] = new Rectangle(200, 320, 500, 40);
                 Q[4] = new Rectangle(200, 380, 500, 40);
                 Q[5] = new Rectangle(200, 440, 500, 40);  // when this is reached, we will need to change Y
@@ -797,7 +795,7 @@ namespace TurtleSim2000_Linux
                     int i = 0;
                     while (forkAnswers[i] != null)
                     {
-                        if (Q[i].Contains(mousePosition))
+                        if (Q[i].Contains(controller.MousePos))
                         {
                             bQuestion = false;
                             eventname = forkScript[i];
@@ -1178,9 +1176,7 @@ namespace TurtleSim2000_Linux
                     if (oEvent != "0") eventname = oEvent;
                     else
                         eventname = "hadclass";
-                    Player.GameVariables[450] = Player.Time.Day;
-                    Player.GameVariables[452] = 1;
-                    //gameEvents.School(VC, ref Player.GameVariables, ref Player.GameSwitches);
+                    Player.Schedule.classAttended = true;
                 }
                 else
                 {
@@ -1210,29 +1206,9 @@ namespace TurtleSim2000_Linux
                 gameSaver.DumpToFile();
             }
 
-            // Did the player skip class?
-            if (Time >= 1700)
-            {
-                int dayOfWeek = Player.Time.DayOfWeek;
-                if (dayOfWeek == 1 || dayOfWeek == 3 || dayOfWeek == 5)
-                {
-                    if (Player.GameVariables[450] != Player.Time.Day)
-                    {
-                        // Add a skip day
-                        Player.GameVariables[451]++;       // v[451] days skipped total
-                        Player.GameVariables[452] = 2;     // v[452] 0 = not happend yet 1 = went to class 2 = skipped
-                    }
-                }
-            }
-            int dayofWeek = Player.Time.DayOfWeek;
-            if (dayofWeek == 2 || dayofWeek == 4 || dayofWeek == 6)
-            {
-                Player.GameVariables[452] = 0;
-            }
 
-            // Add time to both clock and Player.Time
+            // Add time from events to clock.
             clock.addTime(addTimeMinutes);
-            Player.addTime(addTimeMinutes);
 
         }
 
