@@ -62,18 +62,18 @@ namespace TurtleSim2000_Linux
 
         public ActionMenu(ContentManager content)
         {
-            btnSleep = new Button(content, "Sleep", new Rectangle(-280, 220, 130, 30));
-            btnText = new Button(content, "Text", new Rectangle(-140, 220, 130, 30));
-            btnTV = new Button(content, "TV", new Rectangle(-280, 260, 130, 30));
-            btnEat = new Button(content, "Eat", new Rectangle(-140, 260, 130, 30));
-            btnGame = new Button(content, "Play Game", new Rectangle(-280, 300, 130, 30));
-            btnClass = new Button(content, "Class", new Rectangle(-140, 300, 130, 30));
-            btnWrite = new Button(content, "Write", new Rectangle(-280, 340, 130, 30));
-            btnHomework = new Button(content, "Homework", new Rectangle(-140, 340, 130, 30));
-            btnMusic = new Button(content, "Music", new Rectangle(-280, 380, 130, 30));
-            btnPorn = new Button(content, "Porn", new Rectangle(-140, 380, 130, 30));
-            btnWalk = new Button(content, "Walk", new Rectangle(-280, 420, 130, 30));
-            btnSave = new Button(content, "Save", new Rectangle(-140, 420, 130, 30));
+            btnSleep = new Button(content, "Sleep", new Rectangle(-280, 220, 130, 30), 1);
+            btnText = new Button(content, "Text", new Rectangle(-140, 220, 130, 30), 7);
+            btnTV = new Button(content, "TV", new Rectangle(-280, 260, 130, 30), 2);
+            btnEat = new Button(content, "Eat", new Rectangle(-140, 260, 130, 30), 8);
+            btnGame = new Button(content, "Play Game", new Rectangle(-280, 300, 130, 30), 3);
+            btnClass = new Button(content, "Class", new Rectangle(-140, 300, 130, 30), 9);
+            btnWrite = new Button(content, "Write", new Rectangle(-280, 340, 130, 30), 4);
+            btnHomework = new Button(content, "Homework", new Rectangle(-140, 340, 130, 30), 10);
+            btnMusic = new Button(content, "Music", new Rectangle(-280, 380, 130, 30), 5);
+            btnPorn = new Button(content, "Porn", new Rectangle(-140, 380, 130, 30), 11);
+            btnWalk = new Button(content, "Walk", new Rectangle(-280, 420, 130, 30), 6);
+            btnSave = new Button(content, "Save", new Rectangle(-140, 420, 130, 30), 12);
 
             // Load in background
             background = content.Load<Texture2D>("assets/gui/notebook/notebookAsset");
@@ -156,6 +156,8 @@ namespace TurtleSim2000_Linux
             btnWalk.Draw(sB, masterFade);
             btnSave.Draw(sB, masterFade);
 
+            sB.DrawString(smallFont, "ButtonID: " + buttonIndex, new Vector2(300, 20), Color.White);
+
             // Draw homework alert
             if (Homework > 0)
             {
@@ -169,23 +171,25 @@ namespace TurtleSim2000_Linux
         /// <summary>
         /// Updates control logic for buttons.  This will return the eventname of the button pressed.  TODO: Add controller support here!
         /// </summary>
-        public string updateHitTest(Point mousepos, bool bClicked)
+        public string updateHitTest(Point mousepos, bool bClicked, Controls controller)
         {
             string eName = "";
 
             // Update Button's hittest logic.
-            btnSleep.UpdateControls(mousepos, bClicked);
-            btnText.UpdateControls(mousepos, bClicked);
-            btnTV.UpdateControls(mousepos, bClicked);
-            btnEat.UpdateControls(mousepos, bClicked);
-            btnGame.UpdateControls(mousepos, bClicked);
-            btnClass.UpdateControls(mousepos, bClicked);
-            btnWrite.UpdateControls(mousepos, bClicked);
-            btnHomework.UpdateControls(mousepos, bClicked);
-            btnMusic.UpdateControls(mousepos, bClicked);
-            btnPorn.UpdateControls(mousepos, bClicked);
-            btnWalk.UpdateControls(mousepos, bClicked);
-            btnSave.UpdateControls(mousepos, bClicked);
+            btnSleep.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnText.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnTV.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnEat.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnGame.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnClass.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnWrite.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnHomework.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnMusic.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnPorn.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnWalk.UpdateControls(mousepos, bClicked, buttonIndex);
+            btnSave.UpdateControls(mousepos, bClicked, buttonIndex);
+
+            updateGamePadSelected(controller);
 
             // get what button is pushed, and return with eventname
             if (btnSleep.bPressed)
@@ -211,9 +215,17 @@ namespace TurtleSim2000_Linux
 
 
 
-
-        private void updateGamePadSelected()
+        int buttonIndex = 1;
+        private void updateGamePadSelected(Controls controller)
         {
+            if (controller.dpad.up) buttonIndex--;
+            if (controller.dpad.down) buttonIndex++;
+            if (controller.dpad.right) buttonIndex += 6;
+            if (controller.dpad.left) buttonIndex -= 6;
+
+            // make sure focus doesn't go out of button range
+            if (buttonIndex > 12) buttonIndex = 1;
+            if (buttonIndex < 1) buttonIndex = 12;
 
         }
 

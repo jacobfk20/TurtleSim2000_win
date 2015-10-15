@@ -34,6 +34,7 @@ namespace TurtleSim2000_Linux
 
         // The text to be drawn in the button's body.
         string Text = "Button Text";
+        int ID = 999;                                     // Unique button ID
 
         Vector2 textPos;                                // Where to draw the text.  
         Vector2 textCenterPadding;                      // How much to add to textpos to center text in button.
@@ -80,7 +81,22 @@ namespace TurtleSim2000_Linux
             centerText();       // Center text inside the button.
         }
 
+        /// <summary>
+        /// Creates a new Button.  Must pass content manager.  Rectangle Dims (sets XY,WH).  Unique ID for button
+        /// </summary>
+        public Button(ContentManager contentmanager, string text, Rectangle diminsions, int id)
+        {
+            contentManager = contentmanager;
+            boxDim = diminsions;
 
+            Text = text;
+
+            contentLoad();
+
+            centerText();       // Center text inside the button.
+
+            ID = id;
+        }
 
         /// <summary>
         /// Updates the button's logic.  Must be called in game update loop!
@@ -136,13 +152,13 @@ namespace TurtleSim2000_Linux
         /// Updates the Control (hittest) for this button.  This determines if the mouse is within it and sends it back via return and bPressed.
         /// </summary>
         /// <returns>True: This button has been pressed.  False: Not pressed.</returns>
-        public bool UpdateControls(Point mousePos, bool bClicked)
+        public bool UpdateControls(Point mousePos, bool bClicked, int focusID = 0)
         {
             // zero out bPressed
             bPressed = false;
 
             // Check if the mouse is hovering over this button && if this control is enabled
-            if (boxDim.Contains(mousePos)  && bEnabled)
+            if (boxDim.Contains(mousePos) || focusID == ID && bEnabled)
             {
                 // Set hover to true.  This can be used to draw a seperate texture of the button.
                 bHover = true;

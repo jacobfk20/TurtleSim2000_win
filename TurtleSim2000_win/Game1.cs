@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 82) v0.65 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 83) v0.65 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -592,7 +592,12 @@ namespace TurtleSim2000_Linux
 
             #endregion
 
+            if (controller.dpad.up) Player.addFat(1);
+
             controller.bClicked = false;
+
+            // get FPS
+            Window.Title = GameInfo + "  |  FPS: " + clock.calculateFramesPerSecond(gameTime);
 
             actionMenu.Update(Player.Schedule.totalHomework);
 
@@ -845,7 +850,7 @@ namespace TurtleSim2000_Linux
         {
 
             // --- USE FOR NEW ACTION MENU MODULE ---
-                string ename = actionMenu.updateHitTest(controller.MousePos, controller.bClicked);
+                string ename = actionMenu.updateHitTest(controller.MousePos, controller.bClicked, controller);
                 if (ename != null && ename != "" && actionMenu.Active)
                 {
                     eventname = ename;

@@ -4,6 +4,7 @@
 // = Written By Jacob Karleskint (2015 GNU License) This license should be in the root directoy of source.     =
 // =============================================================================================================
 
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -46,6 +47,11 @@ namespace TurtleSim2000_Linux
 
         int ColonFrames = 0;                            // Adds up and when hits a certain number, will animate :
         int ColonAnimateFrame = 60;                     // What frame to blink the :
+
+        // for calculating FPS.
+        int prevGameSecond = 0;                         // Used to see if a full second has passed
+        int updatesPerSec = 0;                          // Holds how many updates are done in a second.
+        int FPS = 0;                                    // Frames Per Second
 
 
 
@@ -152,6 +158,22 @@ namespace TurtleSim2000_Linux
             sB.DrawString(fontClock, TimeColon, new Vector2(X + 48, Y + 7), ClockColor);
             sB.DrawString(fontClock, "" + strMinute, new Vector2(X + 54, Y + 7), ClockColor);
             sB.DrawString(fontClock, AMPM, new Vector2(X + 92, Y + 7), ClockColor);
+        }
+
+
+        public int calculateFramesPerSecond(GameTime gameTime)
+        {
+            // increase update count
+            updatesPerSec++;
+
+            if (prevGameSecond != Convert.ToInt32(gameTime.TotalGameTime.TotalSeconds))
+            {
+                FPS = updatesPerSec;
+                updatesPerSec = 0;
+                prevGameSecond = Convert.ToInt32(gameTime.TotalGameTime.TotalSeconds);
+            }
+
+            return FPS;
         }
 
 

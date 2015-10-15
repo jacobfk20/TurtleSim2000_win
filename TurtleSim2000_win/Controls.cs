@@ -18,12 +18,16 @@ namespace TurtleSim2000_Linux
         {
             public bool up;
             public bool upHold;
+            public int upHoldCount;
             public bool down;
             public bool downHold;
+            public int downHoldCount;
             public bool left;
             public bool leftHold;
+            public int leftHoldCount;
             public bool right;
             public bool rightHold;
+            public int rightHoldCount;
         }
 
         public Dpad dpad;
@@ -98,6 +102,63 @@ namespace TurtleSim2000_Linux
                 bClicked = true;
             }
 
+
+            // Keyboard logic
+            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            {
+                dpad.upHold = true;
+                dpad.upHoldCount++;
+                if (dpad.upHoldCount == 2) dpad.up = true;
+                else dpad.up = false;
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.Up) && dpad.upHold == true)
+            {
+                dpad.upHold = false;
+                dpad.upHoldCount = 0;
+                dpad.up = false;
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Down))
+            {
+                dpad.downHold = true;
+                dpad.downHoldCount++;
+                if (dpad.downHoldCount == 2) dpad.down = true;
+                else dpad.down = false;
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.Down) && dpad.downHold == true)
+            {
+                dpad.downHold = false;
+                dpad.downHoldCount = 0;
+                dpad.down = false;
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            {
+                dpad.leftHold = true;
+                dpad.leftHoldCount++;
+                if (dpad.leftHoldCount == 2) dpad.left = true;
+                else dpad.left = false;
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.Left) && dpad.leftHold == true)
+            {
+                dpad.leftHold = false;
+                dpad.leftHoldCount = 0;
+                dpad.left = false;
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            {
+                dpad.rightHold = true;
+                dpad.rightHoldCount++;
+                if (dpad.rightHoldCount == 2) dpad.right = true;
+                else dpad.right = false;
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.Right) && dpad.rightHold == true)
+            {
+                dpad.rightHold = false;
+                dpad.rightHoldCount = 0;
+                dpad.right = false;
+            }
 
         }
 
