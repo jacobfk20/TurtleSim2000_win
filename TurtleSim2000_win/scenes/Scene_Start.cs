@@ -77,11 +77,11 @@ namespace TurtleSim2000_Linux
             debugFont_tiny = contentManager.Load<SpriteFont>("fonts/debugfontsmall");
 
             // Create scene controls:
-            btnStart = new Button(contentManager, "Start Game", new Rectangle(320, 200, 160, 40));
-            btnContinue = new Button(contentManager, "Continue", new Rectangle(320, 240, 160, 40));
-            btnQuit = new Button(contentManager, "Quit", new Rectangle(320, 280, 160, 40));
-            btnDemo = new Button(contentManager, "Demo", new Rectangle(320, 320, 160, 40));
-            btnOptions = new Button(contentmanager, "Options", new Rectangle(320, 360, 160, 40));
+            btnStart = new Button(contentManager, "Start Game", new Rectangle(320, 200, 160, 40), 1);
+            btnContinue = new Button(contentManager, "Continue", new Rectangle(320, 240, 160, 40), 2);
+            btnQuit = new Button(contentManager, "Quit", new Rectangle(320, 280, 160, 40), 3);
+            btnDemo = new Button(contentManager, "Demo", new Rectangle(320, 320, 160, 40), 4);
+            btnOptions = new Button(contentmanager, "Options", new Rectangle(320, 360, 160, 40), 5);
 
             // Other Scenes and Windows
             sceneOptions = new Scene_StartOptions(contentmanager);
@@ -172,18 +172,18 @@ namespace TurtleSim2000_Linux
 
 
 
-        public void UpdateControls(Point mousepos, bool bClicked)
+        public void UpdateControls(Point mousepos, bool bClicked, Controls controller)
         {
             MousePos = mousepos;
 
             // send all this to the buttons
             if (!sceneOptions.bEnabled)
             {
-                btnStart.UpdateControls(mousepos, bClicked);
-                btnContinue.UpdateControls(mousepos, bClicked);
-                btnQuit.UpdateControls(mousepos, bClicked);
-                btnDemo.UpdateControls(mousepos, bClicked);
-                btnOptions.UpdateControls(mousepos, bClicked);
+                btnStart.UpdateControls(mousepos, bClicked, buttonIndex);
+                btnContinue.UpdateControls(mousepos, bClicked, buttonIndex);
+                btnQuit.UpdateControls(mousepos, bClicked, buttonIndex);
+                btnDemo.UpdateControls(mousepos, bClicked, buttonIndex);
+                btnOptions.UpdateControls(mousepos, bClicked, buttonIndex);
 
                 if (btnOptions.bPressed) sceneOptions.bEnabled = true;
             }
@@ -194,6 +194,25 @@ namespace TurtleSim2000_Linux
 
             }
 
+            if (controller.bGamePad) updateGamePadSelected(controller);
+            else
+            {
+                buttonIndex = 0;
+            }
         }
+
+
+        int buttonIndex = 1;
+        private void updateGamePadSelected(Controls controller)
+        {
+            if (controller.dpad.up) buttonIndex--;
+            if (controller.dpad.down) buttonIndex++;
+
+            // make sure focus doesn't go out of button range
+            if (buttonIndex > 5) buttonIndex = 1;
+            if (buttonIndex < 1) buttonIndex = 5;
+
+        }
+
     }
 }

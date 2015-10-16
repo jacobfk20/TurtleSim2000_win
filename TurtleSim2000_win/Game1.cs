@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 83) v0.65 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 84) v0.65 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -115,6 +115,7 @@ namespace TurtleSim2000_Linux
         ProgressBar pBar_HeroHP;
         Clock clock;
         ActionMenu actionMenu;                      // Deals with the action menu and buttons within it
+        Scene_Questions scnQuestions;               // Deals with the Fork Question menu.
 
 
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
@@ -260,6 +261,7 @@ namespace TurtleSim2000_Linux
             // setup scenes
             sceneStart = new Scene_Start(this.Content, screenSizeWidth, screenSizeHeight);
             sceneStart.GameInfo = GameInfo;
+            scnQuestions = new Scene_Questions(this.Content, 5);
 
             // Progress Bar testing
             pBar = new ProgressBar(this.Content, "HP", new Rectangle(10, 10, 180, 40));
@@ -431,7 +433,7 @@ namespace TurtleSim2000_Linux
                 #region Button Controller
 
                 // Send Control updates to all scenes:
-                sceneStart.UpdateControls(controller.MousePos, controller.bClicked);
+                sceneStart.UpdateControls(controller.MousePos, controller.bClicked, controller);
 
 
                 if (controller.bClicked == true || bAuthorMode == true)
@@ -445,6 +447,8 @@ namespace TurtleSim2000_Linux
                         bDebugmode = true;
                         bShowtext = true;
                         bAuthorMode = true;
+                        bgManager.setBackground("School_ProDorm_bedroom");
+                        bgManager.bShowBackground = true;
                         sceneStart.Unload();
 
                     }
@@ -592,8 +596,6 @@ namespace TurtleSim2000_Linux
 
             #endregion
 
-            if (controller.dpad.up) Player.addFat(1);
-
             controller.bClicked = false;
 
             // get FPS
@@ -668,7 +670,7 @@ namespace TurtleSim2000_Linux
 
             }
 
-            if (bQuestion == true) GUI.ForkQuestionShow(forkAnswers);
+            if (bQuestion) scnQuestions.Draw(spriteBatch);
 
             if (Player.GameVariables[80] > 0)
             {
@@ -763,83 +765,18 @@ namespace TurtleSim2000_Linux
         //Waits for player to answer, then sends answer to script
         protected void ForkQuestion()
         {
-
-            // Set new bounds if in full screen.
-            float screenModX = screenSizeWidth / 800;
-            float screenModY = screenSizeHeight / 480;
-
-            // Button Bounds width and height
-            int sModW = 500;
-            int sModH = 40;
-            if (bFullScreen)
+            int selectedButton = scnQuestions.updateControls(controller);
+            if (bWait == false)
             {
-                // if full screen; do the math
-                screenModY = 0;
-                screenModX = 0;
-                sModW = Convert.ToInt32(screenModX * 500);
-                sModH = Convert.ToInt32(screenModY * 40);
-            }
-
-            if (controller.bClicked == true && bWait == false)
-            {
-
-                Rectangle[] Q = new Rectangle[8];
-                Q[0] = new Rectangle(Convert.ToInt32(200), Convert.ToInt32(140), 500, 40);  // increment y by 60
-                Q[1] = new Rectangle(Convert.ToInt32(200), Convert.ToInt32(200), 500, 40);
-                Q[2] = new Rectangle(Convert.ToInt32(200), Convert.ToInt32(260), 500, 40);
-                Q[3] = new Rectangle(200, 320, 500, 40);
-                Q[4] = new Rectangle(200, 380, 500, 40);
-                Q[5] = new Rectangle(200, 440, 500, 40);  // when this is reached, we will need to change Y
-                Q[6] = new Rectangle(200, 220, 500, 40);
-                Q[7] = new Rectangle(200, 220, 500, 40);
-                //Q[8] = new Rectangle(200, 220, 500, 40);
-
-
-                if (controller.bGamePad == false)
+                if (selectedButton > 0)
                 {
-                    int i = 0;
-                    while (forkAnswers[i] != null)
-                    {
-                        if (Q[i].Contains(controller.MousePos))
-                        {
-                            bQuestion = false;
-                            eventname = forkScript[i];
-                            scriptreaderx = 0;
-                            scriptreadery = 0;
-                            charaManager.setDarkenChara(false);
-                        }
-                        i++;
-                    }
-                }
-                else
-                {
-                    int i = 0;
-                    while (forkAnswers[i] != null)
-                    {
-                        if (Q[i].Intersects(new Rectangle(SelectorPosX, SelectorPosY, 500, 40)))
-                        {
-                            scriptreaderx = 0;
-                            scriptreadery = 0;
-                            eventname = forkScript[i];
-                            bQuestion = false;
-                        }
-                    }
-                }
-
-                if (1 == 2)
-                {
-                    GUI.bGamePad = true;
-                    if(dpady < 0)
-                    {
-                        GUI.hoveredAnswer++;
-                        if (GUI.hoveredAnswer > forkAnswers.Length) GUI.hoveredAnswer = 0;
-                    }
-                    if (dpady > 0)
-                    {
-                        GUI.hoveredAnswer--;
-                        if (GUI.hoveredAnswer < 0) GUI.hoveredAnswer = forkAnswers.Length;
-                    }
-
+                    bQuestion = false;
+                    scnQuestions.Show = false;
+                    scnQuestions.Active = false;
+                    eventname = forkScript[selectedButton - 1];
+                    scriptreaderx = 0;
+                    scriptreadery = 0;
+                    charaManager.setDarkenChara(false);
                 }
 
             }
@@ -850,7 +787,8 @@ namespace TurtleSim2000_Linux
         {
 
             // --- USE FOR NEW ACTION MENU MODULE ---
-                string ename = actionMenu.updateHitTest(controller.MousePos, controller.bClicked, controller);
+            string ename = "";
+            if (actionMenu.Show) ename = actionMenu.updateHitTest(controller.MousePos, controller.bClicked, controller);
                 if (ename != null && ename != "" && actionMenu.Active)
                 {
                     eventname = ename;
@@ -1705,6 +1643,9 @@ namespace TurtleSim2000_Linux
                     //scriptreadery++;
 
                         bQuestion = true;
+                    scnQuestions.setAnswers(forkAnswers);
+                    scnQuestions.Active = true;
+                    scnQuestions.Show = true;
                         charaManager.setDarkenChara(true);  // Darkens chara so they don't have bad contrast with answer boxes.
 
                     return 2;

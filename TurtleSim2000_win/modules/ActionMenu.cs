@@ -156,8 +156,6 @@ namespace TurtleSim2000_Linux
             btnWalk.Draw(sB, masterFade);
             btnSave.Draw(sB, masterFade);
 
-            sB.DrawString(smallFont, "ButtonID: " + buttonIndex, new Vector2(300, 20), Color.White);
-
             // Draw homework alert
             if (Homework > 0)
             {
@@ -189,7 +187,11 @@ namespace TurtleSim2000_Linux
             btnWalk.UpdateControls(mousepos, bClicked, buttonIndex);
             btnSave.UpdateControls(mousepos, bClicked, buttonIndex);
 
-            updateGamePadSelected(controller);
+            if (controller.bGamePad) updateGamePadSelected(controller);
+            else
+            {
+                buttonIndex = 0;
+            }
 
             // get what button is pushed, and return with eventname
             if (btnSleep.bPressed)

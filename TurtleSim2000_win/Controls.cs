@@ -33,6 +33,7 @@ namespace TurtleSim2000_Linux
         public Dpad dpad;
 
         public Point MousePos = new Point(1, 1);
+        Point oldMousePos = new Point(1, 1);
 
         Matrix ScreenMatrix;
 
@@ -52,12 +53,12 @@ namespace TurtleSim2000_Linux
             ScreenMatrix = screenMatrix;
 
             // Update Mouse/Keyboard/Gamepad.
-            if (!bGamePad && activeWindow) updateMouseKeyboard();
-            if (bGamePad) updateGamepad();
+            if (activeWindow) updateMouseKeyboard();
+            //if (bGamePad) updateGamepad();
 
             // See if there is a gamepad connected.
-            if (GamePad.GetState(PlayerIndex.One).IsConnected) bGamePad = true;
-            else bGamePad = false;
+            //if (GamePad.GetState(PlayerIndex.One).IsConnected) bGamePad = true;
+            //else bGamePad = false;
         }
 
 
@@ -72,6 +73,13 @@ namespace TurtleSim2000_Linux
 
             // Get where the mouse is on screen X,Y point.
             MousePos = new Point(mouseState.X, mouseState.Y);
+
+            // if Mouse moves; turn off gamepad
+            if (MousePos != oldMousePos)
+            {
+                bGamePad = false;
+            }
+            oldMousePos = MousePos;
 
             // Adjust mouse pos to virtual screen
             Vector2 scaledMouse;
@@ -106,6 +114,7 @@ namespace TurtleSim2000_Linux
             // Keyboard logic
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
+                bGamePad = true;
                 dpad.upHold = true;
                 dpad.upHoldCount++;
                 if (dpad.upHoldCount == 2) dpad.up = true;
@@ -120,6 +129,7 @@ namespace TurtleSim2000_Linux
 
             if (Keyboard.GetState().IsKeyDown(Keys.Down))
             {
+                bGamePad = true;
                 dpad.downHold = true;
                 dpad.downHoldCount++;
                 if (dpad.downHoldCount == 2) dpad.down = true;
@@ -134,6 +144,7 @@ namespace TurtleSim2000_Linux
 
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
             {
+                bGamePad = true;
                 dpad.leftHold = true;
                 dpad.leftHoldCount++;
                 if (dpad.leftHoldCount == 2) dpad.left = true;
@@ -148,6 +159,7 @@ namespace TurtleSim2000_Linux
 
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
+                bGamePad = true;
                 dpad.rightHold = true;
                 dpad.rightHoldCount++;
                 if (dpad.rightHoldCount == 2) dpad.right = true;
