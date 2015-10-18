@@ -36,6 +36,9 @@ namespace TurtleSim2000_Linux
         string currentBackgroundString;
         string currentBackgroundNightString;
 
+        // Store all backgrounds in their own variables
+        Texture2D[] bgList = new Texture2D[500];
+
         ContentManager contentManager;
 
 
@@ -79,6 +82,12 @@ namespace TurtleSim2000_Linux
 
             // give content manager to class
             contentManager = content;
+
+            // Load all textures in
+            for (int x = 0; x < totalBackgrounds; x++)
+            {
+                bgList[x] = content.Load<Texture2D>(backgroundList[x]);
+            }
         }
 
         public void Update(int time)

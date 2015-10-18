@@ -41,13 +41,26 @@ namespace TurtleSim2000_Linux
         int MAX_LAYERS = 5;
         #endregion
 
+        CharaManagerWindow cManWin = new CharaManagerWindow();
+        public bool bDebugging = false;
 
 
         // Constructor for manager.
-        public CharaManager(ContentManager contentmanager)
+        public CharaManager(ContentManager contentmanager, bool EnableDebugging)
         {
             // Get Content Manager
             contentManager = contentmanager;
+
+            bDebugging = EnableDebugging;
+
+            // create debugger window
+            string stamp = Convert.ToString(System.DateTime.Today);
+            stamp = stamp.Remove(10);
+            stamp = stamp.Replace('/', '_');
+            stamp = stamp.Replace('/', '_');
+            
+            cManWin.runStamp = stamp;
+            if (bDebugging) cManWin.Show();
 
             // Write Info about CharaManager to debug:
             Console.WriteLine("=======================================================================");
@@ -113,7 +126,13 @@ namespace TurtleSim2000_Linux
             // output the amount of profiles and poses.
             Console.WriteLine("There are " + charaProfiles + " chara profiles, and " + charaPoses + " Chara poses.");
             Console.WriteLine("=======================================================================");
+            
 
+        }
+
+        public void Unload()
+        {
+            contentManager.Unload();
         }
 
         // Update method
@@ -122,6 +141,7 @@ namespace TurtleSim2000_Linux
             moveChara();
             transChara();
             shakeScreen();
+            if (cManWin.bRESETCM) resetAll();
         }
 
         // Draw method
@@ -161,6 +181,9 @@ namespace TurtleSim2000_Linux
             if (charaArray[cID].bDrawMe == false)
             {
 
+                Console.WriteLine("cMan: Chara: " + charaname + " has entered the stage.");
+                if (bDebugging) cManWin.updateCommandsList("cMan: Chara: " + charaname + " has entered the stage.");
+
                 // setup char's pose and draw order.
                 charaArray[cID].setPose(pose);
                 charaArray[cID].setDrawOrder(drawnCharas + 1);
@@ -199,6 +222,10 @@ namespace TurtleSim2000_Linux
 
             // Output this to console
             Console.WriteLine("cMan: Showing " + charaArray[cID].getName() + " with pose: " + pose);
+            if (bDebugging) cManWin.updateCommandsList("cMan: Showing " + charaArray[cID].getName() + " with pose: " + pose);
+
+            // Output to cManWin
+            cManWin.updateActiveCharaList(charaArray, charaProfiles, activeCharas);
 
         }
 
@@ -235,11 +262,14 @@ namespace TurtleSim2000_Linux
                 charaArray[id].moveAmountTotal = pixels;
                 charaArray[id].moveAmount = pixels;
                 charaArray[id].bMoveMe = true;
+
+                if (bDebugging) cManWin.updateCommandsList("Moving Chara: " + charaArray[id].getName() + "to the " + direction + ", " + pixels + " pixels at a speed of: " + speed);
             }
             else
             {
                 int id = getCharaID(chara);
                 charaArray[id].resetPositionToFile();
+                if (bDebugging) cManWin.updateCommandsList("Reseting " + charaArray[id].getName() + " back to orignal position.");
             }
         }
 
@@ -261,6 +291,8 @@ namespace TurtleSim2000_Linux
                 // re-int the chara to defaults
                 charaArray[cID].setToExit();
 
+                cManWin.updateCommandsList("Chara Exit: " + charaArray[cID].getName());
+
             }
             else
             {
@@ -270,7 +302,11 @@ namespace TurtleSim2000_Linux
                     activeCharas[i] = -1;
                 }
                 drawnCharas = 0;
+                cManWin.updateCommandsList("Chara Exit: ALL.");
             }
+
+            cManWin.updateActiveCharaList(charaArray, charaProfiles, activeCharas);
+            
 
         }
 
@@ -283,10 +319,12 @@ namespace TurtleSim2000_Linux
             if (bDark)
             {
                 universalColor = Color.Gray;
+                if (bDebugging) cManWin.updateCommandsList("Darkening All Chara");
             }
             else
             {
                 universalColor = Color.White;
+                if (bDebugging) cManWin.updateCommandsList("Chara color set to normal");
             }
         }
 
@@ -298,6 +336,8 @@ namespace TurtleSim2000_Linux
         public Vector2 getCharaLocation(string charaName)
         {
             int cID = getCharaID(charaName);
+
+            if (bDebugging) cManWin.updateCommandsList("Returning chara location for :" + charaName);
 
             return new Vector2(charaArray[cID].charaPos.X, charaArray[cID].charaPos.Y);
         }
@@ -318,6 +358,8 @@ namespace TurtleSim2000_Linux
             }
 
             shakeTime = time;
+
+            if (bDebugging) cManWin.updateCommandsList("Shaking Chara on screen for: " + time);
 
         }
 
@@ -480,6 +522,27 @@ namespace TurtleSim2000_Linux
                 }
             }
         }
+
+        // reset everything!
+        private void resetAll()
+        {
+            Exit();
+
+            activeCharas.Initialize();
+            drawnCharas = 0;
+            universalColor = Color.White;
+
+            // For screen shaking
+            bShakeScreen = false;
+            charXShake = 0;
+            charYShake = 0;
+            oldCharPos = new Vector2[6];
+            shakeTime = 20;
+
+            Unload();
+
+            cManWin.bRESETCM = false;
+    }
 
     }
 }

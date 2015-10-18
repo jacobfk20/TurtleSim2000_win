@@ -24,6 +24,8 @@ namespace TurtleSim2000_Linux
         SpriteFont fontClock;
 
         public Color ClockColor = Color.Blue;           // The color of the clock's text.  Changeable in game.
+        Color[] colorList = new Color[5];             // Holds the colors the clock can be.
+        int selectedColor = 0;
         
         public struct _Time
         {
@@ -67,6 +69,12 @@ namespace TurtleSim2000_Linux
 
             texClock = Content.Load<Texture2D>("assets/gui/clock");
             fontClock = Content.Load<SpriteFont>("fonts/clockfont");
+
+            colorList[0] = Color.Blue;
+            colorList[1] = Color.Red;
+            colorList[2] = Color.Green;
+            colorList[3] = Color.Purple;
+            colorList[4] = Color.DimGray;
         }
 
 
@@ -176,7 +184,15 @@ namespace TurtleSim2000_Linux
             return FPS;
         }
 
+        public void swapColor()
+        {
+            selectedColor++;
+            if (selectedColor > colorList.Length - 1) selectedColor = 0;
 
+            ClockColor = colorList[selectedColor];
+        }
+
+        
         
         /// <summary>
         /// Adds time safely to the clock.  This function adds via single int.  (30 = 30 minutes) (120 = 120 minutes [2 hours])

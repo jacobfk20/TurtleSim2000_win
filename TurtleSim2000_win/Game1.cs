@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 84) v0.65 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 85) v0.65 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -29,8 +29,6 @@ namespace TurtleSim2000_Linux
         int frames = 0;
 
         //gui textures
-        Texture2D buttonup;
-        Texture2D buttondown;
 
         Texture2D messagebox;
         Texture2D messagebox2;
@@ -43,8 +41,11 @@ namespace TurtleSim2000_Linux
         CharaManager charaManager;           // NEWEST WAY OF DEALING WITH EVERYTHING TO DO WITH CHARA!
 
         //music
+        ContentManager musicContent;     // Holds all ram data for music content
         Song basic;                      //old way of storing music
         Song m_daylight;                 //old way of storing music
+        protected Song[] musicList = new Song[200];//Stores all the music in vars so GC can remove it from memory better
+        int musicIndex = 0;              // Which song from musicList the game is on.
         bool songstart = false;          //Start playing music (set to false to switch song)
 
         // Sound FX
@@ -116,6 +117,7 @@ namespace TurtleSim2000_Linux
         Clock clock;
         ActionMenu actionMenu;                      // Deals with the action menu and buttons within it
         Scene_Questions scnQuestions;               // Deals with the Fork Question menu.
+        MusicManager musicManager;
 
 
         int FakeDayofWeek = 0;                       //Used to make sure an event doesn't run twice in one day.
@@ -219,8 +221,6 @@ namespace TurtleSim2000_Linux
             // Loads all game assets on startup
             #region Content Loader
             //GUI specific loaders
-            buttonup = Content.Load<Texture2D>("assets/gui/gui_button_up");
-            buttondown = Content.Load<Texture2D>("assets/gui/gui_button_down");
             buttonselector = Content.Load<Texture2D>("assets/gui/gui_button_selector");
 
             
@@ -237,6 +237,7 @@ namespace TurtleSim2000_Linux
             //music
             basic = Content.Load<Song>("assets/music/Ah_Eh_I_Oh_You");
             m_daylight = Content.Load<Song>("assets/music/Daylight");
+            musicContent = new ContentManager(Services, "Content");
 
             //SoundFX
             soundEffect = Content.Load<SoundEffect>("assets/soundfx/doorslam");
@@ -255,7 +256,7 @@ namespace TurtleSim2000_Linux
             stamps.Content(messagebox, debugfont);
 
             // setup charamanager
-            charaManager = new CharaManager(this.Content);
+            charaManager = new CharaManager(this.Content, bAuthorMode);
             bgManager = new Background(this.Content);
 
             // setup scenes
@@ -277,6 +278,8 @@ namespace TurtleSim2000_Linux
             // Action menu
             actionMenu = new ActionMenu(this.Content);
 
+            
+
         }
 
         protected override void UnloadContent()
@@ -295,6 +298,7 @@ namespace TurtleSim2000_Linux
             stamps.update();
             bgManager.Update(clock.Time.fullTime);
             clock.Update();
+            if (controller.miscKeys.c) clock.swapColor();
             Player.Update();
 
             // get time from clock and put it in PlayerData
@@ -340,18 +344,57 @@ namespace TurtleSim2000_Linux
             #endregion
 
             #region Music Controls
+
             //Music Controls
+            if (SetMusic != null)
+            {
+                // see if the song that is asked to play is already loaded.
+                bool bFound = false;
+                for (int i = 0; i < musicList.Length; i++)
+                {
+                    if (musicList[i] == null) i = musicList.Length;
+                    else
+                    {
+                        if (musicList[i].Name.Contains(SetMusic))
+                        {
+                            musicIndex = i;
+                            bFound = true;
+                        }
+                    }
+                }
+
+                MediaPlayer.Queue.ActiveSong.Dispose();
+
+                if (!bFound)
+                {
+                    if (musicList[musicIndex] != null) musicIndex++;
+                    musicList[musicIndex] = musicContent.Load<Song>("assets/music/" + SetMusic + "");
+                }
+
+                SetMusic = null;
+            }
+
             MediaPlayer.IsRepeating = true;
             if (!songstart)
             {
-                if (bDorm == true) MediaPlayer.Play(m_daylight);
+                if (bDorm == true)
+                {
+                    
+                    MediaPlayer.Play(musicList[musicIndex]);
+                }
                 if (bStart == true) MediaPlayer.Play(basic);
                 songstart = true;
+                
+
+                //musicIndex++;
 
             }
             if (!bPlayMusic)
             {
                 MediaPlayer.Stop();
+
+                musicContent.Unload();
+                
             }
             #endregion
 
@@ -590,7 +633,6 @@ namespace TurtleSim2000_Linux
 
             // SafetoSwap checks if transitions are in a spot that we can change the bg without it looking janky.
             // Use two variables for holding backgrounds because it will revert back to DormRoom if there is no active BG.
-            if (SetMusic != null) m_daylight = Content.Load<Song>("assets/music/" + SetMusic + "");
 
             if (transition.SafeToSwap()) bgManager.Swap();
 
@@ -599,7 +641,14 @@ namespace TurtleSim2000_Linux
             controller.bClicked = false;
 
             // get FPS
-            Window.Title = GameInfo + "  |  FPS: " + clock.calculateFramesPerSecond(gameTime);
+            try
+            {
+                Window.Title = GameInfo + "  |  FPS: " + clock.calculateFramesPerSecond(gameTime);
+            }
+            catch
+            {
+
+            }
 
             actionMenu.Update(Player.Schedule.totalHomework);
 
@@ -676,6 +725,21 @@ namespace TurtleSim2000_Linux
             {
                 pBar_HeroHP.Draw(spriteBatch);
                 pBar_Charlsee.Draw(spriteBatch);
+            }
+
+            spriteBatch.DrawString(debugfontsmall, "Music Index: " + musicIndex, new Vector2(300, 10), Color.White);
+            try
+            { 
+                spriteBatch.DrawString(debugfontsmall, "Media Queue: " + MediaPlayer.Queue[0].Name, new Vector2(80, 0), Color.White);
+            }
+            catch
+            {
+
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                if (musicList[i] != null) spriteBatch.DrawString(debugfontsmall, i + ": hash: " + musicList[i].GetHashCode(), new Vector2(400, 10 * i), Color.White);
             }
 
             //stamps.draw(spriteBatch);
@@ -1458,7 +1522,7 @@ namespace TurtleSim2000_Linux
                             string line = MasterScript.Read(scriptreaderx, scriptreadery);
 
                             // for playing music:
-                            Console.WriteLine("Index out of range here: " + line);
+                            Console.WriteLine("Music Player: " + line);
                             if (line.Substring(6, 4) == "play")
                             {
                                 // check and get = pos

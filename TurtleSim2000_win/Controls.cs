@@ -30,6 +30,14 @@ namespace TurtleSim2000_Linux
             public int rightHoldCount;
         }
 
+        public struct MiscKeys
+        {
+            public bool c;
+            public int cHoldCount;
+            public bool cHold;
+        }
+
+        public MiscKeys miscKeys;
         public Dpad dpad;
 
         public Point MousePos = new Point(1, 1);
@@ -112,6 +120,7 @@ namespace TurtleSim2000_Linux
 
 
             // Keyboard logic
+            #region Arrow Keys
             if (Keyboard.GetState().IsKeyDown(Keys.Up))
             {
                 bGamePad = true;
@@ -170,6 +179,23 @@ namespace TurtleSim2000_Linux
                 dpad.rightHold = false;
                 dpad.rightHoldCount = 0;
                 dpad.right = false;
+            }
+            #endregion
+
+            // Change clock color
+            if (Keyboard.GetState().IsKeyDown(Keys.C))
+            {
+                bGamePad = true;
+                miscKeys.cHold = true;
+                miscKeys.cHoldCount++;
+                if (miscKeys.cHoldCount == 2) miscKeys.c = true;
+                else miscKeys.c = false;
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.C) && miscKeys.cHold == true)
+            {
+                miscKeys.cHold = false;
+                miscKeys.cHoldCount = 0;
+                miscKeys.c = false;
             }
 
         }

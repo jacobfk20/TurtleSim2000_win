@@ -24,6 +24,7 @@ namespace TurtleSim2000_Linux
         ContentManager contentManager;
 
         public Rectangle charaPos = new Rectangle();        // Stores chara XYWH
+        Texture2D poseTexture;
 
         public bool bDrawMe = false;   // Draw this chara or not.
         public bool bMoveMe = false;   // true when this char is set to be moved on screen.
@@ -185,7 +186,7 @@ namespace TurtleSim2000_Linux
         public Texture2D getTexture(bool bNewTex = true)
         {
             string currentTex;
-
+            
             if (bNewTex)
             {
                 currentTex = charaName + "/" + currentPose;
@@ -194,7 +195,7 @@ namespace TurtleSim2000_Linux
             {
                 currentTex = charaName + "/" + oldPose;
             }
-            Texture2D poseTexture = contentManager.Load<Texture2D>("assets/chara/" + currentTex + "");
+            poseTexture = contentManager.Load<Texture2D>("assets/chara/" + currentTex + "");
 
             // get width and heighth of texture for correct chara drawing
             if (bDimensionsFromFile == false)
