@@ -18,7 +18,7 @@ namespace TurtleSim2000_Linux
     {
 
         //just for reference.  not really important
-        String GameInfo = "TurtleSim 2000 (Build 85) v0.65 BETA";
+        String GameInfo = "TurtleSim 2000 (Build 86) v0.65 BETA";
 
         #region Public Defined Variables
         //fonts
@@ -29,7 +29,7 @@ namespace TurtleSim2000_Linux
         int frames = 0;
 
         //gui textures
-
+        ContentManager basicContent;
         Texture2D messagebox;
         Texture2D messagebox2;
         Texture2D messagebox3;
@@ -39,6 +39,7 @@ namespace TurtleSim2000_Linux
 
         //Chara
         CharaManager charaManager;           // NEWEST WAY OF DEALING WITH EVERYTHING TO DO WITH CHARA!
+        ContentManager charaContent;
 
         //music
         ContentManager musicContent;     // Holds all ram data for music content
@@ -107,6 +108,7 @@ namespace TurtleSim2000_Linux
         Stamps stamps = new Stamps();
         Save gameSaver = new Save();
         Background bgManager;                       // Handles all background bullshit.  Show/Import
+        ContentManager bgContent;
         Scene_Start sceneStart;                     // SCENE: Handles the start scene and all of it's controls.
         ProgressBar pBar;
         ProgressBar pBar_Social;
@@ -218,37 +220,40 @@ namespace TurtleSim2000_Linux
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            // new content managers
+            basicContent = new ContentManager(Services, "Content");
+
             // Loads all game assets on startup
             #region Content Loader
             //GUI specific loaders
             buttonselector = Content.Load<Texture2D>("assets/gui/gui_button_selector");
 
             
-            debugfont = Content.Load<SpriteFont>("fonts/debugfont");
-            debugfontsmall = Content.Load<SpriteFont>("fonts/debugfontsmall");
-            speechfont = Content.Load<SpriteFont>("fonts/speechfont");
-            clockfont = Content.Load<SpriteFont>("fonts/clockfont");
-            messagebox = Content.Load<Texture2D>("assets/gui/messagebox");
-            messagebox2 = Content.Load<Texture2D>("assets/gui/messagebox2");
-            messagebox3 = Content.Load<Texture2D>("assets/gui/messagebox3");
-            clock_tex = Content.Load<Texture2D>("assets/gui/clock");
-            ButtonA = Content.Load<Texture2D>("assets/gui/gui_button_A");
+            debugfont = basicContent.Load<SpriteFont>("fonts/debugfont");
+            debugfontsmall = basicContent.Load<SpriteFont>("fonts/debugfontsmall");
+            speechfont = basicContent.Load<SpriteFont>("fonts/speechfont");
+            clockfont = basicContent.Load<SpriteFont>("fonts/clockfont");
+            messagebox = basicContent.Load<Texture2D>("assets/gui/messagebox");
+            messagebox2 = basicContent.Load<Texture2D>("assets/gui/messagebox2");
+            messagebox3 = basicContent.Load<Texture2D>("assets/gui/messagebox3");
+            clock_tex = basicContent.Load<Texture2D>("assets/gui/clock");
+            ButtonA = basicContent.Load<Texture2D>("assets/gui/gui_button_A");
 
             //music
             basic = Content.Load<Song>("assets/music/Ah_Eh_I_Oh_You");
             m_daylight = Content.Load<Song>("assets/music/Daylight");
-            musicContent = new ContentManager(Services, "Content");
+            //musicContent = new ContentManager(Services, "Content");
 
             //SoundFX
             soundEffect = Content.Load<SoundEffect>("assets/soundfx/doorslam");
 
             //GUI OBJECTS
             //PASS ALL TEXTURE AND SPRITEFONTS AS REFERENCE!
-            GUI.LoadContent(this.Content, spriteBatch);
+            GUI.LoadContent(this.basicContent, spriteBatch);
             #endregion
 
             // Load Transitions
-            transition.loadContent(spriteBatch, this.Content);
+            transition.loadContent(spriteBatch, this.basicContent);
 
             //Game Object Inits
             totscripts = MasterScript.Compile();
@@ -256,27 +261,29 @@ namespace TurtleSim2000_Linux
             stamps.Content(messagebox, debugfont);
 
             // setup charamanager
-            charaManager = new CharaManager(this.Content, bAuthorMode);
-            bgManager = new Background(this.Content);
+            charaContent = new ContentManager(Services, "Content");
+            bgContent = new ContentManager(Services, "Content");
+            charaManager = new CharaManager(charaContent, bAuthorMode);
+            bgManager = new Background(bgContent);
 
             // setup scenes
-            sceneStart = new Scene_Start(this.Content, screenSizeWidth, screenSizeHeight);
+            sceneStart = new Scene_Start(this.basicContent, screenSizeWidth, screenSizeHeight);
             sceneStart.GameInfo = GameInfo;
-            scnQuestions = new Scene_Questions(this.Content, 5);
+            scnQuestions = new Scene_Questions(this.basicContent, 5);
 
             // Progress Bar testing
-            pBar = new ProgressBar(this.Content, "HP", new Rectangle(10, 10, 180, 40));
-            pBar_Energy = new ProgressBar(this.Content, "Energy", new Rectangle(10, 35, 180, 40));
-            pBar_Fat = new ProgressBar(this.Content, "Fat", new Rectangle(10, 85, 1, 1));
-            pBar_Social = new ProgressBar(this.Content, "Social", new Rectangle(10, 60, 1, 1));
-            pBar_Charlsee = new ProgressBar(this.Content, "Charlsee HP", new Rectangle(20, 20, 1, 1));
-            pBar_HeroHP = new ProgressBar(this.Content, "Hero HP", new Rectangle(600, 340, 1, 1));
+            pBar = new ProgressBar(this.basicContent, "HP", new Rectangle(10, 10, 180, 40));
+            pBar_Energy = new ProgressBar(this.basicContent, "Energy", new Rectangle(10, 35, 180, 40));
+            pBar_Fat = new ProgressBar(this.basicContent, "Fat", new Rectangle(10, 85, 1, 1));
+            pBar_Social = new ProgressBar(this.basicContent, "Social", new Rectangle(10, 60, 1, 1));
+            pBar_Charlsee = new ProgressBar(this.basicContent, "Charlsee HP", new Rectangle(20, 20, 1, 1));
+            pBar_HeroHP = new ProgressBar(this.basicContent, "Hero HP", new Rectangle(600, 340, 1, 1));
 
             // Clock
-            clock = new Clock(this.Content);
+            clock = new Clock(this.basicContent);
 
             // Action menu
-            actionMenu = new ActionMenu(this.Content);
+            actionMenu = new ActionMenu(this.basicContent);
 
             
 
@@ -363,12 +370,12 @@ namespace TurtleSim2000_Linux
                     }
                 }
 
-                MediaPlayer.Queue.ActiveSong.Dispose();
+                //MediaPlayer.Queue.ActiveSong.Dispose();
 
                 if (!bFound)
                 {
                     if (musicList[musicIndex] != null) musicIndex++;
-                    musicList[musicIndex] = musicContent.Load<Song>("assets/music/" + SetMusic + "");
+                    musicList[musicIndex] = Content.Load<Song>("assets/music/" + SetMusic + "");
                 }
 
                 SetMusic = null;
@@ -379,7 +386,8 @@ namespace TurtleSim2000_Linux
             {
                 if (bDorm == true)
                 {
-                    
+                    MediaPlayer.Stop();
+
                     MediaPlayer.Play(musicList[musicIndex]);
                 }
                 if (bStart == true) MediaPlayer.Play(basic);
@@ -393,7 +401,8 @@ namespace TurtleSim2000_Linux
             {
                 MediaPlayer.Stop();
 
-                musicContent.Unload();
+                Content.Unload();
+                //musicContent.Unload();
                 
             }
             #endregion
@@ -725,21 +734,6 @@ namespace TurtleSim2000_Linux
             {
                 pBar_HeroHP.Draw(spriteBatch);
                 pBar_Charlsee.Draw(spriteBatch);
-            }
-
-            spriteBatch.DrawString(debugfontsmall, "Music Index: " + musicIndex, new Vector2(300, 10), Color.White);
-            try
-            { 
-                spriteBatch.DrawString(debugfontsmall, "Media Queue: " + MediaPlayer.Queue[0].Name, new Vector2(80, 0), Color.White);
-            }
-            catch
-            {
-
-            }
-
-            for (int i = 0; i < 10; i++)
-            {
-                if (musicList[i] != null) spriteBatch.DrawString(debugfontsmall, i + ": hash: " + musicList[i].GetHashCode(), new Vector2(400, 10 * i), Color.White);
             }
 
             //stamps.draw(spriteBatch);
@@ -1617,7 +1611,18 @@ namespace TurtleSim2000_Linux
 
                                 }
 
-                                soundEffect = Content.Load<SoundEffect>("assets/soundfx/" + sfx);
+                                // Try and load in soundfx.  If it's missing, log error.
+                                try
+                                {
+                                    soundEffect = Content.Load<SoundEffect>("assets/soundfx/" + sfx);
+                                }
+                                catch
+                                {
+                                    scriptreadery++;
+                                    Console.WriteLine("SoundFX: Couldn't load sound: " + sfx);
+                                    return -1;
+                                }
+
                                 Console.WriteLine("playing sound: " + sfx);
                                 scriptreadery++;
                                 soundEffect.Play();
